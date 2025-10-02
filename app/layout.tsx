@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Libre_Baskerville, Fredoka } from "next/font/google";
+import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
-const libreBaskerville = Libre_Baskerville({ 
-    subsets: ["latin"],
-    weight: ["400", "700"]
-});
-const fredoka = Fredoka({ 
+const ibmPlexMono = IBM_Plex_Mono({ 
     subsets: ["latin"],
     weight: ["400", "500", "600", "700"]
 });
@@ -20,7 +15,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
-            <body className={`${inter.className} antialiased`}>
+            <body className={`${ibmPlexMono.className} antialiased bg-[#1E0033] text-white`}>
                 {children}
             </body>
         </html>
