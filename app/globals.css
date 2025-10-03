@@ -108,6 +108,20 @@ html {
   letter-spacing: -0.02em;
 }
 
+/* Minecraft Font */
+.press-start-2p {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Crimson Text Font */
+.crimson-text {
+  font-family: 'Crimson Text', serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
 /* Elegant Shadows */
 .elegant-shadow {
   box-shadow: 

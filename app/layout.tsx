@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Press_Start_2P, Crimson_Text } from "next/font/google";
 import "./globals.css";
+import ClientLayout from "@/ui/components/client-layout";
 
 const ibmPlexMono = IBM_Plex_Mono({ 
     subsets: ["latin"],
@@ -9,14 +10,18 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
     title: "Bryan Yung",
-    description: "Personal portfolio of Bryan Yung - Student at Poolesville High School",
+    description: "Student at Carnegie Mellon University",
 };
+
+
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
-            <body className={`${ibmPlexMono.className} antialiased bg-[#1E0033] text-white`}>
-                {children}
+            <body className={`${ibmPlexMono.className} antialiased`}>
+                <ClientLayout>
+                    {children}
+                </ClientLayout>
             </body>
         </html>
     );

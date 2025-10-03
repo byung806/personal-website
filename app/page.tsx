@@ -2,70 +2,116 @@
 
 import Image from "next/image";
 import Navbar from "@/ui/components/navbar";
+import ThemeSwitcher from "@/ui/components/theme-switcher";
+import { useTheme, themes } from "@/ui/contexts/ThemeContext";
 
 export default function Home() {
+    const { currentTheme, setTheme } = useTheme();
+
+    // Handle gradient backgrounds
+    const backgroundStyle = currentTheme.background.startsWith('linear-gradient') 
+        ? { background: currentTheme.background }
+        : { backgroundColor: currentTheme.background };
+
     return (
-        <div className="min-h-screen bg-[#33254d] text-white font-mono">
-            {/* Navigation */}
-            <Navbar />
+        <div 
+            className={`min-h-screen text-white ${currentTheme.font} transition-all duration-500 ease-in-out`}
+            style={backgroundStyle}
+        >
+            <div className="min-h-screen flex flex-col justify-center">
+                <div className="max-w-lg mx-auto space-y-10">
+                    {/* Navigation */}
+                    <Navbar />
 
-            {/* Floating Gengar Sprite */}
-            <div className="fixed top-20 right-8 z-40">
-                <div className="w-16 h-16">
-                    <svg viewBox="0 0 64 64" className="w-full h-full">
-                        {/* Gengar pixel art sprite */}
-                        <rect x="8" y="16" width="48" height="32" fill="#4A148C" rx="4"/>
-                        <rect x="12" y="20" width="8" height="8" fill="#E1BEE7" rx="2"/>
-                        <rect x="44" y="20" width="8" height="8" fill="#E1BEE7" rx="2"/>
-                        <rect x="28" y="32" width="8" height="4" fill="#E1BEE7" rx="2"/>
-                        <rect x="16" y="40" width="8" height="8" fill="#4A148C" rx="2"/>
-                        <rect x="40" y="40" width="8" height="8" fill="#4A148C" rx="2"/>
-                        <rect x="24" y="48" width="16" height="8" fill="#4A148C" rx="2"/>
-                    </svg>
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="max-w-2xl mx-auto px-8 pt-32 pb-16">
-                {/* Hero Section */}
-                <div className="space-y-6">
-                    <h1 className="text-4xl font-bold text-[#a88beb] lowercase">
-                        Bryan Yung
-                    </h1>
-                    
-                    <div className="space-y-4 text-[#a88beb] leading-relaxed">
-                        <p>
-                            i like teaching, music, and competitive programming.
-                        </p>
-                        
-                        <p>
-                            i'm a student at carnegie mellon university studying computer science
-                        </p>
-                        
-                        <p>
-                            byung806 [at] gmail [dot] com
-                        </p>
+                     {/* Hero Section */}
+                     <div className="space-y-6">
+                         <h1 
+                             className={`text-3xl font-bold lowercase transition-all duration-500 ease-in-out ${
+                                 currentTheme.name === 'sunset' 
+                                     ? 'bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-400 bg-clip-text text-transparent animate-pulse' 
+                                     : ''
+                             }`}
+                             style={{ 
+                                 color: currentTheme.name === 'sunset' ? 'transparent' : currentTheme.accentColor 
+                             }}
+                         >
+                             Bryan Yung
+                         </h1>
+                         
+                         <div 
+                             className={`space-y-3 leading-tight transition-all duration-500 ease-in-out ${
+                                 currentTheme.name === 'sunset' 
+                                     ? 'text-shadow-lg' 
+                                     : ''
+                             }`}
+                             style={{ 
+                                 color: currentTheme.textColor,
+                                 textShadow: currentTheme.name === 'sunset' 
+                                     ? '2px 2px 4px rgba(0,0,0,0.3)' 
+                                     : 'none'
+                             }}
+                         >
+                            <p className={currentTheme.name === 'sunset' ? 'animate-bounce' : ''}>
+                                i like teaching, music, and competitive programming.
+                            </p>
+                            
+                            <p className={currentTheme.name === 'sunset' ? 'animate-pulse' : ''}>
+                                i'm a student at carnegie mellon university studying computer science
+                            </p>
+                            
+                            <p className={currentTheme.name === 'sunset' ? 'animate-pulse' : ''}>
+                                byung806 [at] gmail [dot] com
+                            </p>
+                        </div>
                     </div>
-                </div>
 
-                {/* Footer Links */}
-                <div className="mt-16 flex space-x-6">
-                    <a 
-                        href="https://www.linkedin.com/in/bryan-yung-9724952b9/"
-                        className="text-[#FF3333] hover:underline transition-all"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        linkedin
-                    </a>
-                    <a 
-                        href="https://github.com/byung806"
-                        className="text-[#FF3333] hover:underline transition-all"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        github
-                    </a>
+                     {/* Footer Links */}
+                     <div className="flex space-x-6">
+                         <a 
+                             href="https://www.linkedin.com/in/bryan-yung-9724952b9/"
+                             className="hover:underline transition-all duration-500 ease-in-out"
+                             style={{ color: currentTheme.linkColor }}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                         >
+                             linkedin
+                         </a>
+                         <a 
+                             href="https://github.com/byung806"
+                             className="hover:underline transition-all duration-500 ease-in-out"
+                             style={{ color: currentTheme.linkColor }}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                         >
+                             github
+                         </a>
+                     </div>
+
+                    {/* Theme Switcher */}
+                    <div className="flex space-x-4">
+                        {themes.map((theme) => (
+                            <button
+                                key={theme.name}
+                                onClick={() => setTheme(theme.name)}
+                                className={`
+                                    w-6 h-6 rounded-lg flex items-center justify-center text-2xl
+                                    transition-all duration-300 hover:scale-110
+                                `}
+                                style={{
+                                    filter: currentTheme.name === theme.name 
+                                        ? 'none' 
+                                        : 'grayscale(100%)',
+                                    backgroundColor: 'transparent',
+                                    color: currentTheme.name === 'keyboard' 
+                                        ? (currentTheme.name === theme.name ? '#222222' : '#888888')
+                                        : 'currentColor'
+                                }}
+                                title={theme.description}
+                            >
+                                {theme.icon}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
