@@ -35,7 +35,7 @@ const GengarIcon = () => (
 export const themes: Theme[] = [
   {
     name: 'default',
-    background: '#33254d',
+    background: '#f8f2e9',
     textColor: '#a88beb',
     accentColor: '#a88beb',
     linkColor: '#ff4136',
@@ -45,9 +45,9 @@ export const themes: Theme[] = [
   },
   {
     name: 'keyboard',
-    background: '#f8f6f0',
-    textColor: '#222222',
-    accentColor: '#222222',
+    background: '#e4dfda',
+    textColor: '#353c3c',
+    accentColor: '#353c3c',
     linkColor: '#666666',
     font: 'crimson-text',
     icon: <Keyboard className="w-6 h-6" />,
@@ -69,7 +69,7 @@ export const themes: Theme[] = [
     textColor: '#2F4F2F',
     accentColor: '#8B4513',
     linkColor: '#FF4500',
-    font: 'press-start-2p',
+    font: 'minecraftia',
     icon: <Blocks className="w-6 h-6" />,
     description: 'Minecraft Block Theme'
   },
@@ -115,7 +115,7 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(themes[0]);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(themes.find(t => t.name === 'keyboard') || themes[0]);
 
   const setTheme = (themeName: string) => {
     const theme = themes.find(t => t.name === themeName);

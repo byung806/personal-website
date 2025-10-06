@@ -134,3 +134,18 @@ html {
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
+
+@font-face {
+  font-family: 'Minecraftia';
+  src: url('/Minecraftia-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Minecraftia Local Font */
+.minecraftia {
+  font-family: 'Minecraftia', monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
