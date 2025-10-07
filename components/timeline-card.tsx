@@ -4,7 +4,7 @@ export default function TimelineCard() {
       <div className="text-sm text-gray-500 mb-4 font-medium">
         I'm interested in...
       </div>
-      <div className="text-6xl font-bold leading-tight text-center space-y-2">
+      <div className="text-4xl md:text-6xl font-bold leading-tight text-center space-y-2">
         <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
           3D
         </div>

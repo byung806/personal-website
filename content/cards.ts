@@ -8,6 +8,8 @@ export type Card = {
   colSpan: number; // width units (1-4)
   rowSpan: number; // height units (1-4)
   component: React.FC;
+  mobileColSpan?: number; // mobile override
+  mobileRowSpan?: number; // mobile override
 };
 
 // Import card components
@@ -26,8 +28,10 @@ export const cards: Card[] = [
     id: 'hero',
     title: 'About Me',
     tags: ['About'],
-    colSpan: 2, // w=2
-    rowSpan: 1, // h=1
+    colSpan: 2,
+    rowSpan: 1,
+    mobileColSpan: 1,
+    mobileRowSpan: 2,
     component: HeroCard,
   },
   {
@@ -42,8 +46,8 @@ export const cards: Card[] = [
     id: 'runway',
     title: 'Runway Mobile',
     tags: ['Projects'],
-    colSpan: 1, // w=1
-    rowSpan: 2, // h=2 (vertical)
+    colSpan: 1, // w=1 mobile: becomes tall
+    rowSpan: 2, // h=2 
     component: RunwayCard,
   },
   {

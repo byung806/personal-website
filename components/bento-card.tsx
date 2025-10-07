@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Card } from '@/content/cards';
+import { useEffect, useState } from 'react';
 
 interface BentoCardProps {
   card: Card;
@@ -29,23 +30,31 @@ const cardVariants = {
 };
 
 export default function BentoCard({ card, children, index }: BentoCardProps) {
-  const w = card.colSpan || 1;
-  const h = card.rowSpan || 1;
-  
-  // Force proper grid alignment
-  const gridClasses = `col-span-${w} row-span-${h}`;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const w = isMobile && card.mobileColSpan ? card.mobileColSpan : card.colSpan || 1;
+  const h = isMobile && card.mobileRowSpan ? card.mobileRowSpan : card.rowSpan || 1;
 
   return (
     <motion.div
       layout
       variants={cardVariants}
-      className={`${gridClasses} bg-card rounded-3xl overflow-hidden`}
+      className="bg-card rounded-3xl overflow-hidden"
       style={{
         gridColumn: `span ${w}`,
         gridRow: `span ${h}`,
+        aspectRatio: `${w} / ${h}`,
       }}
-      // whileHover={{ scale: 1.015 }}
-      // transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.6 }}
     >
       {children}
     </motion.div>

@@ -19,8 +19,6 @@ export default function RunwayCard() {
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
     >
-      {/* Two images with absolute positioning.
-      Both images are slightly tilted and Image 2 is slightly overlapping Image 1 */}
       <div className="absolute top-4 left-0 z-0 pointer-events-none">
         <Image src="/runway.png" alt="Runway" width={250} height={250} className="rotate-[-20deg]" />
       </div>
