@@ -1,27 +1,45 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Press_Start_2P, Crimson_Text } from "next/font/google";
+import { Sora, Inter, Libre_Baskerville, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import ClientLayout from "@/ui/components/client-layout";
+import ThemeProvider from "@/components/theme-provider";
 
-const ibmPlexMono = IBM_Plex_Mono({ 
+const sora = Sora({ 
     subsets: ["latin"],
-    weight: ["400", "500", "600", "700"]
+    variable: "--font-heading",
+});
+
+const inter = Inter({ 
+    subsets: ["latin"],
+    variable: "--font-sans",
+});
+
+const libreBaskerville = Libre_Baskerville({ 
+    subsets: ["latin"],
+    weight: ["400", "700"],
+    variable: "--font-serif",
+});
+
+const jetbrainsMono = JetBrains_Mono({ 
+    subsets: ["latin"],
+    variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
     title: "Bryan Yung",
-    description: "Student at Carnegie Mellon University",
+    description: "CS @ CMU · Builder of playful AI + polished product",
 };
-
-
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en">
-            <body className={`${ibmPlexMono.className} antialiased`}>
-                <ClientLayout>
+        <html lang="en" suppressHydrationWarning className="bg-bg text-text">
+            <head>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+            </head>
+            <body className={`${sora.variable} ${inter.variable} ${libreBaskerville.variable} ${jetbrainsMono.variable} font-sans antialiased bg-bg text-text`}>
+                <ThemeProvider>
                     {children}
-                </ClientLayout>
+                </ThemeProvider>
             </body>
         </html>
     );
