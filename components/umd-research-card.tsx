@@ -3,20 +3,18 @@
 import { Brain } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import HoverLink from './hover-link';
+import ProjectOverlay from './project-overlay';
 
 export default function UMDResearchCard() {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
-    // Since href is "#", we'll just prevent the default action for now
-    // You can replace this with the actual URL when available
     console.log('UMD Research clicked');
   };
 
   return (
     <div 
-      className="h-full bg-white relative overflow-hidden cursor-pointer"
+      className="h-full bg-[#493326] relative overflow-hidden cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
@@ -32,10 +30,11 @@ export default function UMDResearchCard() {
         <Image src="/umd_eeg_graph.png" alt="EEG Graph" width={176} height={176} />
       </div>
 
-      <HoverLink 
+      <ProjectOverlay 
+        title="EEG Research"
+        tags={['Python', 'NumPy', 'Pandas']}
         href="https://github.com/byung806/EEG-Classification"
         icon={<Brain className="w-5 h-5" />}
-        text="EEG Research"
         isHovered={isHovered}
         clickable={false}
       />

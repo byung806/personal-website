@@ -29,8 +29,8 @@ export default function DarkModeCard() {
   const cardBg = currentStyleData?.bg || 'bg-card';
 
   return (
-    <div className={`h-full flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-700 ease-out ${cardBg}`}>
-      <div className="mb-4">
+    <div className="h-full flex flex-col items-center justify-center p-6 rounded-xl transition-all duration-700 ease-out bg-white">
+      <div className="mb-6">
         <h3 className={`text-sm font-medium text-center transition-all duration-500 ${
           currentStyle === 'keyboard' ? 'font-serif' : 
           currentStyle === 'terminal' ? 'font-mono' : 'font-sans'
@@ -39,7 +39,7 @@ export default function DarkModeCard() {
         </h3>
       </div>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         {styles.map((style) => {
           const IconComponent = style.icon;
           const isActive = currentStyle === style.id;
@@ -48,7 +48,7 @@ export default function DarkModeCard() {
             <button
               key={style.id}
               onClick={() => handleStyleChange(style.id)}
-              className={`p-4 rounded-full transition-all duration-500 ease-out flex items-center justify-center transform hover:scale-105 ${
+              className={`p-6 rounded-full transition-all duration-500 ease-out flex items-center justify-center transform hover:scale-105 ${
                 isActive 
                   ? 'bg-brand/20 shadow-lg scale-110' 
                   : 'bg-white/50 dark:bg-black/20 hover:bg-white/80 dark:hover:bg-black/40 hover:shadow-md'

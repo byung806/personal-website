@@ -54,8 +54,8 @@ export const cards: Card[] = [
     id: 'umd-research',
     title: 'UMD Research',
     tags: ['Projects'],
-    colSpan: 1, // w=1
-    rowSpan: 1, // h=1
+    colSpan: 1,
+    rowSpan: 1,
     component: UMDResearchCard,
   },
   {
