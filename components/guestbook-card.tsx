@@ -16,14 +16,14 @@ export default function GuestbookCard() {
   const [inputValue, setInputValue] = useState('');
 
   return (
-    <div className="h-full bg-white flex flex-col relative">
-      {/* Top bar with title */}
-      <div className="px-6 py-4 border-b bg-[#febe26] border-gray-100 flex items-center">
-        <h3 className="text-sm font-medium text-gray-900">Guestbook</h3>
+    <div className="h-full bg-[#b8e0f6] flex flex-col relative">
+      {/* Header */}
+      <div className="p-6 border-b border-blue-300/50">
+        <h3 className="text-xl font-bold text-gray-900">Guestbook</h3>
       </div>
 
       {/* Messages container */}
-      <div className="flex-1 flex flex-col p-6 pt-4">
+      <div className="flex-1 flex flex-col p-6">
         {/* Fade overlay at top */}
         <div className="absolute top-16 left-0 right-0 w-full h-6 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none"></div>
 

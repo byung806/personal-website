@@ -1,39 +1,28 @@
 'use client';
 
-import { ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
-import ProjectOverlay from './project-overlay';
+import ProjectCard from './project-card';
 
 export default function RunwayCard() {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleClick = () => {
-    window.open('https://runwaymobile.app', '_blank', 'noopener,noreferrer');
-  };
-
   return (
-    <div 
-      className="h-full bg-[#ebccff] text-white relative overflow-hidden cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={handleClick}
+    <ProjectCard
+      title="Runway Mobile"
+      description="A mobile learning app that gives you a single bite-sized lesson a day."
+      tags={['React Native', 'Firebase', 'Swift']}
+      projectUrl="https://runwaymobile.app"
+      codeUrl="https://github.com/byung806/runway"
+      bgColor="#f2e8feff"
+      borderColor="rgba(147, 51, 234, 0.2)"
+      textColor="#7c3aed"
     >
-      <div className="absolute top-4 left-0 z-0 pointer-events-none">
-        <Image src="/runway.png" alt="Runway" width={250} height={250} className="rotate-[-20deg]" />
+      <div className="p-6 h-full">
+        <div className="absolute top-4 left-4">
+          <Image src="/runway.png" alt="Runway" width={180} height={180} className="rotate-[-10deg] opacity-90" />
+        </div>
+        <div className="absolute bottom-4 right-4">
+          <Image src="/runway2.png" alt="Runway" width={180} height={180} className="rotate-[5deg] opacity-90" />
+        </div>
       </div>
-      <div className="absolute top-40 right-0 z-0 pointer-events-none">
-        <Image src="/runway2.png" alt="Runway" width={250} height={250} className="rotate-[10deg] translate-x-[-10px]" />
-      </div>
-
-      <ProjectOverlay 
-        title="Runway Mobile"
-        tags={['React Native', 'Firebase', 'Swift']}
-        href="https://runwaymobile.app"
-        icon={<ArrowUpRight className="w-5 h-5" />}
-        isHovered={isHovered}
-        clickable={false}
-      />
-    </div>
+    </ProjectCard>
   );
 }

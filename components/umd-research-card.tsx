@@ -1,43 +1,30 @@
 'use client';
 
-import { Brain } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
-import ProjectOverlay from './project-overlay';
+import ProjectCard from './project-card';
 
 export default function UMDResearchCard() {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleClick = () => {
-    console.log('UMD Research clicked');
-  };
-
   return (
-    <div 
-      className="h-full bg-[#493326] relative overflow-hidden cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={handleClick}
+    <ProjectCard
+      title="EEG Research"
+      description="Using wavelets and ML to explain & improve dementia diagnosis from brain signals."
+      tags={['Python', 'NumPy', 'Pandas']}
+      codeUrl="https://github.com/byung806/EEG-Classification"
+      bgColor="#d4a574"
+      borderColor="rgba(120, 53, 15, 0.2)"
+      textColor="#78350f"
     >
-      {/* EEG Images positioned creatively */}
-      <div className="absolute top-2 left-2 w-40 h-40 opacity-90">
-        <Image src="/umd_eeg.png" alt="EEG Data" width={160} height={160} />
+      <div className="p-6 h-full">
+        <div className="absolute top-2 left-2 w-32 h-32 opacity-80">
+          <Image src="/umd_eeg.png" alt="EEG Data" width={128} height={128} />
+        </div>
+        <div className="absolute top-12 right-2 w-28 h-28 opacity-70">
+          <Image src="/umd_eeg_tsne.png" alt="t-SNE" width={112} height={112} />
+        </div>
+        <div className="absolute bottom-2 left-8 w-36 h-36 opacity-60">
+          <Image src="/umd_eeg_graph.png" alt="Graph" width={144} height={144} />
+        </div>
       </div>
-      <div className="absolute top-16 right-2 w-36 h-36 opacity-80">
-        <Image src="/umd_eeg_tsne.png" alt="t-SNE Visualization" width={144} height={144} />
-      </div>
-      <div className="absolute bottom-8 left-6 w-44 h-44 opacity-70">
-        <Image src="/umd_eeg_graph.png" alt="EEG Graph" width={176} height={176} />
-      </div>
-
-      <ProjectOverlay 
-        title="EEG Research"
-        tags={['Python', 'NumPy', 'Pandas']}
-        href="https://github.com/byung806/EEG-Classification"
-        icon={<Brain className="w-5 h-5" />}
-        isHovered={isHovered}
-        clickable={false}
-      />
-    </div>
+    </ProjectCard>
   );
 }
