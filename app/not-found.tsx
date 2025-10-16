@@ -1,36 +1,31 @@
-"use client";
-
 import Link from "next/link";
-import { useTheme } from "next-themes";
 
 export default function NotFound() {
-    const { theme } = useTheme();
-
     return (
-        <div className="min-h-screen bg-bg text-text flex flex-col justify-center items-center">
-            <div className="text-center space-y-8">
+        <div className="min-h-screen bg-white flex flex-col justify-center items-center px-4">
+            <div className="text-center space-y-6 max-w-md">
                 {/* Big 404 */}
-                <h1 className="text-9xl font-bold text-brand">
+                <h1 className="text-8xl md:text-9xl font-bold text-gray-900">
                     404
                 </h1>
 
                 {/* Error Message */}
-                <div className="space-y-4">
-                    <p className="text-xl">
-                        page not found
+                <div className="space-y-2">
+                    <p className="text-xl text-gray-900 font-semibold">
+                        Page not found
                     </p>
-                    <p className="text-lg text-subtext">
-                        looks like you've wandered into the void
+                    <p className="text-sm text-gray-600">
+                        Looks like you've wandered into the void
                     </p>
                 </div>
 
                 {/* Back to Home */}
-                <div className="pt-8">
+                <div className="pt-4">
                     <Link
                         href="/"
-                        className="inline-block px-6 py-3 rounded-lg border-2 border-brand text-brand hover:bg-brand hover:text-white transition-all duration-300"
+                        className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
                     >
-                        return home
+                        ← Return home
                     </Link>
                 </div>
             </div>
