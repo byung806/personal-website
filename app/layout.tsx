@@ -3,30 +3,30 @@ import { Sora, Inter, Libre_Baskerville, JetBrains_Mono } from "next/font/google
 import "./globals.css";
 import ThemeProvider from "@/components/theme-provider";
 
-const sora = Sora({ 
+const sora = Sora({
     subsets: ["latin"],
     variable: "--font-heading",
 });
 
-const inter = Inter({ 
+const inter = Inter({
     subsets: ["latin"],
     variable: "--font-sans",
 });
 
-const libreBaskerville = Libre_Baskerville({ 
+const libreBaskerville = Libre_Baskerville({
     subsets: ["latin"],
     weight: ["400", "700"],
     variable: "--font-serif",
 });
 
-const jetbrainsMono = JetBrains_Mono({ 
+const jetbrainsMono = JetBrains_Mono({
     subsets: ["latin"],
     variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
-    title: "Bryan Yung",
-    description: "CS @ CMU · Builder of playful AI + polished product",
+    title: "Bryan Yung, Software",
+    description: "Currently a CS student at CMU. Interested in 3D, AI, design.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

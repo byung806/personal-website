@@ -21,18 +21,11 @@ const containerVariants = {
 const cardVariants = {
   hidden: {
     opacity: 0,
-    y: 20,
-    scale: 0.95,
   },
   visible: {
     opacity: 1,
-    y: 0,
-    scale: 1,
     transition: {
-      type: 'spring',
-      stiffness: 300,
-      damping: 25,
-      duration: 0.6,
+      duration: 0.4,
     },
   },
 };
@@ -45,7 +38,7 @@ export default function ProjectsGallery({ cards }: ProjectsGalleryProps) {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="columns-1 sm:columns-2 lg:columns-3 gap-3"
+          className="columns-1 sm:columns-2 lg:columns-3 gap-4"
         >
           {cards.map((card) => {
             const CardComponent = card.component;
