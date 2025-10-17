@@ -2,19 +2,19 @@ import Link from "next/link";
 
 export default function NotFound() {
     return (
-        <div className="min-h-screen bg-white flex flex-col justify-center items-center px-4">
+        <div className="min-h-screen bg-white dark:bg-[#0F0F0F] flex flex-col justify-center items-center px-4">
             <div className="text-center space-y-6 max-w-md">
                 {/* Big 404 */}
-                <h1 className="text-8xl md:text-9xl font-bold text-gray-900">
+                <h1 className="text-8xl md:text-9xl font-bold text-gray-900 dark:text-gray-100">
                     404
                 </h1>
 
                 {/* Error Message */}
                 <div className="space-y-2">
-                    <p className="text-xl text-gray-900 font-semibold">
+                    <p className="text-xl text-gray-900 dark:text-gray-100 font-semibold">
                         Page not found
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                         Looks like you've wandered into the void
                     </p>
                 </div>
@@ -23,7 +23,7 @@ export default function NotFound() {
                 <div className="pt-4">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                        className="inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                     >
                         ← Return home
                     </Link>

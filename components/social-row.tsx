@@ -20,7 +20,7 @@ export default function SocialRow() {
     <div className="flex items-center gap-4 text-sm">
       <Link
         href="/guestbook"
-        className="text-gray-600 hover:text-gray-900 transition-colors"
+        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
       >
         Guestbook
       </Link>
@@ -28,7 +28,7 @@ export default function SocialRow() {
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="text-gray-600 hover:text-gray-900 transition-colors"
+          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
         >
           {isOpen ? 'Close' : 'Contact'}
         </button>
@@ -40,13 +40,13 @@ export default function SocialRow() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[120px] z-50"
+              className="absolute right-0 top-full mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg p-4 min-w-[120px] z-50"
             >
               <div className="flex flex-col gap-3">
                 <a
                   href="/Bryan_Yung_Resume.pdf"
                   download
-                  className="flex items-center justify-between text-gray-600 hover:text-gray-900 transition-colors group"
+                  className="flex items-center justify-between text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors group"
                 >
                   <span>Resume</span>
                   <Download className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -55,7 +55,7 @@ export default function SocialRow() {
                   href="https://github.com/byung806/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between text-gray-600 hover:text-gray-900 transition-colors group"
+                  className="flex items-center justify-between text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors group"
                 >
                   <span>GitHub</span>
                   <ArrowUpRight className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -64,14 +64,14 @@ export default function SocialRow() {
                   href="https://www.linkedin.com/in/bryan-yung-9724952b9/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between text-gray-600 hover:text-gray-900 transition-colors group"
+                  className="flex items-center justify-between text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors group"
                 >
                   <span>LinkedIn</span>
                   <ArrowUpRight className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
                 </a>
                 <button
                   onClick={handleEmailClick}
-                  className="flex items-center justify-between text-gray-600 hover:text-gray-900 transition-colors group text-left"
+                  className="flex items-center justify-between text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors group text-left"
                 >
                   <span>Email</span>
                   <AnimatePresence mode="wait">

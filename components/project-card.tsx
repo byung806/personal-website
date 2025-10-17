@@ -19,7 +19,6 @@ export default function ProjectCard({
 }: ProjectCardProps) {
   const hasLink = !!projectUrl;
   const isExternalLink = projectUrl?.startsWith('http');
-  const CardWrapper = hasLink ? 'a' : 'div';
   const linkProps = hasLink ? {
     href: projectUrl,
     ...(isExternalLink && {
@@ -28,10 +27,24 @@ export default function ProjectCard({
     }),
   } : {};
 
+  // Convert light bg to dark bg
+  const darkBgColor = bgColor === '#f6f6f6' ? '#1A1A1A' : bgColor;
+
   const content = (
     <>
       {/* Image Card */}
-      <div className={`relative overflow-hidden rounded-lg ${hasLink ? 'transition-transform duration-200 group-hover:scale-[0.98]' : ''}`} style={{ backgroundColor: bgColor }}>
+      <div
+        className={`relative overflow-hidden rounded-lg transition-transform duration-200 ${hasLink ? 'group-hover:scale-[0.98]' : 'group-active:scale-[0.98]'}`}
+        style={{
+          backgroundColor: bgColor,
+        }}
+      >
+        <div
+          className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity"
+          style={{ backgroundColor: darkBgColor }}
+        />
+        {/* Dark mode border - using box-shadow to avoid layout shift */}
+        <div className="absolute inset-0 rounded-lg opacity-0 dark:opacity-100 pointer-events-none" style={{ boxShadow: 'inset 0 0 0 1px #2A2A2A' }} />
         {/* Image content */}
         <div className="relative">
           {children}
@@ -41,7 +54,7 @@ export default function ProjectCard({
         {tags.length > 0 && (
           <div className="hidden md:flex absolute bottom-4 left-4 flex-wrap gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
             {tags.map((tag) => (
-              <span key={tag} className="px-3 py-1.5 text-xs font-mono font-medium rounded-sm bg-white text-gray-900">
+              <span key={tag} className="px-3 py-1.5 text-xs font-mono font-medium rounded-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                 {tag}
               </span>
             ))}
@@ -51,9 +64,9 @@ export default function ProjectCard({
 
       {/* Title/subtitle below card */}
       <div className={`mt-2 px-1 ${hasLink ? 'group-hover:opacity-70 transition-opacity' : ''}`}>
-        <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
         {subtitle && (
-          <p className="text-[10px] font-mono text-gray-400 mt-0.5 uppercase tracking-wider">{subtitle}</p>
+          <p className="text-[10px] font-mono text-gray-400 dark:text-gray-600 mt-0.5 uppercase tracking-wider">{subtitle}</p>
         )}
       </div>
     </>
@@ -61,14 +74,14 @@ export default function ProjectCard({
 
   if (hasLink) {
     return (
-      <a {...linkProps} className="w-full group block">
+      <a {...linkProps} className="w-full group block cursor-pointer">
         {content}
       </a>
     );
   }
 
   return (
-    <div className="w-full group">
+    <div className="w-full group cursor-not-allowed">
       {content}
     </div>
   );

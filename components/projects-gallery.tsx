@@ -38,7 +38,7 @@ export default function ProjectsGallery({ cards }: ProjectsGalleryProps) {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="columns-1 sm:columns-2 lg:columns-3 gap-4"
+          className="columns-1 sm:columns-2 lg:columns-3 gap-3"
         >
           {cards.map((card) => {
             const CardComponent = card.component;

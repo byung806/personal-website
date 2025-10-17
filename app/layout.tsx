@@ -31,12 +31,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en" suppressHydrationWarning className="bg-bg text-text">
+        <html lang="en" suppressHydrationWarning>
             <head>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
             </head>
-            <body className={`${sora.variable} ${inter.variable} ${libreBaskerville.variable} ${jetbrainsMono.variable} font-sans antialiased bg-bg text-text`}>
+            <body className={`${sora.variable} ${inter.variable} ${libreBaskerville.variable} ${jetbrainsMono.variable} font-sans antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
                 <ThemeProvider>
                     {children}
                 </ThemeProvider>
