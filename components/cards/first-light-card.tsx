@@ -40,7 +40,11 @@ export default function FirstLightCard() {
 
         {/* Play/Pause button */}
         <button
-          onClick={togglePlay}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            togglePlay();
+          }}
           className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-sm rounded-md opacity-0 group-hover/video:opacity-100 transition-opacity duration-200 hover:bg-white z-10"
           aria-label={isPlaying ? 'Pause video' : 'Play video'}
         >
