@@ -8,7 +8,7 @@ export default function UMDResearchCard() {
     <ProjectCard
       title="Neural Systems Lab"
       subtitle="RESEARCH PROJECT"
-      tags={['Python', 'NumPy', 'Pandas']}
+      tags={['Python, NumPy, Pandas']}
       projectUrl="https://github.com/byung806/EEG-Classification"
       bgColor="#f6f6f6"
     >

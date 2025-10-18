@@ -23,7 +23,7 @@ export default function FirstLightCard() {
     <ProjectCard
       title="First Light"
       subtitle="SWIFT PLAYGROUND"
-      tags={['Swift', 'SceneKit', 'Physics']}
+      tags={['Swift, SceneKit, Physics', 'Apple WWDC Winner']}
       bgColor="#f6f6f6"
     >
       <div className="relative w-full group/video">

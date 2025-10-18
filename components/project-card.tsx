@@ -50,11 +50,11 @@ export default function ProjectCard({
           {children}
         </div>
 
-        {/* Tech chips - only visible on desktop hover */}
+        {/* Tech chips - always visible on mobile, hover on desktop */}
         {tags.length > 0 && (
-          <div className="hidden md:flex absolute bottom-4 left-4 flex-wrap gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+          <div className="flex md:opacity-0 md:group-hover:opacity-100 absolute bottom-3 left-3 flex-wrap gap-2 transition-opacity duration-200 pointer-events-none">
             {tags.map((tag) => (
-              <span key={tag} className="px-3 py-1.5 text-xs font-mono font-medium rounded-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+              <span key={tag} className="px-3 py-1.5 text-xs font-sans font-light rounded-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm">
                 {tag}
               </span>
             ))}

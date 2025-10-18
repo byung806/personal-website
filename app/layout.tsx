@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Sora, Inter, Libre_Baskerville, JetBrains_Mono } from "next/font/google";
+import { Sora, DM_Sans, Libre_Baskerville, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/theme-provider";
 
@@ -8,7 +8,7 @@ const sora = Sora({
     variable: "--font-heading",
 });
 
-const inter = Inter({
+const dmSans = DM_Sans({
     subsets: ["latin"],
     variable: "--font-sans",
 });
@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
             </head>
-            <body className={`${sora.variable} ${inter.variable} ${libreBaskerville.variable} ${jetbrainsMono.variable} font-sans antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
+            <body className={`${sora.variable} ${dmSans.variable} ${libreBaskerville.variable} ${jetbrainsMono.variable} font-sans antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
                 <ThemeProvider>
                     {children}
                 </ThemeProvider>

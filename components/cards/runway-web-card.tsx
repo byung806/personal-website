@@ -23,7 +23,7 @@ export default function RunwayWebCard() {
     <ProjectCard
       title="Runway Website"
       subtitle="WEB APP"
-      tags={['Next.js', 'Tailwind', 'TypeScript']}
+      tags={['Next.js, Tailwind, TypeScript']}
       projectUrl="https://runwaymobile.app"
       bgColor="#f6f6f6"
     >

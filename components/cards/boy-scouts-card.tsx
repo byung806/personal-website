@@ -8,7 +8,7 @@ export default function BoyScoutsCard() {
     <ProjectCard
       title="TroopWebHost Improvement Project"
       subtitle="COMMUNITY PROJECT"
-      tags={['HTML', 'CSS', 'JavaScript']}
+      tags={['HTML, CSS, JavaScript']}
       bgColor="#f6f6f6"
     >
       <div className="relative w-full min-h-[250px] p-8 flex items-center justify-center">
