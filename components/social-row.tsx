@@ -19,7 +19,7 @@ export default function SocialRow() {
   return (
     <div className="flex items-center gap-4 text-sm">
       <Link
-        href="/guestbook"
+        href="/p/guestbook"
         className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
       >
         Guestbook
