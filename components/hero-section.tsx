@@ -1,15 +1,29 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import SocialRow from './social-row';
 
 export default function HeroSection() {
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
+  const showBackButton = pathname.startsWith('/p/');
+
   return (
-    <section className="w-full px-4 sm:px-8 md:px-16 lg:px-32 xl:px-48 pt-12 pb-4">
+    <section className={`sticky top-0 z-50 w-full px-4 sm:px-8 md:px-16 lg:px-32 xl:px-48 py-4 bg-white dark:bg-[#0F0F0F] transition-all duration-300 ${isHomePage ? 'mt-8' : ''}`}>
       <div className="max-w-[1200px] mx-auto">
         <div className="flex items-center justify-between gap-4">
           {/* Left: Name and school */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base">
-            <span className="font-bold text-gray-900 dark:text-gray-100">Bryan Yung</span>
+            {showBackButton ? (
+              <Link href="/" className="inline-flex items-center gap-1.5 font-bold text-gray-900 dark:text-gray-100 hover:opacity-70 transition-opacity duration-100">
+                <ArrowLeft className="w-4 h-4" />
+                Bryan Yung
+              </Link>
+            ) : (
+              <span className="font-bold text-gray-900 dark:text-gray-100">Bryan Yung</span>
+            )}
             <span className="text-gray-400 dark:text-gray-600">·</span>
             <span className="text-gray-600 dark:text-gray-400">SCS @ CMU</span>
             <span className="text-gray-400 dark:text-gray-600 hidden sm:inline">·</span>

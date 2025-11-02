@@ -24,6 +24,7 @@ export default function FirstLightCard() {
       title="First Light"
       subtitle="SWIFT PLAYGROUND"
       tags={['Swift, SceneKit, Physics', 'Apple WWDC Winner']}
+      projectUrl="/p/first-light"
       bgColor="#f6f6f6"
     >
       <div className="relative w-full group/video">

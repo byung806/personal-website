@@ -25,7 +25,7 @@ export default function GuestbookCard() {
       title="Guestbook"
       subtitle="INTERACTIVE"
       tags={['Next.js, Prisma, Postgres']}
-      projectUrl="/guestbook"
+      projectUrl="/p/guestbook"
       bgColor="#f6f6f6"
     >
       <div className="relative w-full min-h-[250px] p-6 overflow-hidden">
