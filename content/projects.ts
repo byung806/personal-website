@@ -39,4 +39,17 @@ export const projects: Record<string, ProjectMetadata> = {
             { label: 'GitHub', url: 'https://github.com/byung806/First-Light' },
         ],
     },
+    'troopwebhost': {
+        id: 'troopwebhost',
+        title: 'TroopWebHost Improvement Project',
+        subtitle: 'DESKTOP APP',
+        tagline: 'Automating rosters, reporting, and scheduling for 100+ active users.',
+        coverImage: '/boy-scouts.png',
+        year: '2023',
+        role: 'Lead Developer',
+        tools: ['Python', 'Tkinter', 'BeautifulSoup', 'Threading'],
+        links: [
+            { label: 'GitHub', url: 'https://github.com/byung806/Troop-Web-Host-Improvement' },
+        ],
+    },
 };

@@ -16,14 +16,14 @@ export default function FirstLightCaseStudy() {
       <CaseStudySingleImage
         src="/p/first-light/tutorial.png"
         alt="First Light tutorial interface"
-        aspectRatio="video"
+        aspectRatio="auto"
         caption="Interactive tutorial system built with SceneKit. Materials slide in and out on a 3D table using SCNAction animations, teaching users which chemical elements produce specific colors. The challenge was synchronizing the 3D animations with the tutorial text while maintaining 60fps performance in Swift Playgrounds' constrained environment."
       />
 
       <CaseStudySingleImage
         src="/p/first-light/creation-screen.png"
         alt="Firework creation interface"
-        aspectRatio="video"
+        aspectRatio="auto"
         caption="Ingredient selection interface for designing custom fireworks. Built with UIKit overlays on top of the SceneKit scene. Each chemical element is represented as a draggable 3D node with physics properties. The main technical challenge was implementing smooth drag-and-drop interactions between UIKit and SceneKit coordinate systems."
       />
 

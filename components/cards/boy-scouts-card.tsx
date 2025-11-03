@@ -7,8 +7,9 @@ export default function BoyScoutsCard() {
   return (
     <ProjectCard
       title="TroopWebHost Improvement Project"
-      subtitle="COMMUNITY PROJECT"
-      tags={['HTML, CSS, JavaScript']}
+      subtitle="DESKTOP APP"
+      tags={['Python, Tkinter, BeautifulSoup', '100+ Users']}
+      projectUrl="/p/troopwebhost"
       bgColor="#f6f6f6"
     >
       <div className="relative w-full min-h-[250px] p-8 flex items-center justify-center">

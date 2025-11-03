@@ -60,7 +60,7 @@ export default function RunwayCaseStudy() {
       <CaseStudySingleImage
         src="/p/runway/map.png"
         alt="Map of Runway users worldwide"
-        aspectRatio="wide"
+        aspectRatio="auto"
         caption="1,300+ users across 100+ countries. App Store Connect and custom event tracking provided insights into user behavior and retention patterns across different regions."
       />
     </CaseStudyLayout>

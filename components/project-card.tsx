@@ -32,34 +32,37 @@ export default function ProjectCard({
 
   const content = (
     <>
-      {/* Image Card */}
-      <div
-        className={`relative overflow-hidden rounded-lg transition-transform duration-200 ${hasLink ? 'group-hover:scale-[0.98]' : 'group-active:scale-[0.98]'}`}
-        style={{
-          backgroundColor: bgColor,
-        }}
-      >
+      {/* Image Card - outer container maintains layout */}
+      <div className="relative overflow-hidden rounded-lg">
+        {/* Inner wrapper that scales */}
         <div
-          className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity"
-          style={{ backgroundColor: darkBgColor }}
-        />
-        {/* Dark mode border - using box-shadow to avoid layout shift */}
-        <div className="absolute inset-0 rounded-lg opacity-0 dark:opacity-100 pointer-events-none" style={{ boxShadow: 'inset 0 0 0 1px #2A2A2A' }} />
-        {/* Image content */}
-        <div className="relative">
-          {children}
-        </div>
-
-        {/* Tech chips - always visible on mobile, hover on desktop */}
-        {tags.length > 0 && (
-          <div className="flex md:opacity-0 md:group-hover:opacity-100 absolute bottom-3 left-3 flex-wrap gap-2 transition-opacity duration-200 pointer-events-none">
-            {tags.map((tag) => (
-              <span key={tag} className="px-3 py-1.5 text-xs font-sans font-light rounded-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm">
-                {tag}
-              </span>
-            ))}
+          className={`relative transition-transform duration-200 will-change-transform ${hasLink ? 'group-hover:scale-[0.96]' : 'group-active:scale-[0.96]'}`}
+          style={{
+            backgroundColor: bgColor,
+          }}
+        >
+          <div
+            className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity"
+            style={{ backgroundColor: darkBgColor }}
+          />
+          {/* Dark mode border - using box-shadow to avoid layout shift */}
+          <div className="absolute inset-0 rounded-lg opacity-0 dark:opacity-100 pointer-events-none" style={{ boxShadow: 'inset 0 0 0 1px #2A2A2A' }} />
+          {/* Image content */}
+          <div className="relative">
+            {children}
           </div>
-        )}
+
+          {/* Tech chips - always visible on mobile, hover on desktop */}
+          {tags.length > 0 && (
+            <div className="flex md:opacity-0 md:group-hover:opacity-100 absolute bottom-3 left-3 flex-wrap gap-2 transition-opacity duration-200 pointer-events-none">
+              {tags.map((tag) => (
+                <span key={tag} className="px-3 py-1.5 text-xs font-sans font-light rounded-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Title/subtitle below card */}
