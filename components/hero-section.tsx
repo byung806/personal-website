@@ -24,8 +24,8 @@ export default function HeroSection() {
             ) : (
               <span className="font-bold text-gray-900 dark:text-gray-100">Bryan Yung</span>
             )}
-            <span className="text-gray-400 dark:text-gray-600">·</span>
-            <span className="text-gray-600 dark:text-gray-400">SCS @ CMU</span>
+            <span className={`text-gray-400 dark:text-gray-600 ${showBackButton ? 'hidden sm:inline' : ''}`}>·</span>
+            <span className={`text-gray-600 dark:text-gray-400 ${showBackButton ? 'hidden sm:inline' : ''}`}>SCS @ CMU</span>
             <span className="text-gray-400 dark:text-gray-600 hidden sm:inline">·</span>
             <span className="text-gray-500 dark:text-gray-500 hidden sm:inline">exploring</span>
             <span className="font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent hidden sm:inline">AI</span>

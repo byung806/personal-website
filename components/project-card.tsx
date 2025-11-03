@@ -66,7 +66,7 @@ export default function ProjectCard({
       <div className={`mt-2 px-1 ${hasLink ? 'group-hover:opacity-70 transition-opacity' : ''}`}>
         <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
         {subtitle && (
-          <p className="text-[11px] font-mono text-gray-500 dark:text-gray-500 mt-0.5 uppercase tracking-wider font-medium">{subtitle}</p>
+          <p className="text-[11px] font-mono text-gray-500 dark:text-gray-400 mt-0.5 uppercase tracking-wider font-medium">{subtitle}</p>
         )}
       </div>
     </>

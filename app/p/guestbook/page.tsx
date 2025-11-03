@@ -83,7 +83,7 @@ export default function GuestbookPage() {
         >
             {/* Form */}
             <form onSubmit={handleSubmit} className="mb-12">
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                     <input
                         type="text"
                         placeholder="Name"
@@ -91,7 +91,7 @@ export default function GuestbookPage() {
                         onChange={(e) => setUsername(e.target.value)}
                         maxLength={50}
                         required
-                        className="flex-shrink-0 w-32 px-3 py-2 text-sm bg-white dark:bg-[#0F0F0F] border border-gray-200 dark:border-[#2A2A2A] rounded text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-700 transition-colors"
+                        className="flex-shrink-0 w-24 sm:w-32 px-3 py-2 text-sm bg-white dark:bg-[#0F0F0F] border border-gray-200 dark:border-[#2A2A2A] rounded text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-700 transition-colors"
                     />
                     <input
                         type="text"

@@ -33,7 +33,7 @@ export default function CaseStudyLayout({
     <div className="w-full">
       {/* Cover Section - Only show if coverImage exists */}
       {coverImage && (
-        <div className="relative w-full h-[50vh] md:h-[60vh] min-h-[350px] md:min-h-[500px] bg-gray-200 dark:bg-[#1A1A1A] flex items-center justify-center p-4 md:p-8">
+        <div className="relative w-full h-[50vh] md:h-[60vh] min-h-[350px] md:min-h-[500px] bg-gray-200 dark:bg-[#1A1A1A] flex items-center justify-center p-4 md:p-8 border-b border-gray-300 dark:border-[#2A2A2A]">
           <div className="relative w-full max-w-[250px] md:max-w-[400px] aspect-[9/19]">
             <Image
               src={coverImage}
