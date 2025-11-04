@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next/third-parties": "^16.0.1",
     "@prisma/client": "^6.17.1",
     "bad-words": "^4.0.0",
     "class-variance-authority": "^0.7.0",
