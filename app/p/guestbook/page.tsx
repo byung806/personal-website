@@ -1,3 +1,5 @@
+// npx prisma studio
+
 'use client';
 
 import { useState, useEffect } from 'react';

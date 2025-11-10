@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ProjectCard from '../project-card';
 
 interface GuestbookEntry {
@@ -12,11 +13,15 @@ interface GuestbookEntry {
 
 export default function GuestbookCard() {
   const [entries, setEntries] = useState<GuestbookEntry[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     fetch('/api/guestbook')
       .then((res) => res.json())
-      .then((data) => setEntries(data.slice(0, 6))) // Show latest 6 entries
+      .then((data) => {
+        setEntries(data.slice(0, 6)); // Show latest 6 entries
+        setIsLoaded(true);
+      })
       .catch((err) => console.error('Failed to fetch guestbook:', err));
   }, []);
 
@@ -36,20 +41,22 @@ export default function GuestbookCard() {
               <p className="text-sm text-gray-400 dark:text-gray-600">No messages yet</p>
             </div>
           ) : (
-            entries.map((entry, index) => (
-              <div
-                key={entry.id}
-                className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2"
-                style={{
-                  opacity: 1 - index * 0.15,
-                }}
-              >
-                <span className="font-bold text-gray-900 dark:text-gray-100">
-                  {entry.username}
-                </span>
-                : {entry.message}
-              </div>
-            ))
+            <AnimatePresence>
+              {entries.map((entry, index) => (
+                <motion.div
+                  key={entry.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1 - index * 0.15, y: 0 }}
+                  transition={{ duration: 0.3, delay: isLoaded ? index * 0.08 : 0 }}
+                  className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2"
+                >
+                  <span className="font-bold text-gray-900 dark:text-gray-100">
+                    {entry.username}
+                  </span>
+                  : {entry.message}
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </div>
         

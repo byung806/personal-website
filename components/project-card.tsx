@@ -36,7 +36,7 @@ export default function ProjectCard({
       <div className="relative overflow-hidden rounded-lg">
         {/* Inner wrapper that scales */}
         <div
-          className={`relative transition-transform duration-200 will-change-transform ${hasLink ? 'group-hover:scale-[0.96]' : 'group-active:scale-[0.96]'}`}
+          className={`relative rounded-lg overflow-hidden transition-transform duration-200 will-change-transform ${hasLink ? 'group-hover:scale-[0.96]' : 'group-active:scale-[0.96]'}`}
           style={{
             backgroundColor: bgColor,
           }}

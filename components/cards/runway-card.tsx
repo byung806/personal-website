@@ -14,7 +14,7 @@ export default function RunwayCard() {
     >
       <div className="relative w-full min-h-[400px] p-8 flex items-center justify-center">
         <div className="relative w-full max-w-[200px]">
-          <Image src="/runway.png" alt="Runway" width={200} height={200} className="w-full h-auto" />
+          <Image src="/runway.png" alt="Runway" width={200} height={200} className="w-full h-auto" priority />
         </div>
       </div>
     </ProjectCard>

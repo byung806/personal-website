@@ -22,6 +22,7 @@ export const projects: Record<string, ProjectMetadata> = {
         role: 'Founder & Developer',
         tools: ['React Native', 'Firebase', 'Swift'],
         links: [
+            { label: 'Website', url: 'https://runwaymobile.app' },
             { label: 'App Store', url: 'https://runwaymobile.app' },
             { label: 'GitHub', url: 'https://github.com/byung806/runway' },
         ],
@@ -50,6 +51,20 @@ export const projects: Record<string, ProjectMetadata> = {
         tools: ['Python', 'Tkinter', 'BeautifulSoup', 'Threading'],
         links: [
             { label: 'GitHub', url: 'https://github.com/byung806/Troop-Web-Host-Improvement' },
+        ],
+    },
+    'eeg-classification': {
+        id: 'eeg-classification',
+        title: 'EEG Feature Classification',
+        subtitle: 'RESEARCH',
+        tagline: 'Making machine-aided diagnosis explainable to doctors.',
+        coverImage: '/p/eeg-classification/eeg_data.png',
+        year: '2024',
+        role: 'Research Intern',
+        team: 'Neural Systems Lab',
+        tools: ['Python', 'scikit-learn', 'NumPy', 'Discrete Wavelet Transform'],
+        links: [
+            { label: 'GitHub', url: 'https://github.com/byung806/EEG-Feature-Classification' },
         ],
     },
 };

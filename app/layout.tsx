@@ -1,20 +1,8 @@
 import type { Metadata } from "next";
-import { Sora, DM_Sans, Libre_Baskerville, JetBrains_Mono } from "next/font/google";
+import { Libre_Baskerville, JetBrains_Mono } from "next/font/google";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 import ThemeProvider from "@/components/theme-provider";
-
-const sora = Sora({
-    subsets: ["latin"],
-    variable: "--font-heading",
-    display: "swap",
-});
-
-const dmSans = DM_Sans({
-    subsets: ["latin"],
-    variable: "--font-sans",
-    display: "swap",
-});
 
 const libreBaskerville = Libre_Baskerville({
     subsets: ["latin"],
@@ -40,7 +28,11 @@ import PageTransition from "@/components/page-transition";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${sora.variable} ${dmSans.variable} ${libreBaskerville.variable} ${jetbrainsMono.variable} font-sans antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
+            <head>
+                <link rel="preload" href="/runway.png" as="image" />
+                <link rel="preload" href="/umd_eeg_tsne.png" as="image" />
+            </head>
+            <body className={`${libreBaskerville.variable} ${jetbrainsMono.variable} font-serif antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
                 <ThemeProvider>
                     <HeroSection />
                     <PageTransition>

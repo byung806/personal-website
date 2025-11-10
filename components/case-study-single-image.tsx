@@ -25,6 +25,7 @@ export function CaseStudySingleImage({ src, alt, caption, aspectRatio = 'auto' }
             width={1200}
             height={800}
             className="w-full h-auto"
+            loading="lazy"
           />
         </div>
         {caption && (
@@ -44,6 +45,7 @@ export function CaseStudySingleImage({ src, alt, caption, aspectRatio = 'auto' }
           alt={alt}
           fill
           className="object-contain"
+          loading="lazy"
         />
       </div>
       {caption && (

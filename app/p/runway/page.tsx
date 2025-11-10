@@ -22,6 +22,7 @@ export default function RunwayCaseStudy() {
           { src: '/p/runway/app-2.png', alt: 'Runway app explore' },
           { src: '/p/runway/app-3.png', alt: 'Runway app profile' },
         ]}
+        aspectRatio="auto"
         caption="The layout of the app, built with React Native/Swift/Expo. Implemented infinite scroll with optimized rendering and live leaderboard updates. The main challenge was managing state across tabs while maintaining smooth 60fps animations."
       />
 
@@ -31,6 +32,7 @@ export default function RunwayCaseStudy() {
           { src: '/p/runway/lesson-2.png', alt: 'Lesson content' },
           { src: '/p/runway/lesson-3.png', alt: 'Lesson completion' },
         ]}
+        aspectRatio="auto"
         caption="The daily lessons. They were implemented in an extremely modular way, supporting a wide range of media like images, videos, text, and multiple choice questions. Built a custom JSON schema for lesson content with Firebase Cloud Functions handling validation. Also integrates with user data."
       />
 
@@ -40,7 +42,16 @@ export default function RunwayCaseStudy() {
           { src: '/p/runway/onboarding-2.png', alt: 'Onboarding step 2' },
           { src: '/p/runway/onboarding-3.png', alt: 'Onboarding step 3' },
         ]}
+        aspectRatio="auto"
         caption="The onboarding flow guides users through an example lesson. Implemented username validation with profanity filter using the bad-words library."
+      />
+
+      <CaseStudyVideo
+        src="/runway-web.mp4"
+        aspectRatio="auto"
+        autoplay={true}
+        clickableUrl="https://runwaymobile.app"
+        caption="The Runway website, built with Next.js and Tailwind CSS. Features smooth animations and responsive design to showcase the app's features."
       />
 
       <CaseStudyImageRow
@@ -48,12 +59,13 @@ export default function RunwayCaseStudy() {
           { src: '/p/runway/early-concept-1.png', alt: 'Early concept sketch 1' },
           { src: '/p/runway/early-concept-2.png', alt: 'Early concept sketch 2' },
         ]}
+        aspectRatio="auto"
         caption="An early stage of the app. The early concepts focused on gamification and social features, which were later refined to emphasize the core daily lesson experience."
       />
 
       <CaseStudyVideo
         src="/p/runway/runway-ad-concept.mov"
-        aspectRatio="horizontal"
+        aspectRatio="auto"
         caption="Marketing concept video, showcasing the app's user flow."
       />
 

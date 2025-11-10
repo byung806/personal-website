@@ -14,7 +14,7 @@ export default function BoyScoutsCard() {
     >
       <div className="relative w-full min-h-[250px] p-8 flex items-center justify-center">
         <div className="relative w-full max-w-[280px]">
-          <Image src="/boy-scouts.png" alt="TroopWebHost Improvement Project" width={280} height={280} className="w-full h-auto" />
+          <Image src="/boy-scouts-medium.png" alt="TroopWebHost Improvement Project" width={280} height={280} className="w-full h-auto" />
         </div>
       </div>
     </ProjectCard>
