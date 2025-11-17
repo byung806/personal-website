@@ -12,9 +12,9 @@ export default function RunwayCard() {
       projectUrl="/p/runway"
       bgColor="#f6f6f6"
     >
-      <div className="relative w-full min-h-[400px] p-8 flex items-center justify-center">
-        <div className="relative w-full max-w-[200px]">
-          <Image src="/runway.png" alt="Runway" width={200} height={200} className="w-full h-auto" priority />
+      <div className="relative w-full min-h-[400px] md:min-h-[500px] p-8 md:p-12 flex items-center justify-center">
+        <div className="relative w-full max-w-[200px] md:max-w-[220px]">
+          <Image src="/runway.png" alt="Runway" width={280} height={280} className="w-full h-auto" priority />
         </div>
       </div>
     </ProjectCard>

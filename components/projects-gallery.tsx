@@ -8,9 +8,9 @@ interface ProjectsGalleryProps {
 
 export default function ProjectsGallery({ cards }: ProjectsGalleryProps) {
   return (
-    <section id="projects" className="w-full px-4 sm:px-8 md:px-16 lg:px-32 xl:px-48 py-12 -mt-12">
-      <div className="max-w-[1200px] mx-auto">
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-3">
+    <section id="projects" className="w-full min-h-screen px-4 sm:px-6 md:px-8 pb-8">
+      <div className="w-full h-full max-w-[1800px] mx-auto">
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
           {cards.map((card) => {
             const CardComponent = card.component;
             return (

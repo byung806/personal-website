@@ -11,8 +11,8 @@ export default function HeroSection() {
   const showBackButton = pathname.startsWith('/p/');
 
   return (
-    <section className={`sticky top-0 z-50 w-full px-4 sm:px-8 md:px-16 lg:px-32 xl:px-48 py-4 bg-white dark:bg-[#0F0F0F] transition-all duration-300 ${isHomePage ? 'mt-8' : ''}`}>
-      <div className="max-w-[1200px] mx-auto">
+    <section className={`sticky top-0 z-50 w-full px-4 sm:px-6 md:px-8 py-4 bg-white dark:bg-[#0F0F0F] transition-all duration-300 ${isHomePage ? 'mt-8' : ''}`}>
+      <div className="max-w-[1800px] mx-auto">
         <div className="flex items-center justify-between gap-4">
           {/* Left: Name and school */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base">

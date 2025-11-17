@@ -33,12 +33,20 @@ export default function GuestbookCard() {
       projectUrl="/p/guestbook"
       bgColor="#f6f6f6"
     >
-      <div className="relative w-full min-h-[250px] p-6 overflow-hidden">
-        {/* Museum gallery style - stacked messages with fade */}
-        <div className="space-y-3">
+      <div className="relative w-full min-h-[280px] p-6 overflow-hidden group/guestbook">
+        {/* Colorful gradient background - appears on hover */}
+        <div 
+          className="absolute inset-0 opacity-0 group-hover/guestbook:opacity-50 dark:group-hover/guestbook:opacity-40 transition-opacity duration-500"
+          style={{
+            background: 'radial-gradient(circle at 15% 25%, rgba(139, 92, 246, 0.5), transparent 45%), radial-gradient(circle at 85% 75%, rgba(59, 130, 246, 0.5), transparent 45%), radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.35), transparent 55%)',
+          }}
+        />
+        
+        {/* Messages */}
+        <div className="relative space-y-3">
           {entries.length === 0 ? (
-            <div className="flex items-center justify-center h-[200px]">
-              <p className="text-sm text-gray-400 dark:text-gray-600">No messages yet</p>
+            <div className="flex items-center justify-center h-[220px]">
+              <p className="text-sm text-gray-400 dark:text-gray-500">No messages yet</p>
             </div>
           ) : (
             <AnimatePresence>

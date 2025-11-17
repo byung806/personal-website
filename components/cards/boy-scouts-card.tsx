@@ -12,9 +12,9 @@ export default function BoyScoutsCard() {
       projectUrl="/p/troopwebhost"
       bgColor="#f6f6f6"
     >
-      <div className="relative w-full min-h-[250px] p-8 flex items-center justify-center">
-        <div className="relative w-full max-w-[280px]">
-          <Image src="/boy-scouts-medium.png" alt="TroopWebHost Improvement Project" width={280} height={280} className="w-full h-auto" />
+      <div className="relative w-full min-h-[250px] md:min-h-[320px] p-8 md:p-10 flex items-center justify-center">
+        <div className="relative w-full max-w-[280px] md:max-w-[360px]">
+          <Image src="/boy-scouts-medium.png" alt="TroopWebHost Improvement Project" width={360} height={360} className="w-full h-auto" />
         </div>
       </div>
     </ProjectCard>

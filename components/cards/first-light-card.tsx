@@ -34,19 +34,19 @@ export default function FirstLightCard() {
           loop
           muted
           playsInline
-          className="w-full h-auto"
+          className="w-full h-auto block"
         >
           <source src="/first-light-fireworks.mp4" type="video/mp4" />
         </video>
 
-        {/* Play/Pause button */}
+        {/* Play/Pause button - always visible on mobile, hover on desktop */}
         <button
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             togglePlay();
           }}
-          className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-sm rounded-md opacity-0 group-hover/video:opacity-100 transition-opacity duration-200 hover:bg-white z-10"
+          className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-sm rounded-md hover:bg-white z-10 md:opacity-0 md:group-hover/video:opacity-100 transition-opacity duration-200"
           aria-label={isPlaying ? 'Pause video' : 'Play video'}
         >
           {isPlaying ? (
