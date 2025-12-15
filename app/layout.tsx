@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Libre_Baskerville, JetBrains_Mono } from "next/font/google";
+import { Libre_Baskerville, JetBrains_Mono, DM_Serif_Display } from "next/font/google";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 import ThemeProvider from "@/components/theme-provider";
@@ -8,6 +8,13 @@ const libreBaskerville = Libre_Baskerville({
     subsets: ["latin"],
     weight: ["400", "700"],
     variable: "--font-serif",
+    display: "swap",
+});
+
+const dmSerifDisplay = DM_Serif_Display({
+    subsets: ["latin"],
+    weight: ["400"],
+    variable: "--font-display",
     display: "swap",
 });
 
@@ -23,10 +30,12 @@ export const metadata: Metadata = {
 };
 
 import HeroSection from "@/components/hero-section";
+import Navbar from "@/components/navbar";
 import PageTransition from "@/components/page-transition";
 import CandyCane from "@/components/candy-cane";
 import { SnowfallProvider } from "@/components/snowfall-provider";
 import SnowfallWrapper from "@/components/snowfall-wrapper";
+import BackgroundProvider from "@/components/background-provider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -35,11 +44,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <link rel="preload" href="/runway.png" as="image" />
                 <link rel="preload" href="/umd_eeg_tsne.png" as="image" />
             </head>
-            <body className={`${libreBaskerville.variable} ${jetbrainsMono.variable} font-serif antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
+            <body className={`${libreBaskerville.variable} ${dmSerifDisplay.variable} ${jetbrainsMono.variable} font-serif antialiased text-gray-900 transition-colors duration-300`}>
                 <ThemeProvider>
                     <SnowfallProvider>
+                        <BackgroundProvider />
                         <SnowfallWrapper />
                         {/* <CandyCane /> */}
+                        <Navbar />
                         <HeroSection />
                         <PageTransition>
                             {children}

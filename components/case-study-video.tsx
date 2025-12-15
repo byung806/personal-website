@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { Pause, Play } from 'lucide-react';
+import { useSnowfall } from './snowfall-provider';
 
 interface CaseStudyVideoProps {
   src: string;
@@ -12,6 +13,7 @@ interface CaseStudyVideoProps {
 }
 
 export function CaseStudyVideo({ src, caption, aspectRatio = 'vertical', autoplay = false, clickableUrl }: CaseStudyVideoProps) {
+  const { isSnowing } = useSnowfall();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(autoplay);
 
@@ -42,11 +44,11 @@ export function CaseStudyVideo({ src, caption, aspectRatio = 'vertical', autopla
   };
 
   const videoElement = (
-    <div className={`relative w-full ${aspectClasses[aspectRatio]} bg-gray-100 dark:bg-[#111] rounded-lg overflow-hidden group/video`}>
+    <div className={`relative w-full ${aspectClasses[aspectRatio]} bg-white rounded-lg border ${isSnowing ? 'border-[#A3D5FF]' : 'border-[#ffc080]'} overflow-hidden shadow-sm group/video`}>
       <video
         ref={videoRef}
         src={src}
-        className={`w-full ${aspectRatio === 'auto' ? 'h-auto' : 'h-full object-cover'} ${clickableUrl ? 'cursor-pointer' : ''}`}
+        className={`w-full h-full ${aspectRatio === 'auto' ? 'h-auto' : 'h-full object-cover'} ${clickableUrl ? 'cursor-pointer' : ''}`}
         playsInline
         preload="none"
         controls={!autoplay}
@@ -62,9 +64,9 @@ export function CaseStudyVideo({ src, caption, aspectRatio = 'vertical', autopla
           aria-label={isPlaying ? 'Pause video' : 'Play video'}
         >
           {isPlaying ? (
-            <Pause className="w-4 h-4 text-gray-900" />
+            <Pause className="w-4 h-4 text-black/90" />
           ) : (
-            <Play className="w-4 h-4 text-gray-900" />
+            <Play className="w-4 h-4 text-black/90" />
           )}
         </button>
       )}
@@ -75,7 +77,7 @@ export function CaseStudyVideo({ src, caption, aspectRatio = 'vertical', autopla
     <div className="my-16">
       {videoElement}
       {caption && (
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 leading-relaxed">
+        <p className="text-sm text-black/60 mt-4 leading-relaxed">
           {caption}
         </p>
       )}

@@ -48,8 +48,8 @@ export default function SnowflakeButton() {
         onMouseLeave={() => setIsHovered(false)}
         className={`relative p-1.5 rounded-md transition-colors ${
           isSnowing
-            ? 'text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30'
-            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+            ? 'text-blue-500 bg-blue-50/50'
+            : 'text-black/55 hover:text-black/85'
         }`}
         aria-label="Toggle snowfall"
         whileHover={{ scale: 1.1 }}
@@ -64,7 +64,7 @@ export default function SnowflakeButton() {
             ease: 'easeInOut',
           }}
         >
-          <Snowflake className="w-6 h-6" />
+          <Snowflake className="w-[18px] h-[18px]" />
         </motion.div>
       </motion.button>
 

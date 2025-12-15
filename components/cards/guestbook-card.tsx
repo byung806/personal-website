@@ -31,7 +31,7 @@ export default function GuestbookCard() {
       subtitle="INTERACTIVE"
       tags={['Next.js, Prisma, Postgres']}
       projectUrl="/p/guestbook"
-      bgColor="#f6f6f6"
+      bgColor="#ffffff"
     >
       <div className="relative w-full min-h-[280px] p-6 overflow-hidden group/guestbook">
         {/* Colorful gradient background - appears on hover */}

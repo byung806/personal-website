@@ -45,3 +45,8 @@ html {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Display font for hero title */
+.font-display {
+  font-family: var(--font-display), "Instrument Serif", "DM Serif Display", "Georgia", serif;
+}

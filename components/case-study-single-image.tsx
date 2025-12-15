@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useSnowfall } from './snowfall-provider';
 
 interface CaseStudySingleImageProps {
   src: string;
@@ -8,6 +11,7 @@ interface CaseStudySingleImageProps {
 }
 
 export function CaseStudySingleImage({ src, alt, caption, aspectRatio = 'auto' }: CaseStudySingleImageProps) {
+  const { isSnowing } = useSnowfall();
   const aspectClasses = {
     auto: '',
     square: 'aspect-square',
@@ -18,7 +22,7 @@ export function CaseStudySingleImage({ src, alt, caption, aspectRatio = 'auto' }
   if (aspectRatio === 'auto') {
     return (
       <div className="my-16">
-        <div className="relative w-full bg-gray-100 dark:bg-[#111] rounded-lg overflow-hidden">
+        <div className={`relative w-full bg-white rounded-lg border ${isSnowing ? 'border-[#A3D5FF]' : 'border-[#ffc080]'} overflow-hidden shadow-sm`}>
           <Image
             src={src}
             alt={alt}
@@ -29,7 +33,7 @@ export function CaseStudySingleImage({ src, alt, caption, aspectRatio = 'auto' }
           />
         </div>
         {caption && (
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 leading-relaxed">
+          <p className="text-sm text-black/60 mt-4 leading-relaxed">
             {caption}
           </p>
         )}
@@ -39,7 +43,7 @@ export function CaseStudySingleImage({ src, alt, caption, aspectRatio = 'auto' }
 
   return (
     <div className="my-16">
-      <div className={`relative w-full ${aspectClasses[aspectRatio]} bg-gray-100 dark:bg-[#111] rounded-lg overflow-hidden`}>
+      <div className={`relative w-full ${aspectClasses[aspectRatio]} bg-white rounded-lg border ${isSnowing ? 'border-[#A3D5FF]' : 'border-[#ffc080]'} overflow-hidden shadow-sm`}>
         <Image
           src={src}
           alt={alt}
@@ -49,7 +53,7 @@ export function CaseStudySingleImage({ src, alt, caption, aspectRatio = 'auto' }
         />
       </div>
       {caption && (
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 leading-relaxed">
+        <p className="text-sm text-black/60 mt-4 leading-relaxed">
           {caption}
         </p>
       )}

@@ -1,5 +1,7 @@
 'use client';
 
+import { useSnowfall } from './snowfall-provider';
+
 interface ProjectCardProps {
   title: string;
   subtitle?: string;
@@ -17,6 +19,7 @@ export default function ProjectCard({
   bgColor,
   children,
 }: ProjectCardProps) {
+  const { isSnowing } = useSnowfall();
   const hasLink = !!projectUrl;
   const isExternalLink = projectUrl?.startsWith('http');
   const linkProps = hasLink ? {
@@ -28,15 +31,15 @@ export default function ProjectCard({
   } : {};
 
   // Convert light bg to dark bg
-  const darkBgColor = bgColor === '#f6f6f6' ? '#1A1A1A' : bgColor;
+  const darkBgColor = bgColor === '#ffffff' ? '#1A1A1A' : bgColor;
 
   const content = (
     <>
       {/* Image Card - outer container maintains layout */}
       <div className="relative overflow-hidden rounded-lg">
-        {/* Inner wrapper that scales */}
+        {/* Inner wrapper that scales - museum frame */}
         <div
-          className={`relative rounded-lg overflow-hidden transition-transform duration-200 will-change-transform ${hasLink ? 'group-hover:scale-[0.96]' : 'group-active:scale-[0.96]'}`}
+          className={`relative rounded-lg overflow-hidden transition-transform duration-200 will-change-transform border ${isSnowing ? 'border-[#A3D5FF]' : 'border-[#ffc080]'} ${hasLink ? 'group-hover:scale-[0.96]' : 'group-active:scale-[0.96]'}`}
           style={{
             backgroundColor: bgColor,
           }}

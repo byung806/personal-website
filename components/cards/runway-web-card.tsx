@@ -25,7 +25,7 @@ export default function RunwayWebCard() {
       subtitle="WEB APP"
       tags={['Next.js, Tailwind, TypeScript']}
       projectUrl="https://runwaymobile.app"
-      bgColor="#f6f6f6"
+      bgColor="#ffffff"
     >
       <div className="relative w-full group/video">
         <video

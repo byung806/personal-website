@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useSnowfall } from './snowfall-provider';
 
 interface CaseStudySectionProps {
   title?: string;
@@ -9,11 +12,11 @@ export function CaseStudySection({ title, children }: CaseStudySectionProps) {
   return (
     <section className="mb-20">
       {title && (
-        <h2 className="text-3xl font-semibold text-gray-900 dark:text-white mb-6">
+        <h2 className="text-3xl font-semibold text-black/90 mb-6">
           {title}
         </h2>
       )}
-      <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
+      <div className="space-y-6 text-black/70 leading-relaxed text-lg">
         {children}
       </div>
     </section>
@@ -28,6 +31,7 @@ interface CaseStudyImageProps {
 }
 
 export function CaseStudyImage({ src, alt, caption, aspectRatio = 'video' }: CaseStudyImageProps) {
+  const { isSnowing } = useSnowfall();
   const aspectClasses = {
     square: 'aspect-square',
     video: 'aspect-[16/9]',
@@ -37,7 +41,7 @@ export function CaseStudyImage({ src, alt, caption, aspectRatio = 'video' }: Cas
 
   return (
     <figure className="my-16">
-      <div className={`relative w-full ${aspectClasses[aspectRatio]} bg-gray-100 dark:bg-[#111] rounded-lg overflow-hidden`}>
+      <div className={`relative w-full ${aspectClasses[aspectRatio]} bg-white rounded-lg border ${isSnowing ? 'border-[#A3D5FF]' : 'border-[#ffc080]'} overflow-hidden shadow-sm`}>
         <Image
           src={src}
           alt={alt}
@@ -46,7 +50,7 @@ export function CaseStudyImage({ src, alt, caption, aspectRatio = 'video' }: Cas
         />
       </div>
       {caption && (
-        <figcaption className="text-sm text-gray-500 dark:text-gray-500 mt-4 text-center">
+        <figcaption className="text-sm text-black/60 mt-4 text-center">
           {caption}
         </figcaption>
       )}
@@ -56,7 +60,7 @@ export function CaseStudyImage({ src, alt, caption, aspectRatio = 'video' }: Cas
 
 export function CaseStudyText({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
+    <p className="text-lg leading-relaxed text-black/70">
       {children}
     </p>
   );

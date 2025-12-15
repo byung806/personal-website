@@ -10,7 +10,7 @@ export default function BoyScoutsCard() {
       subtitle="DESKTOP APP"
       tags={['Python, Tkinter, BeautifulSoup', '100+ Users']}
       projectUrl="/p/troopwebhost"
-      bgColor="#f6f6f6"
+      bgColor="#ffffff"
     >
       <div className="relative w-full min-h-[250px] md:min-h-[320px] p-8 md:p-10 flex items-center justify-center">
         <div className="relative w-full max-w-[280px] md:max-w-[360px]">

@@ -10,7 +10,7 @@ export default function UMDResearchCard() {
       subtitle="RESEARCH"
       tags={['Python, scikit-learn, DWT', 'Neural Systems Lab']}
       projectUrl="/p/eeg-classification"
-      bgColor="#f6f6f6"
+      bgColor="#ffffff"
     >
       <div className="relative w-full min-h-[250px] p-8 flex items-center justify-center">
         <div className="relative w-full max-w-[240px]">

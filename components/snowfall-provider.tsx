@@ -10,7 +10,9 @@ interface SnowfallContextType {
 const SnowfallContext = createContext<SnowfallContextType | undefined>(undefined);
 
 export function SnowfallProvider({ children }: { children: ReactNode }) {
-  const [isSnowing, setIsSnowing] = useState(false);
+  // Check if it's December (month 11 in 0-indexed months)
+  const isDecember = new Date().getMonth() === 11;
+  const [isSnowing, setIsSnowing] = useState(isDecember);
 
   const toggleSnow = () => {
     setIsSnowing((prev) => !prev);
