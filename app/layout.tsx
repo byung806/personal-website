@@ -24,6 +24,9 @@ export const metadata: Metadata = {
 
 import HeroSection from "@/components/hero-section";
 import PageTransition from "@/components/page-transition";
+import CandyCane from "@/components/candy-cane";
+import { SnowfallProvider } from "@/components/snowfall-provider";
+import SnowfallWrapper from "@/components/snowfall-wrapper";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -34,10 +37,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </head>
             <body className={`${libreBaskerville.variable} ${jetbrainsMono.variable} font-serif antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
                 <ThemeProvider>
-                    <HeroSection />
-                    <PageTransition>
-                        {children}
-                    </PageTransition>
+                    <SnowfallProvider>
+                        <SnowfallWrapper />
+                        {/* <CandyCane /> */}
+                        <HeroSection />
+                        <PageTransition>
+                            {children}
+                        </PageTransition>
+                    </SnowfallProvider>
                 </ThemeProvider>
             </body>
             <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ''} />

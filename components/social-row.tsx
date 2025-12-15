@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ArrowUpRight, Download, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import SnowflakeButton from './snowflake-button';
 
 export default function SocialRow() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +19,7 @@ export default function SocialRow() {
 
   return (
     <div className="flex items-center gap-4 text-sm">
+      <SnowflakeButton />
       <Link
         href="/p/guestbook"
         className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
