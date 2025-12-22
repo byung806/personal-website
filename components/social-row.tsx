@@ -17,14 +17,14 @@ export default function SocialRow() {
   };
 
   return (
-    <div className="flex items-center gap-6 text-[11px] uppercase tracking-widest font-sans">
+    <div className="flex flex-row items-center gap-6 flex-wrap text-[11px] uppercase tracking-widest font-sans md:flex-row md:items-center md:gap-6">
       <Link
         href="/p/guestbook"
         className="text-gray-900 dark:text-gray-200 hover:text-[#FF4500] dark:hover:text-gray-100 transition-colors"
       >
         Guestbook
       </Link>
-      
+
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}

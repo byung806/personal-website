@@ -41,22 +41,9 @@ export default function HeroSection() {
       {showBackButton && <StickyBackButton />}
       <section className={`w-full px-4 md:px-4 lg:px-6 py-8 bg-white dark:bg-[#0F0F0F] transition-all duration-300 ${isHomePage ? 'mt-0' : ''}`}>
       <div className="max-w-[1600px] mx-auto">
-        <div className="flex items-start justify-between gap-12">
-          {/* Left: Editorial text block (hidden on project pages) */}
-          {!showBackButton && (
-            <div className="max-w-[320px] text-[11px] uppercase tracking-wide leading-relaxed font-sans text-gray-900 dark:text-gray-100">
-              Hi, I'm <span className="font-bold text-[#FF4500]">Bryan Yung</span>, a computer science student at{' '}
-              <span className="underline decoration-1 underline-offset-2">Carnegie Mellon University</span>, currently exploring{' '}
-              <span className="font-semibold">AI</span>, <span className="font-semibold">HCI</span>, and{' '}
-              <span className="font-semibold">3D</span>.
-            </div>
-          )}
-
-          {/* Spacer on project pages to push nav right */}
-          {showBackButton && <div className="flex-1" />}
-
-          {/* Center: Wordmark */}
-          <div className="absolute left-1/2 -translate-x-1/2">
+        <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between md:gap-12">
+          {/* Wordmark - centered on mobile, absolute center on desktop */}
+          <div className="flex justify-center md:block md:absolute md:left-1/2 md:-translate-x-1/2">
             <div className="inline-flex items-center">
               <Link href="/" className="font-serif text-2xl text-gray-900 dark:text-gray-100 hover:opacity-70 transition-opacity inline-flex items-center">
                 <span>Bryan</span>
@@ -74,8 +61,31 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right: Navigation */}
-          <SocialRow />
+          <div className="flex flex-col gap-4 pt-2 w-full md:flex-row md:items-start md:justify-between md:gap-12 md:pt-0">
+            {/* Left: Editorial text block (hidden on project pages) */}
+            {!showBackButton && (
+              <div className="max-w-[320px] text-[11px] uppercase tracking-wide leading-relaxed font-sans text-gray-900 dark:text-gray-100">
+                Hi, I'm <span className="font-bold text-[#FF4500]">Bryan Yung</span>, a computer science student at{' '}
+                <span className="underline decoration-1 underline-offset-2">Carnegie Mellon University</span>, currently exploring{' '}
+                <span className="font-semibold">AI</span>, <span className="font-semibold">HCI</span>, and{' '}
+                <span className="font-semibold">3D</span>.
+              </div>
+            )}
+
+            {/* Spacer on project pages to push nav right */}
+            {showBackButton && <div className="flex-1" />}
+
+            {/* Right: Navigation (hidden on mobile for project pages) */}
+            <div className="md:pl-0">
+              {showBackButton ? (
+                <div className="hidden md:block">
+                  <SocialRow />
+                </div>
+              ) : (
+                <SocialRow />
+              )}
+            </div>
+          </div>
         </div>
       </div>
       </section>
