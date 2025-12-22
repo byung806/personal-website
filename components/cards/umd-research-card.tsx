@@ -8,6 +8,7 @@ export default function UMDResearchCard() {
     <ProjectCard
       title="EEG Feature Classification"
       subtitle="RESEARCH"
+      year="2024"
       tags={['Python, scikit-learn, DWT', 'Neural Systems Lab']}
       projectUrl="/p/eeg-classification"
       bgColor="#f6f6f6"

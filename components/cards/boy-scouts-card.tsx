@@ -8,6 +8,7 @@ export default function BoyScoutsCard() {
     <ProjectCard
       title="TroopWebHost Improvement Project"
       subtitle="DESKTOP APP"
+      year="2023"
       tags={['Python, Tkinter, BeautifulSoup', '100+ Users']}
       projectUrl="/p/troopwebhost"
       bgColor="#f6f6f6"

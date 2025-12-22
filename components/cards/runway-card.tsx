@@ -8,6 +8,7 @@ export default function RunwayCard() {
     <ProjectCard
       title="Runway"
       subtitle="MOBILE APP"
+      year="2024"
       tags={['React Native, Firebase, Swift', '1k+ Users']}
       projectUrl="/p/runway"
       bgColor="#f6f6f6"

@@ -2,41 +2,83 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 import SocialRow from './social-row';
+import StickyBackButton from './sticky-back-button';
+import { Leaf, Snowflake, Sun } from 'lucide-react';
+import { useMemo } from 'react';
+import SnowflakeButton from './snowflake-button';
+import SeasonButton from './season-button';
 
 export default function HeroSection() {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const showBackButton = pathname.startsWith('/p/');
 
+  const { AccentIcon, accentColor, season } = useMemo(() => {
+    const now = new Date();
+    const m = now.getMonth(); // 0-11
+    let season: 'winter' | 'spring' | 'summer' | 'fall';
+    if (m === 11 || m <= 1) season = 'winter';
+    else if (m <= 4) season = 'spring';
+    else if (m <= 7) season = 'summer';
+    else season = 'fall';
+
+    // Subtle, neutral palettes per season (light/dark friendly)
+    const palette: Record<typeof season, string> = {
+      winter: 'rgba(68, 88, 104, 0.45)',   // muted blue-grey
+      spring: 'rgba(72, 112, 82, 0.45)',   // soft green
+      summer: 'rgba(70, 110, 110, 0.45)',  // gentle teal-grey
+      fall:   'rgba(120, 96, 72, 0.45)',   // warm neutral
+    };
+
+    const accentColor = palette[season];
+    const AccentIcon = season === 'winter' ? Snowflake : season === 'spring' ? Leaf : Sun;
+    return { AccentIcon, accentColor, season };
+  }, []);
+
   return (
-    <section className={`sticky top-0 z-50 w-full px-4 sm:px-6 md:px-8 py-4 bg-white dark:bg-[#0F0F0F] transition-all duration-300 ${isHomePage ? 'mt-8' : ''}`}>
-      <div className="max-w-[1800px] mx-auto">
-        <div className="flex items-center justify-between gap-4">
-          {/* Left: Name and school */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base">
-            {showBackButton ? (
-              <Link href="/" className="inline-flex items-center gap-1.5 font-bold text-gray-900 dark:text-gray-100 hover:opacity-70 transition-opacity duration-100">
-                <ArrowLeft className="w-4 h-4" />
-                Bryan Yung
+    <>
+      {showBackButton && <StickyBackButton />}
+      <section className={`w-full px-4 md:px-4 lg:px-6 py-8 bg-white dark:bg-[#0F0F0F] transition-all duration-300 ${isHomePage ? 'mt-0' : ''}`}>
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex items-start justify-between gap-12">
+          {/* Left: Editorial text block (hidden on project pages) */}
+          {!showBackButton && (
+            <div className="max-w-[320px] text-[11px] uppercase tracking-wide leading-relaxed font-sans text-gray-900 dark:text-gray-100">
+              Hi, I'm <span className="font-bold text-[#FF4500]">Bryan Yung</span>, a computer science student at{' '}
+              <span className="underline decoration-1 underline-offset-2">Carnegie Mellon University</span>, currently exploring{' '}
+              <span className="font-semibold">AI</span>, <span className="font-semibold">HCI</span>, and{' '}
+              <span className="font-semibold">3D</span>.
+            </div>
+          )}
+
+          {/* Spacer on project pages to push nav right */}
+          {showBackButton && <div className="flex-1" />}
+
+          {/* Center: Wordmark */}
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <div className="inline-flex items-center">
+              <Link href="/" className="font-serif text-2xl text-gray-900 dark:text-gray-100 hover:opacity-70 transition-opacity inline-flex items-center">
+                <span>Bryan</span>
+                {season === 'winter' ? (
+                  <span className="mx-1 inline-flex items-center" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                    <SnowflakeButton />
+                  </span>
+                ) : (
+                  <span className="mx-1 inline-flex items-center" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                    <SeasonButton />
+                  </span>
+                )}
+                <span>Yung</span>
               </Link>
-            ) : (
-              <span className="font-bold text-gray-900 dark:text-gray-100">Bryan Yung</span>
-            )}
-            <span className={`text-gray-400 dark:text-gray-600 ${showBackButton ? 'hidden sm:inline' : ''}`}>·</span>
-            <span className={`text-gray-600 dark:text-gray-400 ${showBackButton ? 'hidden sm:inline' : ''}`}>SCS @ CMU</span>
-            <span className="text-gray-400 dark:text-gray-600 hidden sm:inline">·</span>
-            <span className="text-gray-500 dark:text-gray-500 hidden sm:inline">exploring</span>
-            <span className="font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent hidden sm:inline">AI</span>
-            <span className="font-bold bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 bg-clip-text text-transparent hidden sm:inline">HCI</span>
-            <span className="font-bold bg-gradient-to-r from-green-500 via-teal-500 to-blue-500 bg-clip-text text-transparent hidden sm:inline">3D</span>
+            </div>
           </div>
 
-          {/* Right: Social links */}
+          {/* Right: Navigation */}
           <SocialRow />
         </div>
       </div>
-    </section>
+      </section>
+    </>
   );
 }

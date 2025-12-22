@@ -55,10 +55,10 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     <StyleContext.Provider value={{ currentStyle, setCurrentStyle }}>
       <NextThemesProvider
         attribute="class"
-        defaultTheme="system"
-        enableSystem
-        enableColorScheme
-        forcedTheme={undefined}
+        defaultTheme="light"
+        enableSystem={false}
+        enableColorScheme={false}
+        forcedTheme="light"
         storageKey="theme"
       >
         {children}

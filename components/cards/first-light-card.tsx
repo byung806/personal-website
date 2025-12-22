@@ -23,6 +23,7 @@ export default function FirstLightCard() {
     <ProjectCard
       title="First Light"
       subtitle="SWIFT PLAYGROUND"
+      year="2025"
       tags={['Swift, SceneKit, Physics', 'Apple WWDC Winner']}
       projectUrl="/p/first-light"
       bgColor="#f6f6f6"

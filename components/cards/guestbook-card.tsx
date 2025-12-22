@@ -29,6 +29,7 @@ export default function GuestbookCard() {
     <ProjectCard
       title="Guestbook"
       subtitle="INTERACTIVE"
+      year="2024"
       tags={['Next.js, Prisma, Postgres']}
       projectUrl="/p/guestbook"
       bgColor="#f6f6f6"

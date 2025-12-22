@@ -3,6 +3,7 @@
 interface ProjectCardProps {
   title: string;
   subtitle?: string;
+  year?: string;
   tags: string[];
   projectUrl?: string;
   bgColor: string;
@@ -12,6 +13,7 @@ interface ProjectCardProps {
 export default function ProjectCard({
   title,
   subtitle,
+  year,
   tags,
   projectUrl,
   bgColor,
@@ -30,15 +32,19 @@ export default function ProjectCard({
   // Convert light bg to dark bg
   const darkBgColor = bgColor === '#f6f6f6' ? '#1A1A1A' : bgColor;
 
+  const effectiveBg = bgColor === '#f6f6f6' ? '#f1f1f1' : bgColor;
+
+  const metadataLabel = year || subtitle;
+
   const content = (
     <>
       {/* Image Card - outer container maintains layout */}
-      <div className="relative overflow-hidden rounded-lg">
+      <div className="relative overflow-hidden rounded-xl">
         {/* Inner wrapper that scales */}
         <div
-          className={`relative rounded-lg overflow-hidden transition-transform duration-200 will-change-transform ${hasLink ? 'group-hover:scale-[0.96]' : 'group-active:scale-[0.96]'}`}
+          className={`relative rounded-xl overflow-hidden transition-transform duration-500 will-change-transform ${hasLink ? 'group-hover:scale-[0.985]' : 'group-active:scale-[0.985]'}`}
           style={{
-            backgroundColor: bgColor,
+            backgroundColor: effectiveBg,
           }}
         >
           <div
@@ -46,31 +52,37 @@ export default function ProjectCard({
             style={{ backgroundColor: darkBgColor }}
           />
           {/* Dark mode border - using box-shadow to avoid layout shift */}
-          <div className="absolute inset-0 rounded-lg opacity-0 dark:opacity-100 pointer-events-none" style={{ boxShadow: 'inset 0 0 0 1px #2A2A2A' }} />
+          <div className="absolute inset-0 rounded-xl opacity-0 dark:opacity-100 pointer-events-none" style={{ boxShadow: 'inset 0 0 0 1px #2A2A2A' }} />
           {/* Image content */}
           <div className="relative">
             {children}
           </div>
 
-          {/* Tech chips - always visible on mobile, hover on desktop */}
-          {tags.length > 0 && (
-            <div className="flex md:opacity-0 md:group-hover:opacity-100 absolute bottom-3 left-3 flex-wrap gap-2 transition-opacity duration-200 pointer-events-none">
+          {/* Title/subtitle chip - hover reveal, flat neutral background */}
+          <div className="absolute bottom-3 left-3 flex flex-wrap gap-2 pointer-events-none">
+            <span className="inline-flex items-center gap-2 px-3 py-2 font-sans text-sm rounded-lg bg-white/70 dark:bg-black/45 text-gray-900 dark:text-gray-100 md:opacity-0 md:translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out backdrop-blur-md shadow-[0_0_16px_rgba(0,0,0,0.08)]">
+              {metadataLabel && (
+                <span className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400 leading-none whitespace-nowrap">
+                  {metadataLabel}
+                </span>
+              )}
+              <span className="text-sm text-black dark:text-gray-50 leading-none whitespace-nowrap">
+                {title}
+              </span>
+            </span>
+          </div>
+
+          {/* Tech chips pinned in-card, hover reveal to match title treatment */}
+          {/* {tags.length > 0 && (
+            <div className="flex absolute bottom-3 right-3 flex-wrap justify-end gap-2 pointer-events-none opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
               {tags.map((tag) => (
-                <span key={tag} className="px-3 py-1.5 text-xs font-sans font-light rounded-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm">
+                <span key={tag} className="inline-flex items-center px-3.5 py-1.5 text-[11px] font-sans font-medium tracking-tight rounded-md bg-white/70 dark:bg-black/45 text-gray-800 dark:text-gray-100 leading-none whitespace-nowrap shadow-[0_0_12px_rgba(0,0,0,0.06)]">
                   {tag}
                 </span>
               ))}
             </div>
-          )}
+          )} */}
         </div>
-      </div>
-
-      {/* Title/subtitle below card */}
-      <div className={`mt-2 px-1 ${hasLink ? 'group-hover:opacity-70 transition-opacity' : ''}`}>
-        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-        {subtitle && (
-          <p className="text-[11px] font-mono text-gray-500 dark:text-gray-400 mt-0.5 uppercase tracking-wider font-medium">{subtitle}</p>
-        )}
       </div>
     </>
   );
