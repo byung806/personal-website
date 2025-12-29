@@ -21,6 +21,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
     title: "Bryan Yung, Software",
     description: "Currently a CS student at CMU. Interested in 3D, AI, design.",
+    icons: {
+        icon: "/favicon.ico",
+    },
 };
 
 import HeroSection from "@/components/hero-section";
@@ -32,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <head>
                 <link rel="preload" href="/runway.png" as="image" />
                 <link rel="preload" href="/umd_eeg_tsne.png" as="image" />
+                <link rel="icon" href="/favicon.ico" sizes="any" />
             </head>
             <body className={`${libreBaskerville.variable} ${jetbrainsMono.variable} font-serif antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
                 <SnowfallProvider>

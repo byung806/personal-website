@@ -1,29 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import ProjectCard from '../project-card';
 
-interface GuestbookEntry {
-  id: number;
-  username: string;
-  message: string;
-  createdAt: string;
-}
-
 export default function GuestbookCard() {
-  const [latestEntry, setLatestEntry] = useState<GuestbookEntry | null>(null);
-
-  useEffect(() => {
-    fetch('/api/guestbook')
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setLatestEntry(data[0]);
-        }
-      })
-      .catch((err) => console.error('Failed to fetch guestbook:', err));
-  }, []);
-
   return (
     <ProjectCard
       title="Guestbook"
@@ -32,13 +11,14 @@ export default function GuestbookCard() {
       projectUrl="/p/guestbook"
       bgColor="#ffffff"
       borderColor="#f1f1f1"
+      borderThickness={2}
     >
       <div className="relative w-full min-h-[320px] md:min-h-[380px] px-10 py-12 flex items-center">
         <div className="relative max-w-[420px] w-full">
           <div
-            className="absolute w-full rounded-[10px]"
+            className="absolute w-full rounded-[6px]"
             style={{
-              backgroundColor: '#fbfbfb',
+              backgroundColor: '#edf0f5',
               transform: 'translate(20px, 20px)',
               height: '140px',
               zIndex: 0,
@@ -47,9 +27,9 @@ export default function GuestbookCard() {
           />
 
           <div
-            className="absolute w-full rounded-[10px]"
+            className="absolute w-full rounded-[6px]"
             style={{
-              backgroundColor: '#fcfcfc',
+              backgroundColor: '#f8f9fc',
               transform: 'translate(10px, 10px)',
               height: '140px',
               zIndex: 1,
@@ -58,24 +38,19 @@ export default function GuestbookCard() {
           />
 
           <div
-            className="relative rounded-[10px]"
+            className="relative rounded-[6px]"
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: '#f8f9fc',
               height: '140px',
               zIndex: 2,
               boxShadow: '14px 20px 32px rgba(0, 0, 0, 0.10), 0 0 0 0.5px rgba(0,0,0,0.05)',
             }}
           >
-            {latestEntry && (
-              <div className="relative px-6 py-5 h-full flex flex-col">
-                <p className="text-[14px] text-gray-800 dark:text-gray-200 font-medium tracking-wide mb-2.5">
-                  {latestEntry.username}
-                </p>
-                <p className="text-[14px] leading-[1.6] text-gray-700 dark:text-gray-300 line-clamp-3">
-                  {latestEntry.message}
-                </p>
-              </div>
-            )}
+            <div className="relative px-6 py-5 h-full flex items-center justify-center text-center">
+              <p className="antialiased font-sans text-[15px] leading-[1.25] font-medium tracking-[0.14em] uppercase text-gray-400 dark:text-gray-300">
+                MAKE YOUR OWN CARD!
+              </p>
+            </div>
           </div>
         </div>
       </div>

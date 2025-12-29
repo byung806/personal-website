@@ -8,6 +8,7 @@ interface ProjectCardProps {
   projectUrl?: string;
   bgColor: string;
   borderColor?: string;
+  borderThickness?: number;
   children?: React.ReactNode;
 }
 
@@ -19,6 +20,7 @@ export default function ProjectCard({
   projectUrl,
   bgColor,
   borderColor,
+  borderThickness = 1,
   children,
 }: ProjectCardProps) {
   const hasLink = !!projectUrl;
@@ -47,7 +49,7 @@ export default function ProjectCard({
           className={`relative rounded-xl overflow-hidden transition-transform duration-500 will-change-transform ${hasLink ? 'group-hover:scale-[0.985]' : 'group-active:scale-[0.985]'}`}
           style={{
             backgroundColor: effectiveBg,
-            ...(borderColor && { border: `1px solid ${borderColor}` }),
+            ...(borderColor && { border: `${borderThickness}px solid ${borderColor}` }),
           }}
         >
           <div
@@ -55,7 +57,7 @@ export default function ProjectCard({
             style={{ backgroundColor: darkBgColor }}
           />
           {/* Dark mode border - using box-shadow to avoid layout shift */}
-          <div className="absolute inset-0 rounded-xl opacity-0 dark:opacity-100 pointer-events-none" style={{ boxShadow: 'inset 0 0 0 1px #2A2A2A' }} />
+          <div className="absolute inset-0 rounded-xl opacity-0 dark:opacity-100 pointer-events-none" style={{ boxShadow: `inset 0 0 0 ${borderThickness}px #2A2A2A` }} />
           {/* Image content */}
           <div className="relative">
             {children}
