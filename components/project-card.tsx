@@ -15,6 +15,7 @@ export default function ProjectCard({
   const metadataLabel = meta?.year || meta?.subtitle;
   const title = meta?.title || '';
   const tags = [...(meta?.tools || []), ...(meta?.special || [])];
+  const specialTags = meta?.special || [];
   const bgColor = meta?.bgColor || '#ffffff';
   const borderColor = meta?.borderColor;
   const borderThickness = meta?.borderThickness || 1;
@@ -70,6 +71,13 @@ export default function ProjectCard({
                 {title}
               </span>
             </span>
+            {specialTags.length > 0 && specialTags.map((tag) => (
+              <span key={tag} className="inline-flex items-center px-3 py-2 font-sans text-sm rounded-lg bg-white/70 dark:bg-black/45 text-gray-900 dark:text-gray-100 md:opacity-0 md:translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out backdrop-blur-md shadow-[0_0_16px_rgba(0,0,0,0.08)]">
+                <span className="text-sm leading-none whitespace-nowrap">
+                  {tag}
+                </span>
+              </span>
+            ))}
           </div>
 
           {/* Tech chips pinned in-card, hover reveal to match title treatment */}

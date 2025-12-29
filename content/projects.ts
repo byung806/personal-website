@@ -65,7 +65,7 @@ export const projects: Record<string, ProjectMetadata> = {
     },
     'troopwebhost': {
         id: 'troopwebhost',
-        title: 'TroopWebHost Improvement Project',
+        title: 'Boy Scouts Management',
         subtitle: 'DESKTOP APP',
         tagline: 'Automating rosters, reporting, and scheduling for 100+ active users.',
         coverImage: '/boy-scouts.png',
@@ -80,7 +80,7 @@ export const projects: Record<string, ProjectMetadata> = {
     },
     'eeg-classification': {
         id: 'eeg-classification',
-        title: 'EEG Feature Classification',
+        title: 'Frontotemporal Dementia Research',
         subtitle: 'RESEARCH',
         tagline: 'Making machine-aided diagnosis explainable to doctors.',
         coverImage: '/p/eeg-classification/eeg_data.png',
@@ -91,7 +91,7 @@ export const projects: Record<string, ProjectMetadata> = {
         links: [
             { label: 'GitHub', url: 'https://github.com/byung806/EEG-Feature-Classification' },
         ],
-        special: ['Neural Systems Lab'],
+        special: ['Regeneron STS Scholar'],
         bgColor: '#ffffff',
         borderColor: '#eaecef',
     },
@@ -100,6 +100,7 @@ export const projects: Record<string, ProjectMetadata> = {
         title: 'Guestbook',
         subtitle: 'INTERACTIVE',
         year: '2025',
+        special: ['Interactive'],
         bgColor: '#ffffff',
         borderColor: '#f1f1f1',
         borderThickness: 2,
