@@ -11,6 +11,7 @@ import UMDResearchCard from '@/components/cards/umd-research-card';
 import GuestbookCard from '@/components/cards/guestbook-card';
 import FirstLightCard from '@/components/cards/first-light-card';
 import BoyScoutsCard from '@/components/cards/boy-scouts-card';
+import ThreeDRendererCard from '@/components/cards/3d-renderer-card';
 
 export const cards: Card[] = [
   {
@@ -18,20 +19,24 @@ export const cards: Card[] = [
     component: RunwayCard,
   },
   {
-    id: 'first-light',
-    component: FirstLightCard,
-  },
-  {
-    id: 'guestbook',
-    component: GuestbookCard,
-  },
-  {
     id: 'umd-research',
     component: UMDResearchCard,
   },
   {
+    id: 'first-light',
+    component: FirstLightCard,
+  },
+  {
+    id: '3d-renderer',
+    component: ThreeDRendererCard,
+  },
+  {
     id: 'boy-scouts',
     component: BoyScoutsCard,
+  },
+  {
+    id: 'guestbook',
+    component: GuestbookCard,
   },
 ];
 

@@ -40,6 +40,19 @@ export const projects: Record<string, ProjectMetadata> = {
             { label: 'GitHub', url: 'https://github.com/byung806/First-Light' },
         ],
     },
+    '3d-renderer': {
+        id: '3d-renderer',
+        title: '3D Wireframe Renderer',
+        subtitle: 'LINEAR ALGEBRA',
+        tagline: 'Building a 3D graphics renderer from linear algebra fundamentals.',
+        coverImage: '/p/3d-renderer/cube-inverted.png',
+        year: '2024',
+        role: 'Solo Developer',
+        tools: ['Python', 'Linear Algebra', 'NumPy'],
+        links: [
+            { label: 'GitHub', url: 'https://github.com/byung806/3d-final-project' },
+        ],
+    },
     'troopwebhost': {
         id: 'troopwebhost',
         title: 'TroopWebHost Improvement Project',

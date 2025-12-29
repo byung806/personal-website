@@ -7,6 +7,7 @@ interface ProjectCardProps {
   tags: string[];
   projectUrl?: string;
   bgColor: string;
+  borderColor?: string;
   children?: React.ReactNode;
 }
 
@@ -17,6 +18,7 @@ export default function ProjectCard({
   tags,
   projectUrl,
   bgColor,
+  borderColor,
   children,
 }: ProjectCardProps) {
   const hasLink = !!projectUrl;
@@ -45,6 +47,7 @@ export default function ProjectCard({
           className={`relative rounded-xl overflow-hidden transition-transform duration-500 will-change-transform ${hasLink ? 'group-hover:scale-[0.985]' : 'group-active:scale-[0.985]'}`}
           style={{
             backgroundColor: effectiveBg,
+            ...(borderColor && { border: `1px solid ${borderColor}` }),
           }}
         >
           <div
