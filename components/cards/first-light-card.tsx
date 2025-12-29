@@ -1,33 +1,14 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import { Pause, Play } from 'lucide-react';
 import ProjectCard from '../project-card';
+import { useVideoControls } from '@/lib/use-video-controls';
 
 export default function FirstLightCard() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
-
-  const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
+  const { videoRef, isPlaying, togglePlay } = useVideoControls();
 
   return (
-    <ProjectCard
-      title="First Light"
-      subtitle="SWIFT PLAYGROUND"
-      year="2025"
-      tags={['Swift, SceneKit, Physics', 'Apple WWDC Winner']}
-      projectUrl="/p/first-light"
-      bgColor="#f6f6f6"
-    >
+    <ProjectCard projectId="first-light">
       <div className="relative w-full group/video">
         <video
           ref={videoRef}

@@ -1,28 +1,25 @@
 'use client';
 
+import { projects } from '@/content/projects';
+
 interface ProjectCardProps {
-  title: string;
-  subtitle?: string;
-  year?: string;
-  tags: string[];
-  projectUrl?: string;
-  bgColor: string;
-  borderColor?: string;
-  borderThickness?: number;
+  projectId: string;
   children?: React.ReactNode;
 }
 
 export default function ProjectCard({
-  title,
-  subtitle,
-  year,
-  tags,
-  projectUrl,
-  bgColor,
-  borderColor,
-  borderThickness = 1,
+  projectId,
   children,
 }: ProjectCardProps) {
+  const meta = projects[projectId];
+  const metadataLabel = meta?.year || meta?.subtitle;
+  const title = meta?.title || '';
+  const tags = [...(meta?.tools || []), ...(meta?.special || [])];
+  const bgColor = meta?.bgColor || '#ffffff';
+  const borderColor = meta?.borderColor;
+  const borderThickness = meta?.borderThickness || 1;
+  const projectUrl = `/p/${projectId}`;
+
   const hasLink = !!projectUrl;
   const isExternalLink = projectUrl?.startsWith('http');
   const linkProps = hasLink ? {
@@ -37,8 +34,6 @@ export default function ProjectCard({
   const darkBgColor = bgColor === '#f6f6f6' ? '#1A1A1A' : bgColor;
 
   const effectiveBg = bgColor === '#f6f6f6' ? '#f1f1f1' : bgColor;
-
-  const metadataLabel = year || subtitle;
 
   const content = (
     <>

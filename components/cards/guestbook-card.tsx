@@ -4,15 +4,7 @@ import ProjectCard from '../project-card';
 
 export default function GuestbookCard() {
   return (
-    <ProjectCard
-      title="Guestbook"
-      subtitle="2025"
-      tags={['PostgreSQL', 'Prisma', 'Next.js API Routes']}
-      projectUrl="/p/guestbook"
-      bgColor="#ffffff"
-      borderColor="#f1f1f1"
-      borderThickness={2}
-    >
+    <ProjectCard projectId="guestbook">
       <div className="relative w-full min-h-[320px] md:min-h-[380px] px-10 py-12 flex items-center">
         <div className="relative max-w-[420px] w-full">
           <div

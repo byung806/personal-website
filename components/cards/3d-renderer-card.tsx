@@ -1,33 +1,14 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import { Pause, Play } from 'lucide-react';
 import ProjectCard from '../project-card';
+import { useVideoControls } from '@/lib/use-video-controls';
 
 export default function ThreeDRendererCard() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
-
-  const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
+  const { videoRef, isPlaying, togglePlay } = useVideoControls();
 
   return (
-    <ProjectCard
-      title="3D Wireframe Renderer"
-      subtitle="LINEAR ALGEBRA"
-      year="2025"
-      tags={['Linear Algebra', 'Graphics Programming', 'Python']}
-      projectUrl="/p/3d-renderer"
-      bgColor="#1a1a1a"
-    >
+    <ProjectCard projectId="3d-renderer">
       <div className="relative w-full group/video">
         <video
           ref={videoRef}

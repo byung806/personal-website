@@ -1,33 +1,14 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import { Pause, Play } from 'lucide-react';
 import ProjectCard from '../project-card';
+import { useVideoControls } from '@/lib/use-video-controls';
 
 export default function RunwayWebCard() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
-
-  const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
+  const { videoRef, isPlaying, togglePlay } = useVideoControls();
 
   return (
-    <ProjectCard
-      title="Runway Website"
-      subtitle="WEB APP"
-      year="2024"
-      tags={['Next.js, Tailwind, TypeScript']}
-      projectUrl="https://runwaymobile.app"
-      bgColor="#f6f6f6"
-    >
+    <ProjectCard projectId="runway-web">
       <div className="relative w-full group/video">
         <video
           ref={videoRef}
@@ -48,6 +29,8 @@ export default function RunwayWebCard() {
             togglePlay();
           }}
           className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-sm rounded-md opacity-0 group-hover/video:opacity-100 transition-opacity duration-200 hover:bg-white z-10"
+          aria-label={isPlaying ? 'Pause video' : 'Play video'}
+        >
           aria-label={isPlaying ? 'Pause video' : 'Play video'}
         >
           {isPlaying ? (

@@ -2,13 +2,18 @@ export type ProjectMetadata = {
     id: string;
     title: string;
     subtitle: string;
-    tagline: string;
-    coverImage: string;
+    tagline?: string;
+    coverImage?: string;
     year?: string;
     role?: string;
     team?: string;
     tools?: string[];
     links?: { label: string; url: string }[];
+    // Card styling
+    special?: string[];
+    bgColor?: string;
+    borderColor?: string;
+    borderThickness?: number;
 };
 
 export const projects: Record<string, ProjectMetadata> = {
@@ -26,6 +31,8 @@ export const projects: Record<string, ProjectMetadata> = {
             { label: 'App Store', url: 'https://runwaymobile.app' },
             { label: 'GitHub', url: 'https://github.com/byung806/runway' },
         ],
+        special: ['1k+ Users'],
+        bgColor: '#32193d',
     },
     'first-light': {
         id: 'first-light',
@@ -39,6 +46,8 @@ export const projects: Record<string, ProjectMetadata> = {
         links: [
             { label: 'GitHub', url: 'https://github.com/byung806/First-Light' },
         ],
+        special: ['Apple WWDC Winner'],
+        bgColor: '#f6f6f6',
     },
     '3d-renderer': {
         id: '3d-renderer',
@@ -46,12 +55,13 @@ export const projects: Record<string, ProjectMetadata> = {
         subtitle: 'LINEAR ALGEBRA',
         tagline: 'Building a 3D graphics renderer from linear algebra fundamentals.',
         coverImage: '/p/3d-renderer/cube-inverted.png',
-        year: '2024',
+        year: '2025',
         role: 'Solo Developer',
         tools: ['Python', 'Linear Algebra', 'NumPy'],
         links: [
             { label: 'GitHub', url: 'https://github.com/byung806/3d-final-project' },
         ],
+        bgColor: '#1a1a1a',
     },
     'troopwebhost': {
         id: 'troopwebhost',
@@ -65,6 +75,8 @@ export const projects: Record<string, ProjectMetadata> = {
         links: [
             { label: 'GitHub', url: 'https://github.com/byung806/Troop-Web-Host-Improvement' },
         ],
+        special: ['100+ Users'],
+        bgColor: '#f6f6f6',
     },
     'eeg-classification': {
         id: 'eeg-classification',
@@ -79,5 +91,24 @@ export const projects: Record<string, ProjectMetadata> = {
         links: [
             { label: 'GitHub', url: 'https://github.com/byung806/EEG-Feature-Classification' },
         ],
+        special: ['Neural Systems Lab'],
+        bgColor: '#ffffff',
+        borderColor: '#eaecef',
+    },
+    'runway-web': {
+        id: 'runway-web',
+        title: 'Runway Website',
+        subtitle: 'WEB APP',
+        year: '2024',
+        bgColor: '#f6f6f6',
+    },
+    'guestbook': {
+        id: 'guestbook',
+        title: 'Guestbook',
+        subtitle: 'INTERACTIVE',
+        year: '2025',
+        bgColor: '#ffffff',
+        borderColor: '#f1f1f1',
+        borderThickness: 2,
     },
 };
