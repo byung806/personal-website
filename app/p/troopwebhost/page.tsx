@@ -8,10 +8,10 @@ export default function TroopWebHostCaseStudy() {
     <CaseStudyLayout project={projects.troopwebhost}>
       <CaseStudySection>
         <CaseStudyText>
-          Boy Scout troop leaders need to track adult volunteer training records and send regular updates to their troop members.
-          TroopWebHost is a web platform for this, but updating records manually for 50+ people per troop was tedious.
-          I built a desktop app that automates the entire workflow—pulling member data, organizing it into sortable tables, and sending batch emails with one click.
-          This saved leaders hours every week.
+          Boy Scout troop leaders need to track adult training records and send regular updates to their troop members.
+          However, updating records manually for 100+ people per troop was very tedious.
+          I built a desktop app that automates the entire workflow: scraping member data, organizing it into sortable tables, and sending batch emails with one click.
+          This reduced the time spent on record-keeping by 66% every week.
         </CaseStudyText>
       </CaseStudySection>
 
@@ -24,7 +24,10 @@ export default function TroopWebHostCaseStudy() {
 
       <CaseStudySection>
         <CaseStudyText>
-          Built with Python and Tkinter for the desktop UI. I used the requests library with BeautifulSoup to scrape member data from TroopWebHost, parsing HTML tables into structured rows. The main technical challenge was threading—I separated the UI, HTTP requests, and data processing into different threads so the interface stayed responsive during long scraping operations. Email templates are stored in JSON and support variable substitution for personalized batch sends.
+          Built with Python and Tkinter for the desktop UI. I used the requests and BeautifulSoup libraries to scrape member data, parsing HTML tables into structured rows.
+          One challenge I ran into was that the UI would freeze while data was being processed in the background.
+          So, I separated the UI, HTTP requests, and data processing into different threads.
+          Email templates are stored in JSON and support variable substitution for personalized batch sends.
         </CaseStudyText>
       </CaseStudySection>
     </CaseStudyLayout>

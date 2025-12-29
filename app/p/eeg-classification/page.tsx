@@ -27,7 +27,7 @@ export default function EEGClassificationCaseStudy() {
 
       <CaseStudySection>
         <CaseStudyText>
-          I analyzed brain activity patterns from different regions and frequencies. The challenge was figuring out which patterns actually help with diagnosis versus which ones just add confusion. By testing each pattern individually, I identified the most reliable indicators that doctors can trust and understand.
+          I analyzed brain activity patterns from different regions and frequencies. It was a challenge to figure out which patterns actually help with diagnosis versus which ones just add confusion.
         </CaseStudyText>
       </CaseStudySection>
 

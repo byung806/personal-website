@@ -23,7 +23,7 @@ export default function RunwayCaseStudy() {
           { src: '/p/runway/app-3.png', alt: 'Runway app profile' },
         ]}
         aspectRatio="auto"
-        caption="The layout of the app, built with React Native/Swift/Expo. Implemented infinite scroll with optimized rendering and live leaderboard updates. The main challenge was managing state across tabs while maintaining smooth 60fps animations."
+        caption="The layout of the app, built with React Native/Swift/Expo. Implemented infinite scroll with optimized rendering and live leaderboard updates."
       />
 
       <CaseStudyImageRow
@@ -51,7 +51,7 @@ export default function RunwayCaseStudy() {
         aspectRatio="auto"
         autoplay={true}
         clickableUrl="https://runwaymobile.app"
-        caption="The Runway website, built with Next.js and Tailwind CSS. Features smooth animations and responsive design to showcase the app's features."
+        caption="The Runway website, built with Next.js and Tailwind CSS to showcase the app's features."
       />
 
       <CaseStudyImageRow
@@ -73,7 +73,7 @@ export default function RunwayCaseStudy() {
         src="/p/runway/map.png"
         alt="Map of Runway users worldwide"
         aspectRatio="auto"
-        caption="1,300+ users across 100+ countries. App Store Connect and custom event tracking provided insights into user behavior and retention patterns across different regions."
+        caption="Runway reaches 1,300+ users across 100+ countries (tracked with App Store Connect and Google Play Console)."
       />
     </CaseStudyLayout>
   );
