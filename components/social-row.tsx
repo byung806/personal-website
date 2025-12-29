@@ -4,10 +4,14 @@ import { useState } from 'react';
 import { ArrowUpRight, Download, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import SnowflakeButton from './snowflake-button';
+import SeasonButton from './season-button';
+import { useSnowfall } from './snowfall-provider';
 
 export default function SocialRow() {
   const [isOpen, setIsOpen] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
+  const { season } = useSnowfall();
 
   const handleEmailClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -96,6 +100,14 @@ export default function SocialRow() {
           )}
         </AnimatePresence>
       </div>
+
+      <span className="inline-flex items-center">
+        {season === 'winter' ? (
+          <SnowflakeButton />
+        ) : (
+          <SeasonButton />
+        )}
+      </span>
     </div>
   );
 }

@@ -6,8 +6,7 @@ import SocialRow from './social-row';
 import StickyBackButton from './sticky-back-button';
 import { Leaf, Snowflake, Sun } from 'lucide-react';
 import { useMemo } from 'react';
-import SnowflakeButton from './snowflake-button';
-import SeasonButton from './season-button';
+// moved seasonal icon to SocialRow
 
 export default function HeroSection() {
   const pathname = usePathname();
@@ -46,17 +45,8 @@ export default function HeroSection() {
           <div className="flex justify-center md:block md:absolute md:left-1/2 md:-translate-x-1/2">
             <div className="inline-flex items-center">
               <Link href="/" className="font-serif text-2xl text-gray-900 dark:text-gray-100 hover:opacity-70 transition-opacity inline-flex items-center">
-                <span>Bryan</span>
-                {season === 'winter' ? (
-                  <span className="mx-1 inline-flex items-center" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                    <SnowflakeButton />
-                  </span>
-                ) : (
-                  <span className="mx-1 inline-flex items-center" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                    <SeasonButton />
-                  </span>
-                )}
-                <span>Yung</span>
+                <span className="font-wordmark font-bold mr-1">Bryan</span>
+                <span className="font-wordmark font-bold ml-1">Yung</span>
               </Link>
             </div>
           </div>

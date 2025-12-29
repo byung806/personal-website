@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Libre_Baskerville, JetBrains_Mono } from "next/font/google";
+import { Libre_Baskerville, JetBrains_Mono, Fraunces, Bodoni_Moda } from "next/font/google";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 import ThemeProvider from "@/components/theme-provider";
@@ -15,6 +15,20 @@ const libreBaskerville = Libre_Baskerville({
 const jetbrainsMono = JetBrains_Mono({
     subsets: ["latin"],
     variable: "--font-mono",
+    display: "swap",
+});
+
+const fraunces = Fraunces({
+    subsets: ["latin"],
+    weight: ["400", "700"],
+    variable: "--font-fraunces",
+    display: "swap",
+});
+
+const bodoniModa = Bodoni_Moda({
+    subsets: ["latin"],
+    weight: ["400", "700"],
+    variable: "--font-wordmark",
     display: "swap",
 });
 
@@ -37,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <link rel="preload" href="/umd_eeg_tsne.png" as="image" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />
             </head>
-            <body className={`${libreBaskerville.variable} ${jetbrainsMono.variable} font-serif antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
+            <body className={`${libreBaskerville.variable} ${jetbrainsMono.variable} ${fraunces.variable} ${bodoniModa.variable} font-serif antialiased bg-white dark:bg-[#0F0F0F] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
                 <SnowfallProvider>
                     <ThemeProvider>
                         <HeroSection />

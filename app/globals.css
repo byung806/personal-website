@@ -10,6 +10,16 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Fraunces utility (loaded via next/font) */
+.font-fraunces {
+  font-family: var(--font-fraunces);
+}
+
+/* Wordmark utility (temporary Canela-like fallback via Bodoni Moda) */
+.font-wordmark {
+  font-family: var(--font-wordmark);
+}
+
 /* Smooth transitions for theme and font changes */
 * {
   transition-property: font-family, background-color, border-color, color, fill, stroke;
