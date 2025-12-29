@@ -95,13 +95,6 @@ export const projects: Record<string, ProjectMetadata> = {
         bgColor: '#ffffff',
         borderColor: '#eaecef',
     },
-    'runway-web': {
-        id: 'runway-web',
-        title: 'Runway Website',
-        subtitle: 'WEB APP',
-        year: '2024',
-        bgColor: '#f6f6f6',
-    },
     'guestbook': {
         id: 'guestbook',
         title: 'Guestbook',
