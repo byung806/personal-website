@@ -18,18 +18,7 @@ export default function SnowflakeButton() {
     }
   };
 
-  const setAlpha = (rgba: string, alpha: number) => {
-    const match = rgba.match(/rgba\(([^)]+)\)/);
-    if (!match) return rgba;
-    const parts = match[1].split(',').map((p) => p.trim());
-    if (parts.length < 4) return rgba;
-    parts[3] = String(alpha);
-    return `rgba(${parts.join(', ')})`;
-  };
-
-  const currentColor = isSnowing
-    ? '#3b82f6'
-    : setAlpha(accentColor, isHovered ? 0.75 : 0.6);
+  const currentColor = isSnowing ? '#3b82f6' : (isHovered ? '#FF4500' : 'currentColor');
 
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -50,17 +39,17 @@ export default function SnowflakeButton() {
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="relative p-1 rounded-md transition-colors"
+        className="relative transition-colors"
         aria-label="Toggle snowfall"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.96 }}
         style={{ color: currentColor }}
       >
         <motion.div
           animate={{ rotate: getRotation() }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
         >
-          <Snowflake className="w-[20px] h-[20px]" />
+          <Snowflake className="w-[14px] h-[14px]" strokeWidth={2} />
         </motion.div>
       </motion.button>
 
@@ -74,7 +63,7 @@ export default function SnowflakeButton() {
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="absolute inset-0 pointer-events-none flex items-center justify-center"
           >
-            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: season === 'winter' ? '#ffffff' : accentColor }} />
+            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#3b82f6' }} />
           </motion.div>
         ))}
       </AnimatePresence>

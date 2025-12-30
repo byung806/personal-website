@@ -16,13 +16,13 @@ export default function SeasonButton() {
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="p-1 rounded-md"
+      className="rounded-md"
       aria-label="Seasonal accent"
-      whileHover={{ scale: 1.06 }}
+      whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.96 }}
       style={{ color: isHovered ? accentColor : accentColor }}
     >
-      <span className="text-[18px] leading-none">
+      <span className="text-[14px] leading-none">
         {emoji}
       </span>
     </motion.button>

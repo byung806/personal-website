@@ -9,11 +9,11 @@ export function CaseStudySection({ title, children }: CaseStudySectionProps) {
   return (
     <section className="mb-20">
       {title && (
-        <h2 className="text-3xl font-semibold text-gray-900 dark:text-white mb-6">
+        <h2 className="text-3xl font-serif font-semibold text-gray-900 dark:text-white mb-6">
           {title}
         </h2>
       )}
-      <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
+      <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed text-lg font-domine">
         {children}
       </div>
     </section>
@@ -56,7 +56,7 @@ export function CaseStudyImage({ src, alt, caption, aspectRatio = 'video' }: Cas
 
 export function CaseStudyText({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
+    <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 font-domine">
       {children}
     </p>
   );

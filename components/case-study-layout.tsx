@@ -82,7 +82,7 @@ export default function CaseStudyLayout({
             {/* Right Column - Scrolling Content */}
             <main className="lg:w-[70%]">
               {/* Tagline */}
-              <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white mb-8 leading-tight">
+              <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 dark:text-white mb-8 leading-tight">
                 {tagline}
               </h2>
 
