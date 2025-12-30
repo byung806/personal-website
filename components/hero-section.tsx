@@ -7,7 +7,7 @@ import SiteTitle from './site-title';
 import { useState } from 'react';
 import { ArrowUpRight, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import SnowflakeButton from './snowflake-button';
+import FunButton from './funbutton';
 import SeasonButton from './season-button';
 import { useSnowfall } from './snowfall-provider';
 
@@ -133,7 +133,7 @@ export default function HeroSection() {
               </div>
 
               {season === 'winter' ? (
-                <SnowflakeButton />
+                <FunButton />
               ) : (
                 <SeasonButton />
               )}
