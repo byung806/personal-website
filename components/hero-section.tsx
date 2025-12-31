@@ -31,16 +31,21 @@ export default function HeroSection() {
       {showBackButton && <StickyBackButton />}
       <section className="w-full px-4 md:px-6 py-8 bg-white dark:bg-[#0F0F0F]">
         <div className="max-w-[1600px] mx-auto relative">
-          {/* Centered title - doesn't affect flex layout */}
-          <div className="absolute left-1/2 -translate-x-1/2 top-0">
-            <SiteTitle />
-          </div>
+          {/* Responsive layout: stack vertically on mobile, row on desktop */}
+          <div
+            className={
+              `flex flex-col items-center text-center gap-4 md:gap-0 md:flex-row md:items-start md:justify-between` +
+              (showBackButton ? '' : '')
+            }
+          >
+            {/* SiteTitle: show at top on mobile, absolute on desktop */}
+            <div className="block md:absolute md:left-1/2 md:-translate-x-1/2 md:top-0 md:text-left">
+              <SiteTitle />
+            </div>
 
-          {/* Main content - flex between */}
-          <div className="flex items-start justify-between">
-            {/* Left: Editorial text */}
+            {/* Editorial text: below title on mobile, left on desktop */}
             {!showBackButton && (
-              <div className="max-w-[320px] text-[11px] uppercase tracking-wide leading-relaxed font-sans text-gray-900 dark:text-gray-100">
+              <div className="max-w-[320px] text-[11px] uppercase tracking-wide leading-relaxed font-sans text-gray-900 dark:text-gray-100 mt-2 md:mt-0 md:text-left md:ml-0">
                 Hi, I'm <span className="font-bold text-[#FF4500]">Bryan Yung</span>, a computer science student at{' '}
                 <span className="underline decoration-1 underline-offset-2">Carnegie Mellon University</span>, currently exploring{' '}
                 <span className="font-semibold">AI</span>, <span className="font-semibold">HCI</span>, and{' '}
@@ -51,8 +56,13 @@ export default function HeroSection() {
             {/* Spacer on project pages */}
             {showBackButton && <div />}
 
-            {/* Right: Navigation */}
-            <div className={`flex items-center gap-6 text-[11px] uppercase tracking-widest font-sans ${showBackButton ? 'hidden md:flex' : ''}`}>
+            {/* Navigation: below text on mobile, right on desktop */}
+            <div
+              className={
+                `flex flex-row gap-6 text-[11px] uppercase tracking-widest font-sans mt-2 md:mt-0` +
+                (showBackButton ? ' hidden md:flex' : ' items-center')
+              }
+            >
               <a
                 href="/Bryan_Yung_Resume.pdf"
                 download
