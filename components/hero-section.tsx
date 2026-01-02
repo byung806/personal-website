@@ -39,8 +39,8 @@ export default function HeroSection() {
             }
           >
             {/* SiteTitle: show at top on mobile, absolute on desktop */}
-            <div className="block md:absolute md:left-1/2 md:-translate-x-1/2 md:top-0 md:text-left">
-              <SiteTitle />
+            <div className="block md:absolute md:left-1/2 md:-translate-x-1/2 md:top-0 md:text-left md:z-10">
+              <SiteTitle isHome={isHomePage} />
             </div>
 
             {/* Editorial text: below title on mobile, left on desktop */}
@@ -63,6 +63,12 @@ export default function HeroSection() {
                 (showBackButton ? ' hidden md:flex' : ' items-center')
               }
             >
+              <span
+                className="text-gray-900 dark:text-gray-200 underline decoration-1 underline-offset-2"
+              >
+                Work
+              </span>
+
               <a
                 href="/Bryan_Yung_Resume.pdf"
                 download
