@@ -105,4 +105,21 @@ export const projects: Record<string, ProjectMetadata> = {
         borderColor: '#f1f1f1',
         borderThickness: 2,
     },
+    echo: {
+        id: 'echo',
+        title: 'Echo',
+        subtitle: 'GAME · TARTANHACKS 2026',
+        tagline: 'A time travel 2D platformer that compresses down to just 15 KB.',
+        coverImage: '/p/echo/unknown%2040.png',
+        year: '2026',
+        role: 'Team',
+        team: 'Alan Dong, Michael Li, Seunghyun Bae',
+        tools: ['JavaScript', 'HTML5', 'Canvas'],
+        links: [
+            { label: 'Play Demo', url: 'https://justanothernoob4648.github.io/tartanhacks26/' },
+            { label: 'LinkedIn', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7426682086251626496/' },
+        ],
+        special: ['TartanHacks Winner'],
+        bgColor: '#1a1625',
+    },
 };
