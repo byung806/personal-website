@@ -38,6 +38,14 @@ export default function ProjectCard({
 
   const effectiveBg = bgColor === '#f6f6f6' ? '#f1f1f1' : bgColor;
 
+  // Use dark text on frosted glass when card background is light (so text is readable). Per-project override optional.
+  const tagTextDark = meta?.tagTextDark ?? isVeryWhite;
+
+  const glassPillClass = tagTextDark
+    ? 'bg-white/15 backdrop-blur-md border border-black/10 text-gray-900 shadow-[0_2px_12px_rgba(0,0,0,0.12)]'
+    : 'bg-white/10 backdrop-blur-md border border-white/10 text-white shadow-[0_2px_12px_rgba(0,0,0,0.2)]';
+  const revealClass = 'md:opacity-0 md:translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out';
+
   const content = (
     <>
       {/* Single rounded container scales as a whole so corners stay consistent on hover */}
@@ -60,21 +68,21 @@ export default function ProjectCard({
             {children}
           </div>
 
-          {/* Title/subtitle chip - hover reveal, flat neutral background */}
-          <div className="absolute bottom-3 left-3 flex flex-wrap gap-2 pointer-events-none">
-            <span className="inline-flex items-center gap-2 px-3 py-2 font-sans text-sm rounded-lg bg-white/70 dark:bg-black/45 text-gray-900 dark:text-gray-100 md:opacity-0 md:translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out backdrop-blur-md shadow-[0_0_16px_rgba(0,0,0,0.08)]">
+          {/* Title/subtitle chip - hover reveal, pill tags (liquid glass + year pill); text color from card bg */}
+          <div className="absolute bottom-4 left-4 flex flex-wrap gap-2.5 pointer-events-none">
+            <span className={`inline-flex items-center gap-2.5 px-3.5 py-2 font-sans text-sm rounded-full ${glassPillClass} ${revealClass}`}>
               {metadataLabel && (
-                <span className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400 leading-none whitespace-nowrap">
+                <span className="inline-flex items-center rounded-full bg-stone-600/90 backdrop-blur-sm px-2.5 py-1 text-sm font-medium text-white leading-none whitespace-nowrap border border-white/5">
                   {metadataLabel}
                 </span>
               )}
-              <span className="text-sm text-black dark:text-gray-50 leading-none whitespace-nowrap">
+              <span className="text-sm leading-none whitespace-nowrap [color:inherit]">
                 {title}
               </span>
             </span>
             {specialTags.length > 0 && specialTags.map((tag) => (
-              <span key={tag} className="inline-flex items-center px-3 py-2 font-sans text-sm rounded-lg bg-white/70 dark:bg-black/45 text-gray-900 dark:text-gray-100 md:opacity-0 md:translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out backdrop-blur-md shadow-[0_0_16px_rgba(0,0,0,0.08)]">
-                <span className="text-sm leading-none whitespace-nowrap">
+              <span key={tag} className={`inline-flex items-center px-3.5 py-2 font-sans text-sm rounded-full ${glassPillClass} ${revealClass}`}>
+                <span className="text-sm leading-none whitespace-nowrap [color:inherit]">
                   {tag}
                 </span>
               </span>

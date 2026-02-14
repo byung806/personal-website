@@ -14,6 +14,8 @@ export type ProjectMetadata = {
     bgColor?: string;
     borderColor?: string;
     borderThickness?: number;
+    /** When true, use dark text on frosted-glass tags (for light card bg). Omit to auto-derive from bgColor. */
+    tagTextDark?: boolean;
 };
 
 export const projects: Record<string, ProjectMetadata> = {
@@ -48,6 +50,7 @@ export const projects: Record<string, ProjectMetadata> = {
         ],
         special: ['Apple WWDC Winner'],
         bgColor: '#f6f6f6',
+        tagTextDark: false,
     },
     '3d-renderer': {
         id: '3d-renderer',
