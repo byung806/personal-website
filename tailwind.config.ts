@@ -11,8 +11,8 @@ const config: Config = {
     theme: {
         extend: {
             fontFamily: {
-                heading: ['Sora', 'ui-sans-serif', 'system-ui'],
-                sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+                heading: ['var(--font-sans)', 'ui-sans-serif', 'system-ui'],
+                sans: ['var(--font-sans)', 'Inter', 'ui-sans-serif', 'system-ui'],
                 serif: ['Libre Baskerville', 'ui-serif', 'Georgia', 'serif'],
                 mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
             },

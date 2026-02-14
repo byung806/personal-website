@@ -23,7 +23,7 @@ interface ThemeProviderProps {
 }
 
 export default function ThemeProvider({ children }: ThemeProviderProps) {
-  const [currentStyle, setCurrentStyle] = useState('keyboard');
+  const [currentStyle, setCurrentStyle] = useState('clean');
 
   useEffect(() => {
     // Apply style classes to body

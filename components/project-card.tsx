@@ -18,7 +18,9 @@ export default function ProjectCard({
   const specialTags = meta?.special || [];
   const bgColor = meta?.bgColor || '#ffffff';
   const borderColor = meta?.borderColor;
-  const borderThickness = meta?.borderThickness || 1;
+  const baseBorderThickness = meta?.borderThickness || 1;
+  const isVeryWhite = bgColor === '#ffffff' || bgColor === '#f6f6f6' || bgColor === '#f1f1f1';
+  const borderThickness = borderColor && isVeryWhite ? Math.max(baseBorderThickness, 3) : baseBorderThickness;
   const projectUrl = `/p/${projectId}`;
 
   const hasLink = !!projectUrl;
@@ -38,16 +40,15 @@ export default function ProjectCard({
 
   const content = (
     <>
-      {/* Image Card - outer container maintains layout */}
-      <div className="relative overflow-hidden rounded-xl">
-        {/* Inner wrapper that scales */}
-        <div
-          className={`relative rounded-xl overflow-hidden transition-transform duration-500 will-change-transform ${hasLink ? 'group-hover:scale-[0.985]' : 'group-active:scale-[0.985]'}`}
-          style={{
-            backgroundColor: effectiveBg,
-            ...(borderColor && { border: `${borderThickness}px solid ${borderColor}` }),
-          }}
-        >
+      {/* Single rounded container scales as a whole so corners stay consistent on hover */}
+      <div
+        className={`relative overflow-hidden rounded-xl transition-transform duration-500 will-change-transform ${hasLink ? 'group-hover:scale-[0.985]' : 'group-active:scale-[0.985]'}`}
+        style={{
+          backgroundColor: effectiveBg,
+          ...(borderColor && { border: `${borderThickness}px solid ${borderColor}` }),
+        }}
+      >
+        <div className="relative">
           <div
             className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity"
             style={{ backgroundColor: darkBgColor }}

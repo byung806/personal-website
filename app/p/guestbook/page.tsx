@@ -66,17 +66,11 @@ export default function GuestbookPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0A0A0A] pt-28 pb-32 px-6">
+        <div className="min-h-screen bg-white pt-12 md:pt-16 pb-32 px-6 md:px-10 lg:px-16">
             <div className="max-w-6xl mx-auto">
-                {/* Header - Quiet invitation */}
-                <div className="text-center mb-20">
-                    <h1 className="text-[26px] font-medium tracking-tight text-gray-900 dark:text-gray-100 mb-2.5">
-                        Guestbook
-                    </h1>
-                    <p className="text-[13px] text-gray-500 dark:text-gray-500 tracking-wide">
-                        Notes left by friends and strangers over time
-                    </p>
-                </div>
+                <p className="text-center text-base md:text-lg text-gray-500 tracking-wide mb-20">
+                    Notes left by friends and strangers over time
+                </p>
 
                 {/* Signing area - softened, integrated */}
                 <div className="mb-20 max-w-xl mx-auto">
@@ -239,7 +233,7 @@ export default function GuestbookPage() {
                     </div>
                 )}
             </div>
+            </div>
         </div>
-    </div>
     );
 }

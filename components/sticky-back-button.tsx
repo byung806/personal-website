@@ -10,7 +10,7 @@ export default function StickyBackButton() {
         <div className="flex items-center justify-between gap-12 relative">
           <Link 
             href="/" 
-            className="flex items-center text-[11px] uppercase tracking-widest font-sans text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors pointer-events-auto"
+            className="flex items-center text-sm font-medium uppercase tracking-wide text-gray-900 hover:text-gray-900 transition-colors pointer-events-auto"
           >
             ← Projects
           </Link>
