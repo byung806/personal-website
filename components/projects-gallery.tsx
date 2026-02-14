@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Card } from '@/content/cards';
 
 const fadeIn = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0 },
   viewport: { once: true, margin: '-40px 0px -40px 0px' },
   transition: (i: number) => ({ duration: 0.45, delay: i * 0.08, ease: [0.22, 0.61, 0.36, 1] }),
 };
@@ -26,7 +26,7 @@ export default function ProjectsGallery({ cards }: ProjectsGalleryProps) {
             <motion.div
               className="w-full mt-16 md:mt-20 lg:mt-24 py-2 select-text pointer-events-auto"
               initial={fadeIn.initial}
-              whileInView={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={fadeIn.viewport}
               transition={fadeIn.transition(0)}
             >
@@ -45,7 +45,7 @@ export default function ProjectsGallery({ cards }: ProjectsGalleryProps) {
                   key={card.id}
                   className="w-full rounded-2xl"
                   initial={fadeIn.initial}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1 }}
                   viewport={fadeIn.viewport}
                   transition={fadeIn.transition(staggerIndex)}
                 >
@@ -64,7 +64,7 @@ export default function ProjectsGallery({ cards }: ProjectsGalleryProps) {
                   key={card.id}
                   className="w-full rounded-2xl"
                   initial={fadeIn.initial}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1 }}
                   viewport={fadeIn.viewport}
                   transition={fadeIn.transition(staggerIndex)}
                 >
