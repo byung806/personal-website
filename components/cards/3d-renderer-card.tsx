@@ -9,7 +9,7 @@ export default function ThreeDRendererCard() {
 
   return (
     <ProjectCard projectId="3d-renderer">
-      <div className="relative w-full aspect-video min-h-[200px] group/video">
+      <div className="relative w-full aspect-square min-h-[200px] group/video">
         <video
           ref={videoRef}
           autoPlay
