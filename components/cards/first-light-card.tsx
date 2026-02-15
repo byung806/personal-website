@@ -9,7 +9,7 @@ export default function FirstLightCard() {
 
   return (
     <ProjectCard projectId="first-light">
-      <div className="relative w-full aspect-video min-h-[200px] group/video">
+      <div className="relative w-full aspect-[5/4] min-h-[200px] group/video">
         <video
           ref={videoRef}
           autoPlay
