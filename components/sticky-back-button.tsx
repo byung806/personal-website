@@ -5,9 +5,9 @@ import SiteTitle from './site-title';
 
 export default function StickyBackButton() {
   return (
-    <div className="fixed top-0 z-40 w-full px-4 md:px-4 lg:px-6 py-8 pointer-events-none">
-      <div className="max-w-[1600px] mx-auto">
-        <div className="flex items-center justify-between gap-12 relative">
+    <div className="fixed top-0 z-40 w-full px-4 md:px-4 lg:px-6 py-6 md:py-8 pointer-events-none">
+      <div className="max-w-[1600px] mx-auto h-full flex items-center">
+        <div className="flex items-center justify-between gap-12 relative w-full min-h-[1.5rem]">
           <Link 
             href="/" 
             className="flex items-center text-sm font-medium uppercase tracking-wide text-gray-900 hover:text-gray-900 transition-colors pointer-events-auto"

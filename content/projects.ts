@@ -4,6 +4,12 @@ export type ProjectMetadata = {
     subtitle: string;
     tagline?: string;
     coverImage?: string;
+    /** Case study cover section background color (e.g. '#0d0c0f'). */
+    coverBgColor?: string;
+    /** Case study cover: use larger phone mockup. */
+    coverLarge?: boolean;
+    /** Case study cover: very big, immersive (taller section + much larger image). Echo only. */
+    coverImmersive?: boolean;
     /** Path to logo image (e.g. SVG) shown in case study sidebar. */
     logo?: string;
     year?: string;
@@ -124,7 +130,9 @@ export const projects: Record<string, ProjectMetadata> = {
         title: 'Echo',
         subtitle: 'GAME · TARTANHACKS 2026',
         tagline: 'A time travel 2D platformer that compresses down to just 15 KB.',
-        coverImage: '/p/echo/unknown%2040.png',
+        coverImage: '/p/echo/echo.png',
+        coverBgColor: '#0d0c0f',
+        coverImmersive: true,
         year: '2026',
         role: 'Developer',
         team: 'Bryan: Developer, Alan Dong, Michael Li, Seunghyun Bae',

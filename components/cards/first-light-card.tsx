@@ -9,14 +9,14 @@ export default function FirstLightCard() {
 
   return (
     <ProjectCard projectId="first-light">
-      <div className="relative w-full group/video">
+      <div className="relative w-full aspect-video min-h-[200px] group/video">
         <video
           ref={videoRef}
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-auto block"
+          className="absolute inset-0 w-full h-full object-cover"
         >
           <source src="/first-light-fireworks.mp4" type="video/mp4" />
         </video>

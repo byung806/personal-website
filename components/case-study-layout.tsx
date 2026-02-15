@@ -29,20 +29,37 @@ export default function CaseStudyLayout({
   const tools = project?.tools;
   const links = project?.links;
   const logo = project?.logo;
+  const coverBgColor = project?.coverBgColor;
+  const coverLarge = project?.coverLarge;
+  const coverImmersive = project?.coverImmersive;
+  const phoneSizeClass = coverImmersive
+    ? 'max-w-[380px] md:max-w-[580px] lg:max-w-[680px]'
+    : coverLarge
+      ? 'max-w-[320px] md:max-w-[480px]'
+      : 'max-w-[260px] md:max-w-[380px]';
+  const coverHeightClass = 'h-[50vh] md:h-[58vh] min-h-[320px] md:min-h-[440px]';
+  const coverSizes = coverImmersive
+    ? '(max-width: 768px) 380px, (max-width: 1024px) 580px, 680px'
+    : coverLarge
+      ? '(max-width: 768px) 320px, 480px'
+      : '(max-width: 768px) 260px, 380px';
 
   return (
     <div className="w-full">
       {/* Cover: image only, no overlay */}
       {coverImage && (
-        <div className="relative w-full h-[50vh] md:h-[58vh] min-h-[320px] md:min-h-[440px] bg-gray-100 dark:bg-[#1A1A1A] flex items-center justify-center p-6 md:p-10">
-          <div className="relative w-full max-w-[260px] md:max-w-[380px] aspect-[9/19] rounded-2xl overflow-hidden">
+        <div
+          className={`relative w-full ${coverHeightClass} flex items-center justify-center p-6 md:p-10 ${!coverBgColor ? 'bg-gray-100 dark:bg-[#1A1A1A]' : ''}`}
+          style={coverBgColor ? { backgroundColor: coverBgColor } : undefined}
+        >
+          <div className={`relative w-full ${phoneSizeClass} aspect-[9/19] rounded-2xl overflow-hidden`}>
             <Image
               src={coverImage}
               alt={title}
               fill
               className="object-contain"
               priority
-              sizes="(max-width: 768px) 260px, 380px"
+              sizes={coverSizes}
             />
           </div>
         </div>

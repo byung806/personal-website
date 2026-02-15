@@ -9,14 +9,14 @@ export default function ThreeDRendererCard() {
 
   return (
     <ProjectCard projectId="3d-renderer">
-      <div className="relative w-full group/video">
+      <div className="relative w-full aspect-video min-h-[200px] group/video">
         <video
           ref={videoRef}
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-auto block"
+          className="absolute inset-0 w-full h-full object-cover"
         >
           <source src="/p/3d-renderer/vid.mp4" type="video/mp4" />
         </video>

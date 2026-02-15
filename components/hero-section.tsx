@@ -7,7 +7,7 @@ import StickyBackButton from './sticky-back-button';
 
 export default function HeroSection() {
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
+  const isWorkPage = pathname === '/' || (pathname.startsWith('/p/') && pathname !== '/p/guestbook');
   const isGuestbookPage = pathname === '/p/guestbook';
   const showBackButton = pathname.startsWith('/p/') && pathname !== '/p/guestbook';
 
@@ -18,11 +18,11 @@ export default function HeroSection() {
     <>
       {showBackButton && <StickyBackButton />}
       <header className="w-full px-6 md:px-10 lg:px-16 py-6 md:py-8 relative">
-        {/* Nav: top right — active full opacity, inactive less opacity, hover medium */}
-        <nav className="flex flex-row items-center justify-center md:justify-end gap-8 md:gap-12 text-sm font-medium uppercase tracking-wide">
+        {/* Nav: on mobile project pages hide main nav (back button only); desktop unchanged */}
+        <nav className={`flex flex-row items-center justify-center md:justify-end gap-8 md:gap-12 text-sm font-medium uppercase tracking-wide ${showBackButton ? 'hidden md:flex' : ''}`}>
           <Link
             href="/"
-            className={isHomePage ? activeClass : inactiveClass}
+            className={isWorkPage ? activeClass : inactiveClass}
           >
             Work
           </Link>

@@ -19,7 +19,7 @@ export function CaseStudyVideo({ src, caption, aspectRatio = 'vertical', autopla
     vertical: 'aspect-[9/16]',
     horizontal: 'aspect-[16/9]',
     square: 'aspect-square',
-    auto: '',
+    auto: 'aspect-video', /* reserve space before video loads */
   };
 
   const togglePlay = (e: React.MouseEvent) => {
@@ -46,7 +46,7 @@ export function CaseStudyVideo({ src, caption, aspectRatio = 'vertical', autopla
       <video
         ref={videoRef}
         src={src}
-        className={`w-full ${aspectRatio === 'auto' ? 'h-auto' : 'h-full object-cover'} ${clickableUrl ? 'cursor-pointer' : ''}`}
+        className={`absolute inset-0 w-full h-full object-cover ${clickableUrl ? 'cursor-pointer' : ''}`}
         playsInline
         preload={autoplay ? 'none' : 'metadata'}
         controls={!autoplay}
