@@ -4,9 +4,13 @@ export type ProjectMetadata = {
     subtitle: string;
     tagline?: string;
     coverImage?: string;
+    /** Path to logo image (e.g. SVG) shown in case study sidebar. */
+    logo?: string;
     year?: string;
     role?: string;
     team?: string;
+    /** If set, this prefix of team is shown in green in the sidebar (e.g. "Bryan: Co-Founder"). */
+    teamHighlight?: string;
     tools?: string[];
     links?: { label: string; url: string }[];
     // Card styling
@@ -25,8 +29,11 @@ export const projects: Record<string, ProjectMetadata> = {
         subtitle: 'MOBILE APP',
         tagline: 'Khan Academy for today\'s attention spans.',
         coverImage: '/p/runway/title-ss.png',
+        logo: '/p/runway/runway.png',
         year: '2024',
-        role: 'Founder & Developer',
+        role: 'Co-Founder & Developer',
+        team: 'Bryan: Co-Founder, Jacob & the wonderful team',
+        teamHighlight: 'Bryan: Co-Founder',
         tools: ['React Native', 'Firebase', 'Swift'],
         links: [
             { label: 'Website', url: 'https://runwaymobile.app' },
@@ -51,6 +58,7 @@ export const projects: Record<string, ProjectMetadata> = {
         special: ['Apple WWDC Winner'],
         bgColor: '#f6f6f6',
         tagTextDark: false,
+        logo: '/p/first-light/apple.svg',
     },
     '3d-renderer': {
         id: '3d-renderer',
@@ -72,6 +80,7 @@ export const projects: Record<string, ProjectMetadata> = {
         subtitle: 'DESKTOP APP',
         tagline: 'Automating rosters, reporting, and scheduling for 100+ active users.',
         coverImage: '/boy-scouts.png',
+        logo: '/p/troopwebhost/bsa.webp',
         year: '2023',
         role: 'Lead Developer',
         tools: ['Python', 'Tkinter', 'BeautifulSoup', 'Threading'],
@@ -87,9 +96,11 @@ export const projects: Record<string, ProjectMetadata> = {
         subtitle: 'RESEARCH',
         tagline: 'Making machine-aided diagnosis explainable to doctors.',
         coverImage: '/p/eeg-classification/eeg_data.png',
+        logo: '/p/eeg-classification/umd.svg',
         year: '2024',
         role: 'Research Intern',
-        team: 'Neural Systems Lab',
+        team: 'Bryan: Research Intern, and the wonderful lab members',
+        teamHighlight: 'Bryan: Research Intern',
         tools: ['Python', 'scikit-learn', 'NumPy', 'Discrete Wavelet Transform'],
         links: [
             { label: 'GitHub', url: 'https://github.com/byung806/EEG-Feature-Classification' },
@@ -115,8 +126,9 @@ export const projects: Record<string, ProjectMetadata> = {
         tagline: 'A time travel 2D platformer that compresses down to just 15 KB.',
         coverImage: '/p/echo/unknown%2040.png',
         year: '2026',
-        role: 'Team',
-        team: 'Alan Dong, Michael Li, Seunghyun Bae',
+        role: 'Developer',
+        team: 'Bryan: Developer, Alan Dong, Michael Li, Seunghyun Bae',
+        teamHighlight: 'Bryan: Developer',
         tools: ['JavaScript', 'HTML5', 'Canvas'],
         links: [
             { label: 'Play Demo', url: 'https://justanothernoob4648.github.io/tartanhacks26/' },

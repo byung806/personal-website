@@ -1,5 +1,5 @@
 import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText } from '@/components/case-study-section';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
 import { CaseStudySingleImage } from '@/components/case-study-single-image';
 import { CaseStudyVideo } from '@/components/case-study-video';
 import { projects } from '@/content/projects';
@@ -12,11 +12,11 @@ export default function EchoCaseStudy() {
           Echo is a 2D platformer where you rewind time to leave a “ghost” of your past run. You and your clone exist in the same space: you can bounce off your past self to reach higher ground, trigger switches in one run and walk through the door in the next, or use the clone to hold a button while you cross the gap.
         </CaseStudyText>
         <CaseStudyText>
-        We built it in 24 hours at TartanHacks 2026 for the AppLovin track, which required the full game—code, assets, everything—to fit in 15 KB.
+        We built it in <CaseStudyHighlight>24 hours</CaseStudyHighlight> at TartanHacks 2026 for the AppLovin track, which required the full game—code, assets, everything—to fit in <CaseStudyHighlight>15 KB</CaseStudyHighlight>.
           The size limit forced hard tradeoffs: no image assets (everything is drawn with canvas APIs), hard-coded sound, and aggressive code shrinking. The mechanic had to carry the game.
         </CaseStudyText>
         <CaseStudyText>
-           Along with my teammates, (Alan Dong, Michael Li, and Seunghyun Bae), we won the AppLovin track.
+           Along with my teammates (Alan Dong, Michael Li, and Seunghyun Bae), we <CaseStudyHighlight>won the AppLovin track</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
 

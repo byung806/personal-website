@@ -47,7 +47,7 @@ const config: Config = {
                 },
                 teal: '#6FD7C4',        // tall project tile bg
                 pink: '#F7B8C8',        // supporting decorative shape
-                brand: '#001f3f'        // Bryan's navy (used sparingly for links/icons)
+                brand: '#001f3f'         // Bryan's navy (used sparingly for links/icons)
             },
             boxShadow: {
                 soft: '0 1px 1px rgba(16,24,40,0.04), 0 10px 20px rgba(16,24,40,0.04)',

@@ -33,7 +33,7 @@ export default function ProjectsGallery({ cards }: ProjectsGalleryProps) {
               <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-black">
                 Bryan Yung
               </h1>
-              <p className="text-base md:text-lg lg:text-xl font-normal text-black/80 mt-10 mb-8 md:mb-10">
+              <p className="text-base md:text-lg lg:text-xl font-normal text-black/80 mt-5 md:mt-7 lg:mt-10 mb-8 md:mb-10">
                 Computer Science at Carnegie Mellon University
               </p>
             </motion.div>

@@ -1,5 +1,5 @@
 import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText } from '@/components/case-study-section';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
 import { CaseStudySingleImage } from '@/components/case-study-single-image';
 import { projects } from '@/content/projects';
 
@@ -9,9 +9,9 @@ export default function TroopWebHostCaseStudy() {
       <CaseStudySection>
         <CaseStudyText>
           Boy Scout troop leaders need to track adult training records and send regular updates to their troop members.
-          However, updating records manually for 100+ people per troop was very tedious.
+          However, updating records manually for <CaseStudyHighlight>100+ people per troop</CaseStudyHighlight> was very tedious.
           I built a desktop app that automates the entire workflow: scraping member data, organizing it into sortable tables, and sending batch emails with one click.
-          This reduced the time spent on record-keeping by 66% every week.
+          This <CaseStudyHighlight>reduced the time spent on record-keeping by 66% every week</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
 

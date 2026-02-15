@@ -1,5 +1,5 @@
 import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText } from '@/components/case-study-section';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
 import { CaseStudySingleImage } from '@/components/case-study-single-image';
 import { CaseStudyVideo } from '@/components/case-study-video';
 import { projects } from '@/content/projects';
@@ -9,7 +9,7 @@ export default function FirstLightCaseStudy() {
     <CaseStudyLayout project={projects['first-light']}>
       <CaseStudySection>
         <CaseStudyText>
-          For Apple's WWDC Swift Student Challenge, I built an interactive app to teach firework chemistry. The project was officially recognized by Apple.
+          For Apple&apos;s WWDC Swift Student Challenge, I built an interactive app to teach firework chemistry. The project was <CaseStudyHighlight>officially recognized by Apple</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
 

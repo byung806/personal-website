@@ -17,7 +17,7 @@ export default function HeroSection() {
   return (
     <>
       {showBackButton && <StickyBackButton />}
-      <header className="w-full px-6 md:px-10 lg:px-16 pt-6 md:pt-8 pb-4 relative">
+      <header className="w-full px-6 md:px-10 lg:px-16 py-6 md:py-8 relative">
         {/* Nav: top right — active full opacity, inactive less opacity, hover medium */}
         <nav className="flex flex-row items-center justify-center md:justify-end gap-8 md:gap-12 text-sm font-medium uppercase tracking-wide">
           <Link

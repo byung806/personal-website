@@ -1,5 +1,5 @@
 import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText } from '@/components/case-study-section';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
 import { CaseStudySingleImage } from '@/components/case-study-single-image';
 import { CaseStudyImageRow } from '@/components/case-study-image-row';
 import { CaseStudyVideo } from '@/components/case-study-video';
@@ -10,10 +10,10 @@ export default function ThreeDRendererCaseStudy() {
     <CaseStudyLayout project={projects['3d-renderer']}>
       <CaseStudySection>
         <CaseStudyText>
-          For my 21-241 (Linear Algebra) final project, I created a 3D wireframe renderer from scratch (no 3D graphics libraries).
+          For my 21-241 (Linear Algebra) final project, I created a 3D wireframe renderer <CaseStudyHighlight>from scratch (no 3D graphics libraries)</CaseStudyHighlight>.
         </CaseStudyText>
         <CaseStudyText>
-          This project implements 3D transformations, perspective projection, and rasterization algorithms entirely from linear algebra.
+          This project implements 3D transformations, perspective projection, and rasterization algorithms <CaseStudyHighlight>entirely from linear algebra</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
 

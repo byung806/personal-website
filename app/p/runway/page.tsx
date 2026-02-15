@@ -1,5 +1,5 @@
 import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText } from '@/components/case-study-section';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
 import { CaseStudyImageRow } from '@/components/case-study-image-row';
 import { CaseStudySingleImage } from '@/components/case-study-single-image';
 import { CaseStudyVideo } from '@/components/case-study-video';
@@ -12,7 +12,7 @@ export default function RunwayCaseStudy() {
         <CaseStudyText>
           Along with my co-founder and friend Jacob, I built a platform to teach STEM to middle schoolers.
           The platform provides carefully curated lessons to make learning into a daily habit.
-          The app is on the App Store and Google Play and gained 1300+ users in 6 months.
+          The app is on the App Store and Google Play and gained <CaseStudyHighlight>1,300+ users in 6 months</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
 

@@ -1,5 +1,5 @@
 import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText } from '@/components/case-study-section';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
 import { CaseStudySingleImage } from '@/components/case-study-single-image';
 import { CaseStudyImageRow } from '@/components/case-study-image-row';
 import { projects } from '@/content/projects';
@@ -11,10 +11,10 @@ export default function EEGClassificationCaseStudy() {
         <CaseStudyText>
           Frontotemporal dementia, a specific type of dementia, is extremely hard for doctors to diagnose. 
           A highly accurate model means little if doctors cannot interpret or trust its decisions.
-          Under the guidance of Dr. Shihab Shamma and Maryam Shaghaghi at UMD, I built a system that explains its decisions in plain terms, showing which brain patterns matter and why, to help doctors make more better & more confident diagnoses.
+          Under the guidance of Dr. Shihab Shamma and Maryam Shaghaghi at UMD, I built a system that <CaseStudyHighlight>explains its decisions in plain terms</CaseStudyHighlight>, showing which brain patterns matter and why, to help doctors make more confident diagnoses.
         </CaseStudyText>
         <CaseStudyText>
-          For this research, I was recognized by Regeneron Pharmaceuticals as a STS Top 300 Scholar.
+          For this research, I was recognized by <CaseStudyHighlight>Regeneron Pharmaceuticals as a STS Top 300 Scholar</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
 

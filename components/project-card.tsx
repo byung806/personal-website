@@ -88,17 +88,6 @@ export default function ProjectCard({
               </span>
             ))}
           </div>
-
-          {/* Tech chips pinned in-card, hover reveal to match title treatment */}
-          {/* {tags.length > 0 && (
-            <div className="flex absolute bottom-3 right-3 flex-wrap justify-end gap-2 pointer-events-none opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
-              {tags.map((tag) => (
-                <span key={tag} className="inline-flex items-center px-3.5 py-1.5 text-[11px] font-sans font-medium tracking-tight rounded-md bg-white/70 dark:bg-black/45 text-gray-800 dark:text-gray-100 leading-none whitespace-nowrap shadow-[0_0_12px_rgba(0,0,0,0.06)]">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )} */}
         </div>
       </div>
     </>

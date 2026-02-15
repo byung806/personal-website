@@ -28,42 +28,80 @@ export default function CaseStudyLayout({
   const team = project?.team;
   const tools = project?.tools;
   const links = project?.links;
+  const logo = project?.logo;
 
   return (
     <div className="w-full">
-      {/* Cover Section - Only show if coverImage exists */}
+      {/* Cover: image only, no overlay */}
       {coverImage && (
-        <div className="relative w-full h-[50vh] md:h-[60vh] min-h-[350px] md:min-h-[500px] bg-gray-200 dark:bg-[#1A1A1A] flex items-center justify-center p-4 md:p-8 dark:border-b dark:border-[#2A2A2A]">
-          <div className="relative w-full max-w-[250px] md:max-w-[400px] aspect-[9/19] rounded-2xl overflow-hidden">
+        <div className="relative w-full h-[50vh] md:h-[58vh] min-h-[320px] md:min-h-[440px] bg-gray-100 dark:bg-[#1A1A1A] flex items-center justify-center p-6 md:p-10">
+          <div className="relative w-full max-w-[260px] md:max-w-[380px] aspect-[9/19] rounded-2xl overflow-hidden">
             <Image
               src={coverImage}
               alt={title}
               fill
               className="object-contain"
               priority
+              sizes="(max-width: 768px) 260px, 380px"
             />
           </div>
         </div>
       )}
 
-      {/* Two-Column Layout */}
-      <div className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-48 py-16">
-        <div className="max-w-[1400px] mx-auto">
-          <div className="flex flex-col lg:flex-row gap-16">
-            {/* Left Column - Sticky Info Panel */}
-            <aside className="lg:w-[30%] lg:sticky lg:top-24 lg:self-start">
-              {/* Project Title */}
-              <div className="mb-12">
-                <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{title}</h1>
-                <p className="text-[11px] font-mono text-gray-600 dark:text-gray-400 mt-1 uppercase tracking-wider font-medium">{subtitle}</p>
+      {/* Two-column: left = metadata, right = title + content */}
+      <div className="px-5 sm:px-8 md:px-12 lg:px-16 py-14 md:py-20">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,200px)_1fr] gap-12 lg:gap-20">
+            <aside className="lg:sticky lg:top-24 lg:self-start order-2 lg:order-1">
+              {logo && (
+                <div className="relative w-14 h-14 mb-6">
+                  <Image
+                    src={logo}
+                    alt=""
+                    fill
+                    className="object-contain"
+                    sizes="56px"
+                  />
+                </div>
+              )}
+              <div className="space-y-6 text-sm">
+                {year && (
+                  <div>
+                    <p className="text-gray-400 dark:text-gray-500 mb-0.5">Year</p>
+                    <p className="text-gray-700 dark:text-gray-300">{year}</p>
+                  </div>
+                )}
+                {role && (
+                  <div>
+                    <p className="text-gray-400 dark:text-gray-500 mb-0.5">Role</p>
+                    <p className="text-gray-700 dark:text-gray-300">{role}</p>
+                  </div>
+                )}
+                {team && (
+                  <div>
+                    <p className="text-gray-400 dark:text-gray-500 mb-0.5">Team</p>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {project?.teamHighlight && team.startsWith(project.teamHighlight) ? (
+                        <>
+                          <span className="text-[#81cc3e] font-medium">{project.teamHighlight}</span>
+                          {team.slice(project.teamHighlight.length).trimStart()}
+                        </>
+                      ) : (
+                        team
+                      )}
+                    </p>
+                  </div>
+                )}
+                {tools && tools.length > 0 && (
+                  <div>
+                    <p className="text-gray-400 dark:text-gray-500 mb-0.5">Tools</p>
+                    <p className="text-gray-700 dark:text-gray-300">{tools.join(', ')}</p>
+                  </div>
+                )}
               </div>
-
-              {/* Custom Sidebar Content */}
               {sidebarContent}
-
-              {/* Links */}
               {links && links.length > 0 && (
-                <div className="space-y-2">
+                <div className="mt-8 space-y-2">
                   {links.map((link) => (
                     <a
                       key={link.label}
@@ -72,52 +110,27 @@ export default function CaseStudyLayout({
                       rel="noopener noreferrer"
                       className="block text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                     >
-                      {link.label} →
+                      {link.label} ↗
                     </a>
                   ))}
                 </div>
               )}
             </aside>
 
-            {/* Right Column - Scrolling Content */}
-            <main className="lg:w-[70%]">
-              {/* Tagline */}
-              <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 dark:text-white mb-8 leading-tight">
-                {tagline}
-              </h2>
-
-              {/* Meta info - Only show if any meta fields exist */}
-              {(year || role || team || tools) && (
-                <div className="flex flex-wrap gap-6 text-sm mb-16 pb-8 border-b border-gray-200 dark:border-gray-800">
-                  {year && (
-                    <div>
-                      <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-500 mb-1">Timeline</p>
-                      <p className="text-gray-700 dark:text-gray-300">{year}</p>
-                    </div>
-                  )}
-                  {role && (
-                    <div>
-                      <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-500 mb-1">Role</p>
-                      <p className="text-gray-700 dark:text-gray-300">{role}</p>
-                    </div>
-                  )}
-                  {team && (
-                    <div>
-                      <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-500 mb-1">Team</p>
-                      <p className="text-gray-700 dark:text-gray-300">{team}</p>
-                    </div>
-                  )}
-                  {tools && tools.length > 0 && (
-                    <div>
-                      <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-500 mb-1">Tools</p>
-                      <p className="text-gray-700 dark:text-gray-300">{tools.join(', ')}</p>
-                    </div>
-                  )}
-                </div>
+            <main className="min-w-0 order-1 lg:order-2">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white tracking-tight leading-[1.12]">
+                {title}
+              </h1>
+              {subtitle && (
+                <p className="mt-2 text-sm text-gray-400 dark:text-gray-500">{subtitle}</p>
+              )}
+              {tagline && (
+                <p className="mt-5 md:mt-6 text-lg font-bold text-gray-500 dark:text-gray-400 leading-[1.55] max-w-[65ch]">
+                  {tagline}
+                </p>
               )}
 
-              {/* Content */}
-              <div>
+              <div className="mt-12 md:mt-14">
                 {children}
               </div>
             </main>

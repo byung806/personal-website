@@ -42,13 +42,13 @@ export function CaseStudyVideo({ src, caption, aspectRatio = 'vertical', autopla
   };
 
   const videoElement = (
-    <div className={`relative w-full ${aspectClasses[aspectRatio]} bg-gray-100 dark:bg-[#111] rounded-lg overflow-hidden group/video`}>
+    <div className={`relative w-full ${aspectClasses[aspectRatio]} bg-gray-100 dark:bg-[#111] rounded-xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)] dark:shadow-none group/video`}>
       <video
         ref={videoRef}
         src={src}
         className={`w-full ${aspectRatio === 'auto' ? 'h-auto' : 'h-full object-cover'} ${clickableUrl ? 'cursor-pointer' : ''}`}
         playsInline
-        preload="none"
+        preload={autoplay ? 'none' : 'metadata'}
         controls={!autoplay}
         autoPlay={autoplay}
         loop={autoplay}
@@ -72,10 +72,10 @@ export function CaseStudyVideo({ src, caption, aspectRatio = 'vertical', autopla
   );
 
   return (
-    <div className="my-16">
+    <div className="my-20 md:my-24">
       {videoElement}
       {caption && (
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 leading-relaxed">
+        <p className="text-sm text-gray-500 dark:text-gray-500 mt-5 leading-relaxed w-full">
           {caption}
         </p>
       )}
