@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Silkscreen } from 'next/font/google';
@@ -22,7 +22,10 @@ const cardConfigs = [
 const mobileRotations = [-2, 3, -1.5, 2.5, -3, 1, -2.5, 2, -1, 3.5];
 
 export default function LettersPage() {
+  const [visible, setVisible] = useState(false);
+
   useEffect(() => {
+    setVisible(true);
     const lock = () => {
       document.body.style.overflow = window.innerWidth >= 768 ? 'hidden' : 'auto';
     };
@@ -37,7 +40,7 @@ export default function LettersPage() {
   return (
     <>
       {/* ── Mobile ── */}
-      <main className="md:hidden w-full bg-white px-4 py-8">
+      <main className={`md:hidden w-full bg-white px-4 py-8 transition-opacity duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}>
         <div className="mb-6 select-none leading-none">
           <span className={silkscreen.className} style={{ fontSize: '15vw', color: '#81cc3e', lineHeight: 0.85, display: 'block' }}>DEAR</span>
           <span className={silkscreen.className} style={{ fontSize: '15vw', color: '#81cc3e', lineHeight: 0.85, display: 'block' }}>ANYONE</span>
@@ -73,7 +76,7 @@ export default function LettersPage() {
       </main>
 
       {/* ── Desktop ── */}
-      <main className="hidden md:block relative w-full overflow-hidden bg-white" style={{ height: 'calc(100dvh - 60px)' }}>
+      <main className={`hidden md:block relative w-full overflow-hidden bg-white transition-opacity duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ height: 'calc(100dvh - 60px)' }}>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center pointer-events-none select-none z-10 w-full px-4">
           <p className="font-serif text-gray-700 text-base leading-relaxed">
             Welcome to my blog. I thought it would be more interesting if each entry was a letter.
