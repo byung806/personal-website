@@ -1,6 +1,6 @@
-import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
-import { CaseStudySingleImage } from '@/components/case-study-single-image';
+import CaseStudyLayout from '@/components/case-study/layout';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study/section';
+import { CaseStudySingleImage } from '@/components/case-study/single-image';
 import { projects } from '@/content/projects';
 
 export default function TroopWebHostCaseStudy() {

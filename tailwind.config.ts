@@ -2,8 +2,6 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
     content: [
-        "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-        "./ui/**/*.{js,ts,jsx,tsx,mdx}",
         "./app/**/*.{js,ts,jsx,tsx,mdx}",
         "./components/**/*.{js,ts,jsx,tsx,mdx}",
     ],
@@ -13,7 +11,7 @@ const config: Config = {
             fontFamily: {
                 heading: ['var(--font-sans)', 'ui-sans-serif', 'system-ui'],
                 sans: ['var(--font-sans)', 'Inter', 'ui-sans-serif', 'system-ui'],
-                serif: ['Libre Baskerville', 'ui-serif', 'Georgia', 'serif'],
+                serif: ['var(--font-serif)', 'ui-serif', 'Georgia', 'serif'],
                 mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
             },
             colors: {

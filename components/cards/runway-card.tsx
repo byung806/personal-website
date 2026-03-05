@@ -8,7 +8,7 @@ export default function RunwayCard() {
     <ProjectCard projectId="runway">
       <div className="relative w-full min-h-[400px] md:min-h-[500px] p-8 md:p-12 flex items-center justify-center">
         <div className="relative w-full max-w-[200px] md:max-w-[220px]">
-          <Image src="/runway.png" alt="Runway" width={280} height={280} className="w-full h-auto" priority />
+          <Image src="/p/runway/runway.png" alt="Runway" width={280} height={280} className="w-full h-auto" priority />
         </div>
       </div>
     </ProjectCard>

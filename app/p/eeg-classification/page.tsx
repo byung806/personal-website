@@ -1,7 +1,7 @@
-import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
-import { CaseStudySingleImage } from '@/components/case-study-single-image';
-import { CaseStudyImageRow } from '@/components/case-study-image-row';
+import CaseStudyLayout from '@/components/case-study/layout';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study/section';
+import { CaseStudySingleImage } from '@/components/case-study/single-image';
+import { CaseStudyImageRow } from '@/components/case-study/image-row';
 import { projects } from '@/content/projects';
 
 export default function EEGClassificationCaseStudy() {
@@ -9,9 +9,7 @@ export default function EEGClassificationCaseStudy() {
     <CaseStudyLayout project={projects['eeg-classification']}>
       <CaseStudySection>
         <CaseStudyText>
-          Frontotemporal dementia, a specific type of dementia, is extremely hard for doctors to diagnose. 
-          A highly accurate model means little if doctors cannot interpret or trust its decisions.
-          Under the guidance of Dr. Shihab Shamma and Maryam Shaghaghi at UMD, I built a system that <CaseStudyHighlight>explains its decisions in plain terms</CaseStudyHighlight>, showing which brain patterns matter and why, to help doctors make more confident diagnoses.
+          Frontotemporal dementia, a specific type of dementia, is extremely hard for doctors to diagnose. A highly accurate model means little if doctors cannot interpret or trust its decisions. Under the guidance of Dr. Shihab Shamma and Maryam Shaghaghi at UMD, I built a system that <CaseStudyHighlight>highlights abnormal brain activity behind each prediction</CaseStudyHighlight>. Instead of a black box, doctors can see why the model made its decision.
         </CaseStudyText>
         <CaseStudyText>
           For this research, I was recognized by <CaseStudyHighlight>Regeneron Pharmaceuticals as a STS Top 300 Scholar</CaseStudyHighlight>.
@@ -22,12 +20,12 @@ export default function EEGClassificationCaseStudy() {
         src="/p/eeg-classification/eeg_data.png"
         alt="Brain activity recordings"
         aspectRatio="auto"
-        caption="Brain activity recordings from patients. Each line shows electrical signals from different parts of the brain."
+        caption="Raw brain activity recorded from patients is messy and noisy. Each line is electrical signals from a different part of the brain."
       />
 
       <CaseStudySection>
         <CaseStudyText>
-          I analyzed brain activity patterns from different regions and frequencies. It was a challenge to figure out which patterns actually help with diagnosis versus which ones just add confusion.
+          I worked on a pipeline that transformed raw brain signals into measurable features across regions and frequency bands, then visualized how frontotemporal dementia patients differ from healthy controls.
         </CaseStudyText>
       </CaseStudySection>
 
@@ -38,7 +36,7 @@ export default function EEGClassificationCaseStudy() {
           { src: '/p/eeg-classification/ftd_regions_kur.png', alt: 'Signal distribution patterns' },
         ]}
         aspectRatio="auto"
-        caption="Different measurements of brain activity across regions. Each shows unique patterns that help identify the disease."
+        caption="Visualization of gamma and beta activity across brain regions in FTD patients. Different statistical measures reveal region-specific signal patterns."
       />
 
       <CaseStudyImageRow
@@ -48,7 +46,7 @@ export default function EEGClassificationCaseStudy() {
         ]}
         columns={2}
         aspectRatio="auto"
-        caption="Visual comparison of patient groups. Left: messy and hard to separate. Right: clear groupings after removing unhelpful data."
+        caption="t-SNE projection of extracted features. Left: overlapping clusters with noisy features. Right: distinct groupings after isolating the most informative brain signals."
       />
     </CaseStudyLayout>
   );

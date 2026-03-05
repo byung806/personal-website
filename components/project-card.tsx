@@ -50,7 +50,7 @@ export default function ProjectCard({
     <>
       {/* Single rounded container scales as a whole so corners stay consistent on hover */}
       <div
-        className={`relative overflow-hidden rounded-xl transition-transform duration-500 will-change-transform ${hasLink ? 'group-hover:scale-[0.985]' : 'group-active:scale-[0.985]'}`}
+        className={`relative overflow-hidden transition-transform duration-500 will-change-transform ${hasLink ? 'group-hover:scale-[0.985]' : 'group-active:scale-[0.985]'}`}
         style={{
           backgroundColor: effectiveBg,
           ...(borderColor && { border: `${borderThickness}px solid ${borderColor}` }),
@@ -62,7 +62,7 @@ export default function ProjectCard({
             style={{ backgroundColor: darkBgColor }}
           />
           {/* Dark mode border - using box-shadow to avoid layout shift */}
-          <div className="absolute inset-0 rounded-xl opacity-0 dark:opacity-100 pointer-events-none" style={{ boxShadow: `inset 0 0 0 ${borderThickness}px #2A2A2A` }} />
+          <div className="absolute inset-0 opacity-0 dark:opacity-100 pointer-events-none" style={{ boxShadow: `inset 0 0 0 ${borderThickness}px #2A2A2A` }} />
           {/* Image content */}
           <div className="relative">
             {children}

@@ -1,7 +1,7 @@
-import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
-import { CaseStudySingleImage } from '@/components/case-study-single-image';
-import { CaseStudyVideo } from '@/components/case-study-video';
+import CaseStudyLayout from '@/components/case-study/layout';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study/section';
+import { CaseStudySingleImage } from '@/components/case-study/single-image';
+import { CaseStudyVideo } from '@/components/case-study/video';
 import { projects } from '@/content/projects';
 
 export default function FirstLightCaseStudy() {

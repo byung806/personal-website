@@ -1,8 +1,8 @@
-import CaseStudyLayout from '@/components/case-study-layout';
-import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study-section';
-import { CaseStudyImageRow } from '@/components/case-study-image-row';
-import { CaseStudySingleImage } from '@/components/case-study-single-image';
-import { CaseStudyVideo } from '@/components/case-study-video';
+import CaseStudyLayout from '@/components/case-study/layout';
+import { CaseStudySection, CaseStudyText, CaseStudyHighlight } from '@/components/case-study/section';
+import { CaseStudyImageRow } from '@/components/case-study/image-row';
+import { CaseStudySingleImage } from '@/components/case-study/single-image';
+import { CaseStudyVideo } from '@/components/case-study/video';
 import { projects } from '@/content/projects';
 
 export default function RunwayCaseStudy() {
@@ -47,7 +47,7 @@ export default function RunwayCaseStudy() {
       />
 
       <CaseStudyVideo
-        src="/runway-web.mp4"
+        src="/p/runway/runway-web.mp4"
         aspectRatio="auto"
         autoplay={true}
         clickableUrl="https://runwaymobile.app"
@@ -70,7 +70,7 @@ export default function RunwayCaseStudy() {
       />
 
       <CaseStudySingleImage
-        src="/p/runway/map.png"
+        src="/p/runway/map.jpeg"
         alt="Map of Runway users worldwide"
         aspectRatio="auto"
         caption="Runway reaches 1,300+ users across 100+ countries (tracked with App Store Connect and Google Play Console)."

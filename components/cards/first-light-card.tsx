@@ -18,7 +18,7 @@ export default function FirstLightCard() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/first-light-fireworks.mp4" type="video/mp4" />
+          <source src="/p/first-light/first-light-fireworks.mp4" type="video/mp4" />
         </video>
 
         {/* Play/Pause button - always visible on mobile, hover on desktop */}

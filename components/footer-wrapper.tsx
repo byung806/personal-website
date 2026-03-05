@@ -5,6 +5,6 @@ import Footer from './footer';
 
 export default function FooterWrapper() {
   const pathname = usePathname();
-  if (pathname === '/p/guestbook') return null;
+  if (pathname === '/p/guestbook' || pathname.startsWith('/letters')) return null;
   return <Footer />;
 }

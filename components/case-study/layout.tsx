@@ -52,12 +52,13 @@ export default function CaseStudyLayout({
           className={`relative w-full ${coverHeightClass} flex items-center justify-center p-6 md:p-10 ${!coverBgColor ? 'bg-gray-100 dark:bg-[#1A1A1A]' : ''}`}
           style={coverBgColor ? { backgroundColor: coverBgColor } : undefined}
         >
-          <div className={`relative w-full ${phoneSizeClass} aspect-[9/19] rounded-2xl overflow-hidden`}>
+          <div className={`relative flex items-center justify-center max-h-full w-full ${phoneSizeClass}`}>
             <Image
               src={coverImage}
               alt={title}
-              fill
-              className="object-contain"
+              width={800}
+              height={600}
+              className="max-w-full max-h-full w-auto h-auto object-contain rounded-2xl"
               priority
               sizes={coverSizes}
             />
