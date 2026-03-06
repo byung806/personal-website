@@ -18,7 +18,7 @@ export default function ProjectsGallery({ cards }: ProjectsGalleryProps) {
   const rightCards = cards.filter((_, i) => i % 2 === 1);
 
   return (
-    <section id="projects" className="w-full px-6 md:px-10 lg:px-16 pt-12 md:pt-16 pb-20">
+    <section id="projects" className="w-full px-0 md:px-10 lg:px-16 pt-12 md:pt-16 pb-20">
       <div className="max-w-[1400px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 md:gap-x-8 lg:gap-x-12 gap-y-5 md:gap-y-8 lg:gap-y-12">
           {/* Left column: name (invisible masonry cell) + cards */}
