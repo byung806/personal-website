@@ -4,6 +4,7 @@ export type Letter = {
   year: string;
   date: string;
   photo: string;
+  photoCredit?: string;
   active?: boolean;
 };
 
@@ -24,11 +25,13 @@ export const letters: Letter[] = [
     photo: '/letters/DSC03451.jpeg',
   },
   {
-    slug: 'to-mr-chen',
-    to: 'Mr. Chen',
+    slug: 'to-chatgpt',
+    to: 'ChatGPT',
     year: '2026',
-    date: 'February 14, 2026',
-    photo: '/letters/soupcan.jpeg',
+    date: 'March 6, 2026',
+    photo: '/letters/robot.jpg',
+    photoCredit: 'art by Robert Oswald',
+    active: true,
   },
   {
     slug: 'to-bryan-in-2030',
@@ -52,10 +55,10 @@ export const letters: Letter[] = [
     photo: '/letters/IMG_7465.jpeg',
   },
   {
-    slug: 'to-16-year-old-me',
-    to: '16-Year-Old Me',
-    year: '2025',
-    date: 'October 10, 2025',
-    photo: '/letters/IMG_7541.jpeg',
+    slug: 'to-mr-chen',
+    to: 'Mr. Chen',
+    year: '2026',
+    date: 'February 14, 2026',
+    photo: '/letters/soupcan.jpeg',
   },
 ];

@@ -17,8 +17,15 @@ export default function LetterLayout({
     <main className="w-full min-h-screen bg-white">
       <div className="mx-auto max-w-[640px] px-6 sm:px-8 py-16 md:py-24">
 
-        <div className="relative w-full mb-10 overflow-hidden rounded-lg" style={{ aspectRatio: '3/2' }}>
-          <Image src={letter.photo} alt={letter.to} fill className="object-cover" sizes="640px" />
+        <div className="mb-10 flex items-stretch gap-2">
+          <div className="relative flex-1 overflow-hidden rounded-lg" style={{ aspectRatio: '3/2' }}>
+            <Image src={letter.photo} alt={letter.to} fill className="object-cover" sizes="640px" />
+          </div>
+          {letter.photoCredit && (
+            <div className="flex items-center justify-center">
+              <p className="font-serif italic text-gray-400 text-xs whitespace-nowrap" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>{letter.photoCredit}</p>
+            </div>
+          )}
         </div>
 
         <div className="mb-12">
