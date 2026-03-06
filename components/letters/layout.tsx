@@ -2,9 +2,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import Highlight from './highlight';
+import ChatResponse from './chat-response';
 import type { Letter } from '@/content/letters';
 
-const components = { Highlight };
+const components = { Highlight, ChatResponse };
 
 export default function LetterLayout({
   letter,
