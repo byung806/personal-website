@@ -19,8 +19,8 @@ const libreBaskerville = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-    title: "Bryan Yung, Software",
-    description: "Currently a CS student at CMU. Interested in 3D, AI, design.",
+    title: "Bryan Yung",
+    description: "Currently a CS student at CMU. Incoming @ Stripe. Interested in 3D, AI, design.",
     icons: {
         icon: "/favicon.ico",
     },
