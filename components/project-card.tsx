@@ -50,7 +50,7 @@ export default function ProjectCard({
     <>
       {/* Single rounded container scales as a whole so corners stay consistent on hover */}
       <div
-        className={`relative overflow-hidden transition-transform duration-500 will-change-transform ${hasLink ? 'group-hover:scale-[0.985]' : 'group-active:scale-[0.985]'}`}
+        className={`relative overflow-hidden transition-transform duration-500 will-change-transform ${hasLink ? 'md:group-hover:scale-[0.985]' : 'md:group-active:scale-[0.985]'}`}
         style={{
           backgroundColor: effectiveBg,
           ...(borderColor && { border: `${borderThickness}px solid ${borderColor}` }),

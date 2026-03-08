@@ -50,7 +50,7 @@ export default function EchoCaseStudy() {
 
       <CaseStudySection>
         <CaseStudyText>
-          A playable demo is linked in the sidebar.
+          A playable demo is also linked (in the sidebar if on desktop or above if on mobile).
         </CaseStudyText>
       </CaseStudySection>
     </CaseStudyLayout>
