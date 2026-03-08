@@ -39,14 +39,6 @@ export default function HeroSection() {
           >
             Guestbook
           </Link>
-          <a
-            href="/Bryan_Yung_Resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={inactiveClass}
-          >
-            Resume
-          </a>
         </nav>
       </header>
     </>

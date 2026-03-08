@@ -1,9 +1,17 @@
 'use client';
 
-import { Linkedin, Mail } from 'lucide-react';
+import { Linkedin, Mail, Check, ArrowUpRight } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const [copied, setCopied] = useState(false);
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText('byung806@gmail.com');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <footer className="w-full px-6 md:px-10 lg:px-16 pt-8 pb-16">
@@ -21,12 +29,29 @@ export default function Footer() {
           >
             <Linkedin className="w-6 h-6" strokeWidth={2} />
           </a>
-          <a
-            href="mailto:byung806@gmail.com"
-            className="text-gray-900 opacity-40 hover:opacity-100 transition-opacity"
-            aria-label="Email"
+          <button
+            onClick={copyEmail}
+            className="group relative w-6 h-6 cursor-pointer"
+            aria-label="Copy email"
           >
-            <Mail className="w-6 h-6" strokeWidth={2} />
+            <Mail
+              className={`w-6 h-6 absolute inset-0 text-gray-900 transition-all duration-300 ${copied ? 'opacity-0 scale-75' : 'opacity-40 group-hover:opacity-100 scale-100'}`}
+              strokeWidth={2}
+            />
+            <Check
+              className={`w-6 h-6 absolute inset-0 text-[#81cc3e] transition-all duration-300 ${copied ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
+              strokeWidth={2}
+            />
+          </button>
+          <a
+            href="/Bryan_Yung_Resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center text-gray-900 opacity-40 hover:opacity-100 transition-opacity text-[13px] font-semibold uppercase tracking-widest"
+            aria-label="Resume"
+          >
+            Resume
+            <ArrowUpRight className="ml-0.5 w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
           </a>
         </div>
       </div>
