@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
-import { Inter, Libre_Baskerville } from "next/font/google";
+import { Libre_Baskerville } from "next/font/google";
+import localFont from "next/font/local";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 import ThemeProvider from "@/components/theme-provider";
 
-const inter = Inter({
-    subsets: ["latin"],
+const typeVF = localFont({
+    src: "../public/fonts/TypeVF.woff2",
     variable: "--font-sans",
+    display: "swap",
+});
+
+const typeLight = localFont({
+    src: "../public/fonts/Type-Light.woff2",
+    variable: "--font-type-light",
     display: "swap",
 });
 
@@ -38,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <link rel="preload" href="/p/eeg-classification/umd_eeg_tsne.png" as="image" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />
             </head>
-            <body className={`${inter.variable} ${libreBaskerville.variable} font-sans antialiased bg-white text-gray-900 min-h-screen flex flex-col`}>
+            <body className={`${typeVF.variable} ${typeLight.variable} ${libreBaskerville.variable} font-sans antialiased bg-white text-gray-900 min-h-screen flex flex-col`}>
                 <ThemeProvider>
                     <Navbar />
                     <PageTransition>

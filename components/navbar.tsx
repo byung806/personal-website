@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Download } from 'lucide-react';
+
 import StickyBackButton from './back-button';
 
 export default function HeroSection() {
@@ -41,14 +41,11 @@ export default function HeroSection() {
           </Link>
           <a
             href="/Bryan_Yung_Resume.pdf"
-            download
-            className={`group relative inline-block ${inactiveClass}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={inactiveClass}
           >
             Resume
-            <Download
-              className="absolute left-full top-1/2 -translate-y-1/2 ml-1 size-3.5 shrink-0 opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200"
-              aria-hidden
-            />
           </a>
         </nav>
       </header>

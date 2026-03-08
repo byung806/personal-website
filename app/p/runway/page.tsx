@@ -7,7 +7,7 @@ import { projects } from '@/content/projects';
 
 export default function RunwayCaseStudy() {
   return (
-    <CaseStudyLayout project={projects.runway}>
+    <CaseStudyLayout project={projects.runway} intro={
       <CaseStudySection>
         <CaseStudyText>
           Along with my co-founder and friend Jacob, I built a platform to teach STEM to middle schoolers.
@@ -15,7 +15,7 @@ export default function RunwayCaseStudy() {
           The app is on the App Store and Google Play and gained <CaseStudyHighlight>1,300+ users in 6 months</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
-
+    }>
       <CaseStudyImageRow
         images={[
           { src: '/p/runway/app-1.png', alt: 'Runway app home' },

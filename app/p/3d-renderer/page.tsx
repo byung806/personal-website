@@ -7,7 +7,7 @@ import { projects } from '@/content/projects';
 
 export default function ThreeDRendererCaseStudy() {
   return (
-    <CaseStudyLayout project={projects['3d-renderer']}>
+    <CaseStudyLayout project={projects['3d-renderer']} intro={
       <CaseStudySection>
         <CaseStudyText>
           For my 21-241 (Linear Algebra) final project, I created a 3D wireframe renderer <CaseStudyHighlight>from scratch (no 3D graphics libraries)</CaseStudyHighlight>.
@@ -16,7 +16,7 @@ export default function ThreeDRendererCaseStudy() {
           This project implements 3D transformations, perspective projection, and rasterization algorithms <CaseStudyHighlight>entirely from linear algebra</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
-
+    }>
       <CaseStudyVideo
         src="/p/3d-renderer/vid.mp4"
         aspectRatio="horizontal"

@@ -30,7 +30,7 @@ export default function ProjectsGallery({ cards }: ProjectsGalleryProps) {
               viewport={fadeIn.viewport}
               transition={fadeIn.transition(0)}
             >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-black">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl tracking-tight text-black" style={{ fontFamily: 'var(--font-sans)', fontWeight: 550 }}>
                 Bryan Yung
               </h1>
               <p className="text-sm md:text-base lg:text-lg font-normal text-black/80 mt-3 md:mt-4 lg:mt-6 mb-8 md:mb-10">

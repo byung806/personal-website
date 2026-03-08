@@ -31,7 +31,7 @@ export function CaseStudySingleImage({ src, alt, caption, aspectRatio = 'auto' }
           />
         </div>
         {caption && (
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-5 leading-relaxed w-full">
+          <p className="text-sm text-[rgb(90,96,112)] dark:text-gray-500 mt-5 leading-relaxed w-full">
             {caption}
           </p>
         )}
@@ -51,7 +51,7 @@ export function CaseStudySingleImage({ src, alt, caption, aspectRatio = 'auto' }
         />
       </div>
       {caption && (
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-5 leading-relaxed w-full">
+        <p className="text-sm text-[rgb(90,96,112)] dark:text-gray-500 mt-5 leading-relaxed w-full">
           {caption}
         </p>
       )}

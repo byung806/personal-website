@@ -6,7 +6,7 @@ import { projects } from '@/content/projects';
 
 export default function EchoCaseStudy() {
   return (
-    <CaseStudyLayout project={projects.echo}>
+    <CaseStudyLayout project={projects.echo} intro={
       <CaseStudySection>
         <CaseStudyText>
           Echo is a 2D platformer where you rewind time to leave a “ghost” of your past run. You and your clone exist in the same space: you can bounce off your past self to reach higher ground, trigger switches in one run and walk through the door in the next, or use the clone to hold a button while you cross the gap.
@@ -19,7 +19,7 @@ export default function EchoCaseStudy() {
            Along with my teammates (Alan Dong, Michael Li, and Seunghyun Bae), we <CaseStudyHighlight>won the AppLovin track</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
-
+    }>
       <CaseStudySingleImage
         src="/p/echo/unknown%2040.png"
         alt="Echo game screenshot"

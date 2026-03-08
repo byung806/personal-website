@@ -5,7 +5,7 @@ import { projects } from '@/content/projects';
 
 export default function TroopWebHostCaseStudy() {
   return (
-    <CaseStudyLayout project={projects.troopwebhost}>
+    <CaseStudyLayout project={projects.troopwebhost} intro={
       <CaseStudySection>
         <CaseStudyText>
           Boy Scout troop leaders need to track adult training records and send regular updates to their troop members.
@@ -14,7 +14,7 @@ export default function TroopWebHostCaseStudy() {
           This <CaseStudyHighlight>reduced the time spent on record-keeping by 66% every week</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
-
+    }>
       <CaseStudySingleImage
         src="/p/troopwebhost/app-ss.png"
         alt="TroopWebHost desktop application interface"

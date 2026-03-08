@@ -6,7 +6,7 @@ import { projects } from '@/content/projects';
 
 export default function EEGClassificationCaseStudy() {
   return (
-    <CaseStudyLayout project={projects['eeg-classification']}>
+    <CaseStudyLayout project={projects['eeg-classification']} intro={
       <CaseStudySection>
         <CaseStudyText>
           Frontotemporal dementia, a specific type of dementia, is extremely hard for doctors to diagnose. A highly accurate model means little if doctors cannot interpret or trust its decisions. Under the guidance of Dr. Shihab Shamma and Maryam Shaghaghi at UMD, I built a system that <CaseStudyHighlight>highlights abnormal brain activity behind each prediction</CaseStudyHighlight>. Instead of a black box, doctors can see why the model made its decision.
@@ -15,7 +15,7 @@ export default function EEGClassificationCaseStudy() {
           For this research, I was recognized by <CaseStudyHighlight>Regeneron Pharmaceuticals as a STS Top 300 Scholar</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
-
+    }>
       <CaseStudySingleImage
         src="/p/eeg-classification/eeg_data.png"
         alt="Brain activity recordings"

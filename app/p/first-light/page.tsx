@@ -6,13 +6,13 @@ import { projects } from '@/content/projects';
 
 export default function FirstLightCaseStudy() {
   return (
-    <CaseStudyLayout project={projects['first-light']}>
+    <CaseStudyLayout project={projects['first-light']} intro={
       <CaseStudySection>
         <CaseStudyText>
           For Apple&apos;s WWDC Swift Student Challenge, I built an interactive app to teach firework chemistry. The project was <CaseStudyHighlight>officially recognized by Apple</CaseStudyHighlight>.
         </CaseStudyText>
       </CaseStudySection>
-
+    }>
       <CaseStudySingleImage
         src="/p/first-light/tutorial.png"
         alt="First Light tutorial interface"
