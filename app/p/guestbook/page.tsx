@@ -164,8 +164,7 @@ export default function GuestbookPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white pt-12 md:pt-16 pb-32 px-6 md:px-10 lg:px-16">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-white pt-12 md:pt-16 pb-32 px-3 md:px-4">
                 <p className="text-center text-base md:text-lg text-gray-500 tracking-wide mb-12">
                     Notes left by friends and strangers over time
                 </p>
@@ -255,7 +254,6 @@ export default function GuestbookPage() {
                         })}
                     </div>
                 ) : null}
-            </div>
         </div>
     );
 }
