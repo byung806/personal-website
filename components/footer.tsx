@@ -2,6 +2,7 @@
 
 import { Linkedin, Mail, Check, ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
+import Webring from '@/components/webring';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -19,6 +20,7 @@ export default function Footer() {
         <p className="text-xs text-gray-500">
           © {year} Designed & Developed by Bryan Yung
         </p>
+        <Webring />
         <div className="flex items-center gap-8">
           <a
             href="https://www.linkedin.com/in/bryan-yung-9724952b9/"
