@@ -2,15 +2,16 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Playfair_Display, Space_Mono, DM_Serif_Display, Lora, Courier_Prime } from 'next/font/google';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Playfair_Display, Space_Mono, DM_Serif_Display, Lora, Courier_Prime, Caveat } from 'next/font/google';
 
 const playfair  = Playfair_Display({ subsets: ['latin'], weight: ['400', '700'], style: ['normal', 'italic'] });
 const spaceMono = Space_Mono({ subsets: ['latin'], weight: ['400', '700'] });
 const dmSerif   = DM_Serif_Display({ subsets: ['latin'], weight: '400', style: ['normal', 'italic'] });
 const lora      = Lora({ subsets: ['latin'], weight: ['400', '600', '700'], style: ['normal', 'italic'] });
 const courier   = Courier_Prime({ subsets: ['latin'], weight: ['400', '700'], style: ['normal', 'italic'] });
+const caveat    = Caveat({ subsets: ['latin'], weight: ['400', '700'] });
 
 interface GuestbookEntry {
     id: number;
@@ -32,6 +33,7 @@ const PERSONALITIES = [
         msgFont: playfair.className,
         msgClass: 'text-xl font-bold leading-tight text-gray-900',
         nameClass: 'text-[10px] tracking-widest uppercase text-gray-400',
+        footerClass: 'flex items-end justify-between gap-2',
         rotate: 1.2,
     },
     {
@@ -39,13 +41,15 @@ const PERSONALITIES = [
         msgFont: spaceMono.className,
         msgClass: 'text-[11.5px] leading-[1.85] text-gray-500',
         nameClass: `${spaceMono.className} text-[10px] text-gray-400`,
+        footerClass: 'flex items-end justify-between gap-2',
         rotate: -1.8,
     },
     {
         bg: '#f5f0e8', edge: '#d4c8b4',
         msgFont: `${playfair.className}`,
-        msgClass: 'text-lg italic leading-snug text-gray-800',
-        nameClass: 'text-[10px] italic text-gray-400',
+        msgClass: 'text-lg italic leading-snug text-gray-800 text-center',
+        nameClass: 'text-[10px] italic text-gray-400 text-center w-full',
+        footerClass: 'flex items-end justify-center gap-2',
         rotate: 1.5,
     },
     {
@@ -53,6 +57,7 @@ const PERSONALITIES = [
         msgFont: '',
         msgClass: 'text-sm leading-relaxed text-gray-700',
         nameClass: 'text-[11px] font-semibold text-gray-500',
+        footerClass: 'flex items-end justify-between gap-2',
         rotate: -0.8,
     },
     {
@@ -60,6 +65,7 @@ const PERSONALITIES = [
         msgFont: dmSerif.className,
         msgClass: 'text-[15px] leading-snug text-gray-900',
         nameClass: 'text-[10px] uppercase tracking-wider text-gray-400',
+        footerClass: 'flex items-end justify-between gap-2',
         rotate: -2.2,
     },
     {
@@ -67,6 +73,7 @@ const PERSONALITIES = [
         msgFont: lora.className,
         msgClass: 'text-sm italic leading-relaxed text-gray-700 text-center',
         nameClass: 'text-[10px] text-gray-400 text-center w-full',
+        footerClass: 'flex items-end justify-center gap-2',
         rotate: 2.0,
     },
     {
@@ -74,6 +81,7 @@ const PERSONALITIES = [
         msgFont: courier.className,
         msgClass: 'text-[12px] leading-[1.75] text-gray-600',
         nameClass: `${courier.className} text-[10px] font-bold text-gray-400 uppercase`,
+        footerClass: 'flex items-end justify-between gap-2',
         rotate: -1.4,
     },
     {
@@ -81,13 +89,15 @@ const PERSONALITIES = [
         msgFont: dmSerif.className,
         msgClass: 'text-2xl leading-[1.2] text-gray-900',
         nameClass: 'text-[10px] text-gray-400 tracking-wide',
+        footerClass: 'flex items-end justify-between gap-2',
         rotate: -2.5,
     },
     {
         bg: '#eeeef8', edge: '#bbbce0',
         msgFont: lora.className,
-        msgClass: 'text-sm font-bold leading-snug text-gray-900',
-        nameClass: 'text-[10px] text-gray-400 uppercase tracking-widest',
+        msgClass: 'text-sm font-bold leading-snug text-gray-900 text-center',
+        nameClass: 'text-[10px] text-gray-400 uppercase tracking-widest text-center w-full',
+        footerClass: 'flex items-end justify-center gap-2',
         rotate: 1.8,
     },
     {
@@ -95,9 +105,51 @@ const PERSONALITIES = [
         msgFont: playfair.className,
         msgClass: 'text-[13px] leading-relaxed text-gray-700',
         nameClass: `${spaceMono.className} text-[9px] text-gray-400`,
+        footerClass: 'flex items-end justify-between gap-2',
         rotate: 0.9,
     },
 ];
+
+function burstConfetti(cx: number, cy: number) {
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d')!;
+    const colors = ['#dfc990', '#b0d4c8', '#bbbce0', '#d9d0bf', '#c4cce8', '#81cc3e'];
+    const particles = Array.from({ length: 14 }, () => ({
+        x: cx, y: cy,
+        vx: (Math.random() - 0.5) * 7,
+        vy: (Math.random() - 1.8) * 5,
+        alpha: 1,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        w: Math.random() * 6 + 3,
+        h: Math.random() * 4 + 2,
+        rot: Math.random() * Math.PI * 2,
+        rotV: (Math.random() - 0.5) * 0.18,
+    }));
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        for (const p of particles) {
+            p.x += p.vx; p.y += p.vy; p.vy += 0.18;
+            p.alpha -= 0.022; p.rot += p.rotV;
+            if (p.alpha > 0) {
+                alive = true;
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rot);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                ctx.restore();
+            }
+        }
+        if (alive) requestAnimationFrame(draw); else canvas.remove();
+    }
+    requestAnimationFrame(draw);
+}
 
 // U-shape: outer columns start at top, center column starts lowest
 function uOffsets(n: number, maxPx = 72): number[] {
@@ -120,9 +172,11 @@ export default function GuestbookPage() {
     const [username, setUsername]       = useState('');
     const [message, setMessage]         = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitted, setSubmitted]      = useState(false);
     const [error, setError]             = useState('');
     const [isLoaded, setIsLoaded]       = useState(false);
     const [numCols, setNumCols]         = useState(2);
+    const formRef                        = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const update = () => {
@@ -157,7 +211,15 @@ export default function GuestbookPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, message }),
             });
-            if (res.ok) { setUsername(''); setMessage(''); fetchEntries(); }
+            if (res.ok) {
+                setUsername(''); setMessage(''); fetchEntries();
+                setSubmitted(true);
+                setTimeout(() => setSubmitted(false), 3000);
+                if (formRef.current) {
+                    const r = formRef.current.getBoundingClientRect();
+                    burstConfetti(r.left + r.width / 2, r.top + r.height / 2);
+                }
+            }
             else { const d = await res.json(); setError(d.error || 'Failed to submit'); }
         } catch { setError('Failed to submit'); }
         finally { setIsSubmitting(false); }
@@ -165,12 +227,12 @@ export default function GuestbookPage() {
 
     return (
         <div className="min-h-screen bg-white pt-12 md:pt-16 pb-32 px-3 md:px-4">
-                <p className="text-center text-base md:text-lg text-gray-500 tracking-wide mb-12">
+                <p className={`${caveat.className} text-center text-2xl md:text-3xl text-gray-500 mb-12`}>
                     Notes left by friends and strangers over time
                 </p>
 
                 {/* Form */}
-                <div className="mb-6 max-w-xl mx-auto border border-gray-100 rounded-xl px-5 py-4">
+                <div ref={formRef} className="mb-6 max-w-xl mx-auto border border-gray-100 rounded-xl px-5 py-4">
                     <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 items-stretch">
                         <input
                             type="text"
@@ -204,6 +266,19 @@ export default function GuestbookPage() {
                         </button>
                     </form>
                     {error && <p className="text-[11px] text-red-600 mt-2 text-center">{error}</p>}
+                    <AnimatePresence>
+                        {submitted && (
+                            <motion.p
+                                initial={{ opacity: 0, y: -6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 6 }}
+                                transition={{ duration: 0.35 }}
+                                className={`${caveat.className} text-center text-base text-green-500 mt-2`}
+                            >
+                                your note was added :)
+                            </motion.p>
+                        )}
+                    </AnimatePresence>
                 </div>
 
                 {/* Masonry wall */}
@@ -221,25 +296,28 @@ export default function GuestbookPage() {
                                     return (
                                         <motion.div
                                             key={entry.id}
-                                            initial={{ opacity: 0, y: 8 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0 }}
-                                            transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.7), ease: [0.22, 0.61, 0.36, 1] }}
+                                            initial={{ opacity: 0, y: 20, rotate: p.rotate }}
+                                            whileInView={{ opacity: 1, y: 0, rotate: p.rotate }}
+                                            viewport={{ once: true, margin: '-40px' }}
+                                            transition={{ duration: 0.5, delay: Math.min(index * 0.04, 0.5), ease: [0.22, 0.61, 0.36, 1] }}
+                                            whileHover={{
+                                                rotate: [p.rotate, p.rotate + 2, p.rotate - 1.5, p.rotate],
+                                                scale: 1.015,
+                                                transition: { duration: 0.55, ease: 'easeInOut' },
+                                            }}
+                                            style={{ originX: 0.5, originY: 0.5 }}
                                         >
                                             <div
-                                                className="px-5 pt-5 pb-4 rounded-lg transition-all duration-300 hover:shadow-md"
+                                                className="px-5 pt-5 pb-4 rounded-lg"
                                                 style={{
                                                     backgroundColor: p.bg,
                                                     boxShadow: `0 0 0 0.5px ${p.edge}, 0 1px 3px rgba(0,0,0,0.04)`,
-                                                    transform: `rotate(${p.rotate}deg)`,
                                                 }}
-                                                onMouseEnter={e => (e.currentTarget.style.transform = `rotate(${p.rotate}deg) translateY(-2px)`)}
-                                                onMouseLeave={e => (e.currentTarget.style.transform = `rotate(${p.rotate}deg)`)}
                                             >
                                                 <p className={`${p.msgFont} ${p.msgClass} mb-3 break-words`}>
                                                     {entry.message}
                                                 </p>
-                                                <div className="flex items-end justify-between gap-2">
+                                                <div className={p.footerClass}>
                                                     <span className={p.nameClass}>— {entry.username}</span>
                                                     <span className="text-[9px] text-gray-300 font-mono tracking-wide shrink-0">
                                                         {formatDate(entry.createdAt)}
