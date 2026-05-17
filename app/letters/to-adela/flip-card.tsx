@@ -28,12 +28,12 @@ const blobs = [
 // Letter-stage is 460 × 595 (8.5/11 — the letter's fixed dimensions).
 // `initial` translates the polaroid to letter-stage center.
 const polaroids = [
-  { src: '/letters/adela/img1.JPG',  pos: { top: -32, left: -130, width: 150 },     initial: { x: 285, y: 255 },   rotate: -8, delay: 1.8 },
-  { src: '/letters/adela/img2.jpeg', pos: { top: -58, right: -110, width: 160 },    initial: { x: -260, y: 276 },  rotate: 6,  delay: 1.95 },
-  { src: '/letters/adela/img3.jpeg', pos: { top: '38%', left: -150, width: 140 },   initial: { x: 310, y: -10 },   rotate: 7,  delay: 2.1 },
-  { src: '/letters/adela/img4.jpeg', pos: { top: '30%', right: -135, width: 150 },  initial: { x: -290, y: -98 },  rotate: -6, delay: 2.25 },
-  { src: '/letters/adela/img5.jpeg', pos: { bottom: 40, left: -120, width: 145 },   initial: { x: 278, y: -174 },  rotate: -4, delay: 2.4 },
-  { src: '/letters/adela/img6.JPG',  pos: { bottom: 60, right: -125, width: 140 },  initial: { x: -285, y: -157 }, rotate: 5,  delay: 2.55 },
+  { src: '/letters/adela/img1.JPG',  pos: { top: -2, left: -130, width: 150 },      initial: { x: 285, y: 225 },   rotate: -8, delay: 1.8 },
+  { src: '/letters/adela/img2.jpeg', pos: { top: -28, right: -110, width: 160 },    initial: { x: -260, y: 246 },  rotate: 6,  delay: 1.95 },
+  { src: '/letters/adela/img3.jpeg', pos: { top: '43%', left: -150, width: 140 },   initial: { x: 310, y: -40 },   rotate: 7,  delay: 2.1 },
+  { src: '/letters/adela/img4.jpeg', pos: { top: '35%', right: -135, width: 150 },  initial: { x: -290, y: -128 }, rotate: -6, delay: 2.25 },
+  { src: '/letters/adela/img5.jpeg', pos: { bottom: 10, left: -120, width: 145 },   initial: { x: 278, y: -204 },  rotate: -4, delay: 2.4 },
+  { src: '/letters/adela/img6.JPG',  pos: { bottom: 30, right: -125, width: 140 },  initial: { x: -285, y: -187 }, rotate: 5,  delay: 2.55 },
 ];
 
 export default function FlipCard({ children }: { children: React.ReactNode }) {
