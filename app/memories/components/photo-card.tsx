@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import { MessageCircle, Images } from 'lucide-react';
+import FadeInImage from './fade-in-image';
 import type { PhotoDTO } from '../types';
 
 interface PhotoCardProps {
@@ -17,7 +17,7 @@ export default function PhotoCard({ title, emoji, body, photos, commentCount }: 
     <div className="overflow-hidden rounded-3xl bg-timeline-surface">
       <div className="relative aspect-[4/3] w-full bg-timeline-surface-2">
         {cover && (
-          <Image src={cover.url} alt={title} fill sizes="480px" className="object-cover" />
+          <FadeInImage src={cover.url} alt={title} fill sizes="480px" className="object-cover" />
         )}
         <div className="absolute bottom-3 right-3 flex gap-2">
           <span className="flex items-center gap-1.5 rounded-full bg-timeline-overlay-badge px-3 py-1.5 text-[13px] font-medium text-white backdrop-blur-sm">

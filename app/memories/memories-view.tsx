@@ -41,7 +41,21 @@ export default function MemoriesView() {
         />
         <main className="px-4 pb-16 pt-3">
         {memories === null && (
-          <p className="pt-16 text-center text-[14px] text-timeline-text-secondary">Loading…</p>
+          <div className="flex flex-col gap-7 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-6 lg:gap-y-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex animate-pulse items-start gap-3">
+                <div className="h-[84px] w-[54px] flex-shrink-0 rounded-2xl bg-timeline-surface-2" />
+                <div className="min-w-0 flex-1 overflow-hidden rounded-3xl bg-timeline-surface">
+                  <div className="aspect-[4/3] w-full bg-timeline-surface-2" />
+                  <div className="space-y-2 px-4 py-4">
+                    <div className="h-4 w-2/3 rounded bg-timeline-surface-2" />
+                    <div className="h-3 w-full rounded bg-timeline-surface-2" />
+                    <div className="h-3 w-4/5 rounded bg-timeline-surface-2" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
         {memories !== null && memories.length === 0 && (
           <p className="pt-16 text-center text-[14px] text-timeline-text-secondary">

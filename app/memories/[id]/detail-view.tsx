@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, MoreHorizontal, ArrowUp, Trash2 } from 'lucide-react';
+import FadeInImage from '../components/fade-in-image';
 import type { Author, CommentDTO, MemoryDTO } from '../types';
 
 function formatDate(dateStr: string): string {
@@ -102,8 +102,17 @@ export default function DetailView({ memoryId }: { memoryId: string }) {
 
   if (!memory) {
     return (
-      <div className="flex min-h-[100dvh] w-full items-center justify-center bg-timeline-bg">
-        <p className="text-[14px] text-timeline-text-secondary">Loading…</p>
+      <div className="min-h-[100dvh] w-full bg-timeline-bg">
+        <div className="mx-auto max-w-[480px] lg:max-w-5xl lg:px-6">
+          <div className="aspect-[4/3] w-full animate-pulse bg-timeline-surface-2 lg:mt-6 lg:aspect-auto lg:h-[380px] lg:rounded-3xl" />
+          <div className="mx-auto space-y-3 px-5 pt-6 lg:max-w-2xl lg:px-0 lg:pt-8">
+            <div className="h-8 w-2/3 animate-pulse rounded-lg bg-timeline-surface-2" />
+            <div className="h-4 w-1/3 animate-pulse rounded bg-timeline-surface-2" />
+            <div className="mt-2 h-4 w-full animate-pulse rounded bg-timeline-surface-2" />
+            <div className="h-4 w-5/6 animate-pulse rounded bg-timeline-surface-2" />
+            <div className="h-4 w-3/4 animate-pulse rounded bg-timeline-surface-2" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -116,7 +125,7 @@ export default function DetailView({ memoryId }: { memoryId: string }) {
         {/* Wide banner hero */}
         <div className="relative aspect-[4/3] w-full bg-timeline-surface-2 lg:mt-6 lg:aspect-auto lg:h-[380px] lg:overflow-hidden lg:rounded-3xl">
           {cover && (
-            <Image
+            <FadeInImage
               src={cover.url}
               alt={memory.title}
               fill
@@ -226,7 +235,7 @@ export default function DetailView({ memoryId }: { memoryId: string }) {
                   className="relative h-[190px] w-[150px] flex-shrink-0 overflow-hidden rounded-2xl border border-black/40 shadow-lg lg:h-[220px] lg:w-[170px]"
                   style={{ transform: `rotate(${TILT[index % TILT.length]}deg)` }}
                 >
-                  <Image src={photo.url} alt="" fill sizes="170px" className="object-cover" />
+                  <FadeInImage src={photo.url} alt="" fill sizes="170px" className="object-cover" />
                 </div>
               ))}
             </div>
