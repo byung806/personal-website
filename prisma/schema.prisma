@@ -22,3 +22,60 @@ model GuestbookEntry {
 
   @@map("guestbook")
 }
+
+model Planet {
+  id        Int      @id @default(autoincrement())
+  drawingData String @db.Text
+  x         Float
+  y         Float
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("planets")
+}
+
+enum MemoryType {
+  photo
+  milestone
+}
+
+enum Author {
+  bryan
+  adela
+}
+
+model Memory {
+  id        String     @id @default(cuid())
+  author    Author
+  type      MemoryType
+  title     String
+  body      String?    @db.Text
+  date      DateTime
+  emoji     String?
+  location  String?
+  createdAt DateTime   @default(now()) @map("created_at")
+  photos    Photo[]
+  comments  Comment[]
+
+  @@map("memories")
+}
+
+model Photo {
+  id       String @id @default(cuid())
+  memoryId String @map("memory_id")
+  memory   Memory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  url      String
+  order    Int    @default(0)
+
+  @@map("photos")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  memoryId  String   @map("memory_id")
+  memory    Memory   @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  author    Author
+  body      String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("comments")
+}

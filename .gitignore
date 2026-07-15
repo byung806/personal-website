@@ -43,3 +43,12 @@ next-env.d.ts
 public/unused
 
 /lib/generated/prisma
+
+# Personal journal photos — do NOT commit to this public repo (serve via Vercel Blob for deploy)
+public/journal-seed/
+
+# Blob URL manifest for the journal photos — contains all photo links, keep out of the public repo
+prisma/journal-photos.json
+
+# Personal journal entries (titles/bodies/comments) — keep out of the public repo
+prisma/journal-data.local.js

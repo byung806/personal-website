@@ -7,6 +7,7 @@ import StickyBackButton from './back-button';
 
 export default function HeroSection() {
   const pathname = usePathname();
+  if (pathname === '/memories' || pathname.startsWith('/memories/')) return null;
   const isWorkPage = pathname === '/' || (pathname.startsWith('/p/') && pathname !== '/p/guestbook');
   const isGuestbookPage = pathname === '/p/guestbook';
   const isLettersPage = pathname === '/letters' || pathname.startsWith('/letters/');

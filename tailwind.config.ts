@@ -45,7 +45,18 @@ const config: Config = {
                 },
                 teal: '#6FD7C4',        // tall project tile bg
                 pink: '#F7B8C8',        // supporting decorative shape
-                brand: '#001f3f'         // Bryan's navy (used sparingly for links/icons)
+                brand: '#001f3f',        // Bryan's navy (used sparingly for links/icons)
+                timeline: {              // Our Journal (/memories) — dark, matches reference screenshots
+                    bg: '#000000',
+                    surface: '#161618',        // elevated photo/entry card
+                    'surface-2': '#1F1F22',    // date badge box, circular header buttons
+                    bubble: '#2A2A2D',         // comment chat bubbles
+                    'text-primary': '#F2F2F2',
+                    'text-secondary': '#8E8E93',
+                    'accent-blue': '#2F80ED',
+                    'milestone-bg': '#1F1F22',
+                    'overlay-badge': 'rgba(20,20,22,0.72)',
+                }
             },
             boxShadow: {
                 soft: '0 1px 1px rgba(16,24,40,0.04), 0 10px 20px rgba(16,24,40,0.04)',

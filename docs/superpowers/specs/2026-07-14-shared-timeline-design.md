@@ -162,5 +162,30 @@ milestone row radius, etc.) — matched pixel-for-pixel during the static UI bui
 - Firebase (superseded by Postgres/Vercel Blob reuse).
 - Passcode/auth gate.
 - Live realtime push (Firestore `onSnapshot` / websockets / SSE) — refetch-on-focus only.
-- Map view of memory locations — icon is a stub, no `location` field.
+- Map view of memory locations — icon is a stub, no lat/lng.
 - Persisting the "last identity picked" as a default.
+
+## Revision — dark "Our Journal" reference (2026-07-14)
+
+The original light-mode "Timeline" screenshot was replaced by two dark-mode reference
+screenshots ("Our Journal" feed + an entry-detail screen). The build was reworked to match
+them exactly. Changes from the sections above:
+
+- **Dark mode only.** The `timeline` Tailwind tokens are now a fixed dark palette
+  (bg `#000000`, surface `#161618`, surface-2 `#1F1F22`, bubble `#2A2A2D`, text `#F2F2F2`,
+  secondary `#8E8E93`). The page is always dark regardless of the site's theme.
+- **No bottom tab bar.** Removed entirely per the reference and the "just the memories"
+  instruction. `bottom-tab-bar.tsx` deleted.
+- **Header title is "Our Journal"** with circular map-stub and "+" buttons.
+- **No paywall banner.** The reference's "Unlimited journal / PRO / BUY NOW" upgrade card is
+  intentionally dropped — this self-hosted, unlimited version is what replaces it.
+- **Entry detail screen** at `/memories/[id]` (new): full-bleed hero photo, back + "⋯"
+  buttons, title, `date • location` meta, body, "Created by <avatar> <name>", a tilted
+  horizontally-scrolling photo gallery, and two-sided chat comments (Bryan right / Adela left)
+  with a bottom comment composer (identity toggle + send). Backed by a new `GET
+  /api/memories/[id]` route. Clicking a photo card in the feed navigates here; the old
+  click-to-open comment sheet (`comment-thread.tsx`) is deleted and superseded by this screen.
+- **`location` field added** to `Memory` (nullable `String`), surfaced in the detail meta line
+  and the add-memory form (photo type). This supersedes the earlier "no `location` field" note.
+- Comment avatars and the "Created by" avatar are initial-in-a-circle placeholders (B/A), since
+  there is no per-user avatar storage.
