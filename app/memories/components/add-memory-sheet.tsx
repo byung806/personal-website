@@ -1,14 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Reorder } from 'framer-motion';
+import { X, Plus, Star } from 'lucide-react';
 import type { Author, MemoryType } from '../types';
-
-const EMOJI_OPTIONS = ['❤️', '🇫🇷', '✈️', '🎉', '📸', '🏖️', '🎂', '💍', '🌟', '🍕', '🎄', '🐶'];
 
 interface AddMemorySheetProps {
   onClose: () => void;
   onSaved: () => void;
+}
+
+interface PickedPhoto {
+  id: string;
+  file: File;
+  url: string;
 }
 
 const inputClass =
@@ -19,16 +24,42 @@ export default function AddMemorySheet({ onClose, onSaved }: AddMemorySheetProps
   const [type, setType] = useState<MemoryType>('photo');
   const [date, setDate] = useState('');
   const [title, setTitle] = useState('');
-  const [emoji, setEmoji] = useState('');
   const [body, setBody] = useState('');
   const [location, setLocation] = useState('');
-  const [files, setFiles] = useState<File[]>([]);
+  const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Revoke object URLs when the sheet unmounts.
+  useEffect(() => {
+    return () => {
+      photos.forEach((p) => URL.revokeObjectURL(p.url));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const addFiles = (list: FileList | null) => {
     if (!list) return;
-    setFiles((prev) => [...prev, ...Array.from(list)]);
+    const next = Array.from(list)
+      .filter((f) => f.type.startsWith('image/'))
+      .map((file) => ({ id: crypto.randomUUID(), file, url: URL.createObjectURL(file) }));
+    setPhotos((prev) => [...prev, ...next]);
+  };
+
+  const removePhoto = (id: string) => {
+    setPhotos((prev) => {
+      const found = prev.find((p) => p.id === id);
+      if (found) URL.revokeObjectURL(found.url);
+      return prev.filter((p) => p.id !== id);
+    });
+  };
+
+  const makeCover = (id: string) => {
+    setPhotos((prev) => {
+      const found = prev.find((p) => p.id === id);
+      if (!found) return prev;
+      return [found, ...prev.filter((p) => p.id !== id)];
+    });
   };
 
   const toggleClass = (active: boolean) =>
@@ -45,7 +76,7 @@ export default function AddMemorySheet({ onClose, onSaved }: AddMemorySheetProps
       setError('Title and date are required.');
       return;
     }
-    if (type === 'photo' && files.length === 0) {
+    if (type === 'photo' && photos.length === 0) {
       setError('Add at least one photo.');
       return;
     }
@@ -54,14 +85,14 @@ export default function AddMemorySheet({ onClose, onSaved }: AddMemorySheetProps
     setError(null);
 
     try {
-      const uploadedPhotos: { url: string; order: number }[] = [];
-      for (let index = 0; index < files.length; index += 1) {
+      const uploaded: { url: string; order: number }[] = [];
+      for (let index = 0; index < photos.length; index += 1) {
         const formData = new FormData();
-        formData.append('file', files[index]);
+        formData.append('file', photos[index].file);
         const uploadRes = await fetch('/api/memories/upload', { method: 'POST', body: formData });
         if (!uploadRes.ok) throw new Error('Photo upload failed.');
         const { url } = await uploadRes.json();
-        uploadedPhotos.push({ url, order: index });
+        uploaded.push({ url, order: index });
       }
 
       const createRes = await fetch('/api/memories', {
@@ -74,8 +105,8 @@ export default function AddMemorySheet({ onClose, onSaved }: AddMemorySheetProps
           body: type === 'photo' ? body.trim() || null : null,
           location: type === 'photo' ? location.trim() || null : null,
           date,
-          emoji: emoji || null,
-          photos: uploadedPhotos,
+          emoji: null,
+          photos: uploaded,
         }),
       });
 
@@ -93,9 +124,9 @@ export default function AddMemorySheet({ onClose, onSaved }: AddMemorySheetProps
   };
 
   return (
-    <div className="fixed inset-0 z-20 flex items-end justify-center bg-black/60" onClick={onClose}>
+    <div className="fixed inset-0 z-20 flex items-end justify-center bg-black/60 lg:items-center" onClick={onClose}>
       <div
-        className="max-h-[88vh] w-full max-w-[480px] overflow-y-auto rounded-t-3xl bg-timeline-surface p-5"
+        className="max-h-[88vh] w-full max-w-[480px] overflow-y-auto rounded-t-3xl bg-timeline-surface p-5 lg:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
         style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}
       >
@@ -137,24 +168,9 @@ export default function AddMemorySheet({ onClose, onSaved }: AddMemorySheetProps
             onChange={(e) => setTitle(e.target.value)}
             maxLength={200}
             className={inputClass}
-            placeholder={type === 'milestone' ? 'Flight to Paris' : 'Trip to Paris'}
+            placeholder={type === 'milestone' ? 'Flight to Paris' : 'First date'}
           />
         </label>
-
-        <div className="mt-3 flex flex-wrap gap-2">
-          {EMOJI_OPTIONS.map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => setEmoji(option === emoji ? '' : option)}
-              className={`rounded-lg px-2 py-1 text-lg ${
-                emoji === option ? 'bg-white/15 ring-1 ring-white' : 'bg-timeline-surface-2'
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
 
         {type === 'photo' && (
           <>
@@ -181,24 +197,79 @@ export default function AddMemorySheet({ onClose, onSaved }: AddMemorySheetProps
               />
             </label>
 
-            <div
-              className="mt-4 rounded-xl border border-dashed border-timeline-bubble p-4 text-center text-[13px] text-timeline-text-secondary"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                addFiles(e.dataTransfer.files);
-              }}
-            >
+            <div className="mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] font-medium text-timeline-text-secondary">Photos</span>
+                {photos.length > 0 && (
+                  <span className="text-[12px] text-timeline-text-secondary">
+                    Drag to reorder · first is the cover
+                  </span>
+                )}
+              </div>
+
+              {photos.length > 0 && (
+                <Reorder.Group
+                  as="div"
+                  axis="x"
+                  values={photos}
+                  onReorder={setPhotos}
+                  className="mt-2 flex gap-2 overflow-x-auto pb-1"
+                >
+                  {photos.map((photo, index) => (
+                    <Reorder.Item
+                      as="div"
+                      key={photo.id}
+                      value={photo}
+                      className="relative aspect-[3/4] w-[84px] flex-shrink-0 cursor-grab overflow-hidden rounded-xl active:cursor-grabbing"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={photo.url} alt="" draggable={false} className="h-full w-full object-cover" />
+                      {index === 0 ? (
+                        <span className="absolute bottom-1 left-1 flex items-center gap-1 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                          <Star size={10} className="fill-white" />
+                          Cover
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={() => makeCover(photo.id)}
+                          className="absolute bottom-1 left-1 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white"
+                        >
+                          Cover
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        aria-label="Remove photo"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={() => removePhoto(photo.id)}
+                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
+                      >
+                        <X size={12} />
+                      </button>
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
+              )}
+
               <input
                 type="file"
                 accept="image/*"
                 multiple
                 id="memory-photo-input"
                 className="hidden"
-                onChange={(e) => addFiles(e.target.files)}
+                onChange={(e) => {
+                  addFiles(e.target.files);
+                  e.target.value = '';
+                }}
               />
-              <label htmlFor="memory-photo-input" className="cursor-pointer">
-                Tap to select photos or drag them here ({files.length} selected)
+              <label
+                htmlFor="memory-photo-input"
+                className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-timeline-bubble py-3 text-[14px] font-medium text-timeline-text-secondary"
+              >
+                <Plus size={16} />
+                {photos.length > 0 ? 'Add more photos' : 'Add photos'}
               </label>
             </div>
           </>
