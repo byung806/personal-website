@@ -228,18 +228,18 @@ export default function DetailView({ memoryId }: { memoryId: string }) {
 
           {/* Photo gallery — horizontal scroll on mobile, wraps on desktop */}
           {memory.photos.length > 0 && (
-            <div className="mt-6 flex gap-3 overflow-x-auto px-5 pb-2 lg:flex-wrap lg:justify-center lg:gap-5 lg:overflow-visible lg:px-0">
+            <div className="mt-6 flex gap-3 overflow-x-auto px-5 pb-2 lg:grid lg:grid-cols-3 lg:gap-4 lg:overflow-visible lg:px-0">
               {memory.photos.map((photo, index) => (
                 <div
                   key={photo.id}
-                  className="relative h-[190px] w-[150px] flex-shrink-0 overflow-hidden rounded-2xl border border-black/40 shadow-lg lg:h-[220px] lg:w-[170px]"
+                  className="relative h-[190px] w-[150px] flex-shrink-0 overflow-hidden rounded-2xl border border-black/40 shadow-lg lg:h-auto lg:w-full lg:flex-shrink lg:aspect-[3/4]"
                   style={{ transform: `rotate(${TILT[index % TILT.length]}deg)` }}
                 >
                   <FadeInImage
                     src={photo.url}
                     alt=""
                     fill
-                    sizes="170px"
+                    sizes="(min-width: 1024px) 220px, 150px"
                     className="object-cover"
                     style={{ transitionDelay: `${index * 110}ms` }}
                   />
