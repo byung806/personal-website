@@ -123,7 +123,7 @@ export default function DetailView({ memoryId }: { memoryId: string }) {
     <div className="min-h-[100dvh] w-full bg-timeline-bg">
       <div className="mx-auto max-w-[480px] pb-24 lg:max-w-5xl lg:px-6 lg:pb-16">
         {/* Wide banner hero */}
-        <div className="relative aspect-[4/3] w-full bg-timeline-surface-2 lg:mt-6 lg:aspect-auto lg:h-[380px] lg:overflow-hidden lg:rounded-3xl">
+        <div className="relative aspect-[4/3] w-full bg-timeline-surface-2 lg:-mx-6 lg:aspect-auto lg:h-[380px] lg:overflow-hidden lg:rounded-b-3xl">
           {cover && (
             <FadeInImage
               src={cover.url}
@@ -228,7 +228,7 @@ export default function DetailView({ memoryId }: { memoryId: string }) {
 
           {/* Photo gallery — horizontal scroll on mobile, wraps on desktop */}
           {memory.photos.length > 0 && (
-            <div className="mt-6 flex gap-3 overflow-x-auto px-5 pb-2 lg:flex-wrap lg:gap-4 lg:overflow-visible lg:px-0">
+            <div className="mt-6 flex gap-3 overflow-x-auto px-5 pb-2 lg:flex-wrap lg:justify-center lg:gap-5 lg:overflow-visible lg:px-0">
               {memory.photos.map((photo, index) => (
                 <div
                   key={photo.id}
