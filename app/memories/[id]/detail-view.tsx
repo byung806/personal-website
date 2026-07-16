@@ -235,7 +235,14 @@ export default function DetailView({ memoryId }: { memoryId: string }) {
                   className="relative h-[190px] w-[150px] flex-shrink-0 overflow-hidden rounded-2xl border border-black/40 shadow-lg lg:h-[220px] lg:w-[170px]"
                   style={{ transform: `rotate(${TILT[index % TILT.length]}deg)` }}
                 >
-                  <FadeInImage src={photo.url} alt="" fill sizes="170px" className="object-cover" />
+                  <FadeInImage
+                    src={photo.url}
+                    alt=""
+                    fill
+                    sizes="170px"
+                    className="object-cover"
+                    style={{ transitionDelay: `${index * 110}ms` }}
+                  />
                 </div>
               ))}
             </div>
