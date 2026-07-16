@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Our Journal (/memories) palette — follows the system light/dark setting.
+   The rest of the site is forced light; these vars only drive the timeline-* tokens. */
+:root {
+  --tl-bg: #f2f2f7;
+  --tl-surface: #ffffff;
+  --tl-surface-2: #eaeaef;
+  --tl-bubble: #e5e5ea;
+  --tl-text-primary: #1c1c1e;
+  --tl-text-secondary: #8e8e93;
+  --tl-accent-blue: #2f80ed;
+  --tl-milestone-bg: #eaeaef;
+  --tl-overlay-badge: rgba(20, 20, 22, 0.72);
+  --tl-accent: #1c1c1e;
+  --tl-accent-fg: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tl-bg: #000000;
+    --tl-surface: #161618;
+    --tl-surface-2: #1f1f22;
+    --tl-bubble: #2a2a2d;
+    --tl-text-primary: #f2f2f2;
+    --tl-milestone-bg: #1f1f22;
+    --tl-accent: #ffffff;
+    --tl-accent-fg: #000000;
+  }
+}
+
 /* Minimal global styles - everything else handled by Tailwind */
 html {
   scroll-behavior: smooth;

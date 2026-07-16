@@ -64,7 +64,7 @@ export default function AddMemorySheet({ onClose, onSaved }: AddMemorySheetProps
 
   const toggleClass = (active: boolean) =>
     `flex-1 rounded-xl px-3 py-2 text-[14px] font-semibold ${
-      active ? 'bg-white text-black' : 'bg-timeline-surface-2 text-timeline-text-secondary'
+      active ? 'bg-timeline-accent text-timeline-accent-fg' : 'bg-timeline-surface-2 text-timeline-text-secondary'
     }`;
 
   const handleSave = async () => {
@@ -281,7 +281,7 @@ export default function AddMemorySheet({ onClose, onSaved }: AddMemorySheetProps
           type="button"
           onClick={handleSave}
           disabled={isSaving}
-          className="mt-5 w-full rounded-xl bg-white py-3 text-[15px] font-semibold text-black disabled:opacity-50"
+          className="mt-5 w-full rounded-xl bg-timeline-accent py-3 text-[15px] font-semibold text-timeline-accent-fg disabled:opacity-50"
         >
           {isSaving ? 'Saving…' : 'Add to journal'}
         </button>

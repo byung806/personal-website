@@ -307,7 +307,7 @@ export default function DetailView({ memoryId }: { memoryId: string }) {
                 onClick={handleSend}
                 disabled={isSending || !body.trim()}
                 aria-label="Send comment"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-black disabled:opacity-40"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-timeline-accent text-timeline-accent-fg disabled:opacity-40"
               >
                 <ArrowUp size={18} />
               </button>

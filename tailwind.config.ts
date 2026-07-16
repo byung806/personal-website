@@ -46,16 +46,18 @@ const config: Config = {
                 teal: '#6FD7C4',        // tall project tile bg
                 pink: '#F7B8C8',        // supporting decorative shape
                 brand: '#001f3f',        // Bryan's navy (used sparingly for links/icons)
-                timeline: {              // Our Journal (/memories) — dark, matches reference screenshots
-                    bg: '#000000',
-                    surface: '#161618',        // elevated photo/entry card
-                    'surface-2': '#1F1F22',    // date badge box, circular header buttons
-                    bubble: '#2A2A2D',         // comment chat bubbles
-                    'text-primary': '#F2F2F2',
-                    'text-secondary': '#8E8E93',
-                    'accent-blue': '#2F80ED',
-                    'milestone-bg': '#1F1F22',
-                    'overlay-badge': 'rgba(20,20,22,0.72)',
+                timeline: {              // Our Journal (/memories) — light/dark via CSS vars (see globals.css)
+                    bg: 'var(--tl-bg)',
+                    surface: 'var(--tl-surface)',        // elevated photo/entry card
+                    'surface-2': 'var(--tl-surface-2)',  // date badge box, circular header buttons
+                    bubble: 'var(--tl-bubble)',          // comment chat bubbles
+                    'text-primary': 'var(--tl-text-primary)',
+                    'text-secondary': 'var(--tl-text-secondary)',
+                    'accent-blue': 'var(--tl-accent-blue)',
+                    'milestone-bg': 'var(--tl-milestone-bg)',
+                    'overlay-badge': 'var(--tl-overlay-badge)',
+                    accent: 'var(--tl-accent)',          // primary button bg (inverts per mode)
+                    'accent-fg': 'var(--tl-accent-fg)',  // text on the primary button
                 }
             },
             boxShadow: {
