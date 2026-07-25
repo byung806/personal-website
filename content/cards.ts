@@ -5,6 +5,7 @@ import FirstLightCard from '@/components/cards/first-light-card';
 import BoyScoutsCard from '@/components/cards/boy-scouts-card';
 import ThreeDRendererCard from '@/components/cards/3d-renderer-card';
 import EchoCard from '@/components/cards/echo-card';
+import StripeCard from '@/components/cards/stripe-card';
 
 export type Card = {
   id: string;
@@ -12,6 +13,10 @@ export type Card = {
 };
 
 export const cards: Card[] = [
+  {
+    id: 'stripe',
+    component: StripeCard,
+  },
   {
     id: 'echo',
     component: EchoCard,

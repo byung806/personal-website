@@ -29,6 +29,24 @@ export type ProjectMetadata = {
 };
 
 export const projects: Record<string, ProjectMetadata> = {
+    stripe: {
+        id: 'stripe',
+        title: 'Stripe',
+        subtitle: 'SOFTWARE ENGINEERING INTERN',
+        // TODO: make this specific to what you actually worked on
+        tagline: 'Building payments infrastructure that moves money for millions of businesses.',
+        coverImage: '/p/stripe/stripe.png',
+        coverBgColor: '#ffffff',
+        coverLarge: true,
+        logo: '/p/stripe/card.png',
+        year: '2026',
+        role: 'Software Engineering Intern',
+        team: 'Bryan: SWE Intern, and my team at Stripe',
+        teamHighlight: 'Bryan: SWE Intern',
+        tools: ['Java', 'Scala', 'SQL'],
+        bgColor: '#533AFD',
+        tagTextDark: false,
+    },
     runway: {
         id: 'runway',
         title: 'Runway',
@@ -124,6 +142,14 @@ export const projects: Record<string, ProjectMetadata> = {
         bgColor: '#ffffff',
         borderColor: '#f1f1f1',
         borderThickness: 2,
+    },
+    'planet-garden': {
+        id: 'planet-garden',
+        title: 'Planet Garden',
+        subtitle: 'INTERACTIVE',
+        year: '2025',
+        special: ['Interactive'],
+        bgColor: '#0a0e27',
     },
     echo: {
         id: 'echo',

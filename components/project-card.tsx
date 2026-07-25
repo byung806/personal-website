@@ -5,11 +5,14 @@ import { projects } from '@/content/projects';
 interface ProjectCardProps {
   projectId: string;
   children?: React.ReactNode;
+  /** Render the card without a navigation link (keeps hover effects). */
+  disableLink?: boolean;
 }
 
 export default function ProjectCard({
   projectId,
   children,
+  disableLink,
 }: ProjectCardProps) {
   const meta = projects[projectId];
   const metadataLabel = meta?.year || meta?.subtitle;
@@ -23,7 +26,7 @@ export default function ProjectCard({
   const borderThickness = borderColor && isVeryWhite ? Math.max(baseBorderThickness, 3) : baseBorderThickness;
   const projectUrl = `/p/${projectId}`;
 
-  const hasLink = !!projectUrl;
+  const hasLink = !!projectUrl && !disableLink;
   const isExternalLink = projectUrl?.startsWith('http');
   const linkProps = hasLink ? {
     href: projectUrl,
@@ -50,7 +53,7 @@ export default function ProjectCard({
     <>
       {/* Single rounded container scales as a whole so corners stay consistent on hover */}
       <div
-        className={`relative overflow-hidden transition-transform duration-500 will-change-transform ${hasLink ? 'md:group-hover:scale-[0.985]' : 'md:group-active:scale-[0.985]'}`}
+        className={`relative overflow-hidden transition-transform duration-500 will-change-transform ${hasLink || disableLink ? 'md:group-hover:scale-[0.985]' : 'md:group-active:scale-[0.985]'}`}
         style={{
           backgroundColor: effectiveBg,
           ...(borderColor && { border: `${borderThickness}px solid ${borderColor}` }),
@@ -102,7 +105,7 @@ export default function ProjectCard({
   }
 
   return (
-    <div className="w-full group cursor-not-allowed">
+    <div className={`w-full group ${disableLink ? 'cursor-default' : 'cursor-not-allowed'}`}>
       {content}
     </div>
   );

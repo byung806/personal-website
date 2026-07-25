@@ -6,7 +6,7 @@ import { Card } from '@/content/cards';
 const fadeIn = {
   initial: { opacity: 0 },
   viewport: { once: true, margin: '-40px 0px -40px 0px' },
-  transition: (i: number) => ({ duration: 0.45, delay: i * 0.08, ease: [0.22, 0.61, 0.36, 1] }),
+  transition: (i: number) => ({ duration: 0.28, delay: i * 0.04, ease: [0.22, 0.61, 0.36, 1] }),
 };
 
 interface ProjectsGalleryProps {
