@@ -193,8 +193,8 @@ function AgeTag({ ship, size, below }: { ship: Ship; size: number; below: boolea
 }
 
 /**
- * The ships, each bobbing on its own slow loop, already in motion on the first frame (each starts at
- * a different point of its loop). A just-launched rocket rises in from below with its engine lit,
+ * The ships pop into the sky one by one, then each bobs on its own slow loop (each starts at a
+ * different point of it). A just-launched rocket rises in from below with its engine lit,
  * which goes out once it's floating. Hovering (or tapping) a ship puffs it up with its engine lit
  * and pops out a tag saying how long ago it was launched.
  */
@@ -205,7 +205,7 @@ export function Fleet({ ships, justLaunchedId }: { ships: Ship[]; justLaunchedId
 
   return (
     <div className="absolute inset-0 pointer-events-none">
-      {ships.map((s) => {
+      {ships.map((s, i) => {
         const size = 52 + hash01(s.id) * 40;
         const dx = 10 + hash01(s.id * 3) * 22;
         const dy = 8 + hash01(s.id * 5) * 16;
@@ -223,9 +223,10 @@ export function Fleet({ ships, justLaunchedId }: { ships: Ship[]; justLaunchedId
             <motion.div
               className="absolute pointer-events-auto cursor-help"
               style={{ left: `${s.x}%`, top: `${s.y}%`, width: size, height: size, marginLeft: -size / 2, marginTop: -size / 2, zIndex: hovered ? 20 : undefined }}
-              initial={fresh && !reduce ? { y: ARRIVAL_DROP, opacity: 0 } : false}
-              animate={{ y: 0, opacity: 1 }}
-              transition={ARRIVAL}
+              initial={reduce ? false : fresh ? { y: ARRIVAL_DROP, opacity: 0 } : { scale: 0, opacity: 0 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              // A launch rises in; the rest pop into the sky one after another
+              transition={fresh ? ARRIVAL : { type: 'spring', stiffness: 420, damping: 13, delay: 0.25 + (i % 4) * 0.12 }}
               onAnimationComplete={() => fresh && setArrivedId(s.id)}
               onHoverStart={() => setHoveredId(s.id)}
               onHoverEnd={() => setHoveredId((h) => (h === s.id ? null : h))}

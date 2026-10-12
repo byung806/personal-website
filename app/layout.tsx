@@ -41,8 +41,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <link rel="preload" href="/p/runway/runway.png" as="image" />
-                <link rel="preload" href="/p/eeg-classification/umd_eeg_tsne.png" as="image" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />
             </head>
             <body className={`${typeVF.variable} ${typeLight.variable} ${libreBaskerville.variable} font-sans antialiased bg-white text-gray-900 min-h-screen flex flex-col`}>

@@ -32,18 +32,36 @@ export function rng(seed: number): Rand {
   };
 }
 
+const grainTiles = new Map<number, HTMLCanvasElement>();
+
+/** A small tile of random light and dark specks, made once per `amount` and reused. */
+function grainTile(amount: number) {
+  let tile = grainTiles.get(amount);
+  if (tile) return tile;
+  tile = document.createElement('canvas');
+  tile.width = tile.height = 128;
+  const tctx = tile.getContext('2d')!;
+  const img = tctx.createImageData(128, 128);
+  const r = rng(99);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const n = (r() - 0.5) * amount;
+    const v = n > 0 ? 255 : 0;
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+    img.data[i + 3] = Math.abs(n) * 2;
+  }
+  tctx.putImageData(img, 0, 0);
+  grainTiles.set(amount, tile);
+  return tile;
+}
+
 /** Monochrome grain over the whole pixel buffer (device pixels); transparent pixels stay transparent. */
 export function addGrain(ctx: CanvasRenderingContext2D, w: number, h: number, amount: number) {
-  const img = ctx.getImageData(0, 0, w, h);
-  const d = img.data;
-  const r = rng(99);
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (r() - 0.5) * amount;
-    d[i] += n;
-    d[i + 1] += n;
-    d[i + 2] += n;
-  }
-  ctx.putImageData(img, 0, 0);
+  // Tiled over what's already drawn (and only there), so it costs next to nothing even on big canvases
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.fillStyle = ctx.createPattern(grainTile(amount), 'repeat')!;
+  ctx.fillRect(0, 0, w, h);
+  ctx.restore();
 }
 
 /** A smooth path through `pts` (Catmull-Rom), each point nudged by up to `wobble` px. */

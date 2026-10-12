@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { whenIdle, whenNear } from '@/lib/idle';
 
 /**
  * A living night sky, after tinycamp.site's night mode (techniques studied from its source):
@@ -22,6 +23,15 @@ type Spark = { x: number; y: number; size: number; vx: number; vy: number };
 
 const SHOOTER_LIFE = 60;
 
+/** A star: tiny ones as squares (much faster than circles, and they look the same), bigger ones round. */
+function dot(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
+  if (r > 1) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  } else ctx.fillRect(x - r, y - r, r * 2, r * 2);
+}
+
 /** Random in [min, max), pulled toward `bias` by up to `influence`. */
 function biased(min: number, max: number, bias: number, influence: number) {
   const v = min + Math.random() * (max - min);
@@ -40,10 +50,8 @@ function drawMilkyWay(ctx: CanvasRenderingContext2D, w: number, h: number) {
   for (let i = 0; i < (w / 1.5) * 10; i++) {
     const x = Math.random() * w;
     const band = i % 4 !== 0;
-    ctx.beginPath();
-    ctx.arc(x, band ? bandY(x) + spread() : Math.random() * h, Math.random() * 0.35, 0, Math.PI * 2);
     ctx.fillStyle = `hsla(0,100%,100%,${(band ? 0.4 : 0.25) + Math.random() * 0.5})`;
-    ctx.fill();
+    dot(ctx, x, band ? bandY(x) + spread() : Math.random() * h, Math.random() * 0.35);
   }
 
   // Clusters along the band
@@ -65,10 +73,8 @@ function drawMilkyWay(ctx: CanvasRenderingContext2D, w: number, h: number) {
         let r = 0.4 + Math.random() * 0.4;
         let a = 0.3 + Math.random() * 0.15;
         if (i === PER_RING - 1) { r += 1.5; a = Math.max(0.02, a - 0.4); } // a few soft, larger motes
-        ctx.beginPath();
-        ctx.arc(px, py, r, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(${hue},100%,${light + 15 + 15 * toCenter + Math.random() * 10}%,${a})`;
-        ctx.fill();
+        dot(ctx, px, py, r);
       }
     }
     const glow = ctx.createRadialGradient(x, y, 0, x, y, size);
@@ -108,7 +114,7 @@ function fbm(x: number, y: number) {
 }
 
 /**
- * Paints a per-pixel layer over the band at a third of the resolution and scales it up smooth. It
+ * Paints a per-pixel layer over the band at a quarter of the resolution and scales it up smooth. It
  * walks along and across the band, so the band can curve. `color(s, n, k)` gets the position along
  * the band (0 to 1), across it (in band widths, 0 at the center line) and nearness to the core, and
  * returns [r, g, b, alpha].
@@ -123,7 +129,7 @@ function paintBand(
   width: (s: number) => number,
   L: number,
 ) {
-  const S = 3;
+  const S = 4;
   const W = Math.ceil(w / S);
   const H = Math.ceil(h / S);
   const layer = document.createElement('canvas');
@@ -154,16 +160,17 @@ function paintBand(
 /**
  * A purple milky way for the launchpad, in the same colors as the banner's: it swoops low over the
  * hills, where its dusty core is, then thins into a trail of stars climbing up through the dusk, as
- * if it runs on up to the galaxy at the top of the page. Crisp field stars everywhere.
+ * if it runs on up to the galaxy at the top of the page. Crisp field stars everywhere. Returned as
+ * steps to run in order.
  */
-function drawArch(ctx: CanvasRenderingContext2D, w: number, h: number) {
+function archSteps(ctx: CanvasRenderingContext2D, w: number, h: number) {
   // A quadratic curve: in from the left, down low over the hills, and up off the top right
   // On tall, narrow screens the curve runs wider than the sky, so it doesn't fold into a V
   const span = Math.max(w, h * 0.8);
   const X = (f: number) => w * 0.33 + (f - 0.33) * span; // the core stays a third of the way in
   const lift = w < 640 ? 0.1 * h : 0; // phones have more ground, so the band sits higher
   const P0 = [X(-0.05), 0.3 * h - lift];
-  const P1 = [X(0.4), 0.85 * h - lift];
+  const P1 = [X(0.52), 0.85 * h - lift];
   const P2 = [X(0.95), -0.05 * h - lift];
   const at = (s: number, n: number) => {
     const t = 1 - s;
@@ -187,55 +194,58 @@ function drawArch(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const spread = () => Math.random() + Math.random() + Math.random() - 1.5;
   const coreBiased = () => (Math.random() < 0.45 ? CORE + spread() * 0.2 : Math.random());
 
-  // Field stars, a few of them bright
-  for (let i = 0; i < (w * h) / 600; i++) {
-    ctx.beginPath();
-    ctx.arc(Math.random() * w, Math.random() * h, Math.random() < 0.04 ? 0.9 + Math.random() * 0.6 : Math.random() * 0.55, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${0.25 + Math.random() * 0.6})`;
-    ctx.fill();
-  }
-
-  // The band's glow, lumpy like star clouds: violet along its length, pinker at the core
-  paintBand(ctx, w, h, (s, n, k) => {
-    const lump = 0.35 + 0.9 * fbm(s * 9, n * 1.5 + 7);
-    const a = Math.exp(-n * n * 1.6) * (0.08 + 0.22 * k) * lump;
-    return k > 0.4 ? [196, 150, 230, a] : [140, 130, 225, a];
-  }, at, near, width, L);
-
-  // Dust of tiny stars packed into the band
-  for (let i = 0; i < L * 18; i++) {
-    const s = coreBiased();
-    const [x, y] = at(s, spread() * width(s) * 0.75);
-    ctx.beginPath();
-    ctx.arc(x, y, Math.random() * 0.45, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(${250 + Math.random() * 50},90%,90%,${0.3 + Math.random() * 0.55})`;
-    ctx.fill();
-  }
-
-  // Star clumps tinted like the banner's: cyan at the edges of the band to pink-violet at its heart
-  for (let c = 0; c < L / 3; c++) {
-    const s = coreBiased();
-    const k = near(s);
-    const [x, y] = at(s, spread() * width(s) * 0.5);
-    const size = (10 + Math.random() * 30 + k * 25) * taper(s);
-    const hue = 190 + Math.floor((Math.random() * 0.5 + k * 0.5) * 130);
-    for (let i = 0; i < 40; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const d = Math.pow(Math.random(), 0.7) * size;
-      ctx.beginPath();
-      ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, 0.3 + Math.random() * 0.45, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${hue},100%,${75 + Math.random() * 15}%,${0.35 + Math.random() * 0.4})`;
-      ctx.fill();
-    }
-  }
-
-  // Dust lanes: ridged noise stretched along the band makes dark threads that branch and fade,
-  // strongest just off the band's center through the core
-  paintBand(ctx, w, h, (s, n, k) => {
-    const ridge = Math.pow(1 - Math.abs(2 * fbm(s * 14 + 3, n * 2.2) - 1), 5);
-    const a = Math.exp(-(n + 0.15) * (n + 0.15) * 2.2) * ridge * (0.3 + 0.5 * k);
-    return [12, 9, 33, a];
-  }, at, near, width, L);
+  // In separate steps, so each can run in its own idle moment
+  return [
+    () => {
+      // Field stars, a few of them bright
+      for (let i = 0; i < (w * h) / 600; i++) {
+        ctx.fillStyle = `rgba(255,255,255,${0.25 + Math.random() * 0.6})`;
+        dot(ctx, Math.random() * w, Math.random() * h, Math.random() < 0.04 ? 0.9 + Math.random() * 0.6 : Math.random() * 0.55);
+      }
+    },
+    () => {
+      // The band's glow, lumpy like star clouds: violet along its length, pinker at the core
+      paintBand(ctx, w, h, (s, n, k) => {
+        const lump = 0.35 + 0.9 * fbm(s * 9, n * 1.5 + 7);
+        const a = Math.exp(-n * n * 1.6) * (0.08 + 0.22 * k) * lump;
+        return k > 0.4 ? [196, 150, 230, a] : [140, 130, 225, a];
+      }, at, near, width, L);
+    },
+    () => {
+      // Dust of tiny stars packed into the band
+      for (let i = 0; i < L * 18; i++) {
+        const s = coreBiased();
+        const [x, y] = at(s, spread() * width(s) * 0.75);
+        ctx.fillStyle = `hsla(${250 + Math.random() * 50},90%,90%,${0.3 + Math.random() * 0.55})`;
+        dot(ctx, x, y, Math.random() * 0.45);
+      }
+    },
+    () => {
+      // Star clumps tinted like the banner's: cyan at the edges of the band to pink-violet at its heart
+      for (let c = 0; c < L / 3; c++) {
+        const s = coreBiased();
+        const k = near(s);
+        const [x, y] = at(s, spread() * width(s) * 0.5);
+        const size = (10 + Math.random() * 30 + k * 25) * taper(s);
+        const hue = 190 + Math.floor((Math.random() * 0.5 + k * 0.5) * 130);
+        for (let i = 0; i < 40; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const d = Math.pow(Math.random(), 0.7) * size;
+          ctx.fillStyle = `hsla(${hue},100%,${75 + Math.random() * 15}%,${0.35 + Math.random() * 0.4})`;
+          dot(ctx, x + Math.cos(a) * d, y + Math.sin(a) * d, 0.3 + Math.random() * 0.45);
+        }
+      }
+    },
+    () => {
+      // Dust lanes: ridged noise stretched along the band makes dark threads that branch and fade,
+      // strongest just off the band's center through the core
+      paintBand(ctx, w, h, (s, n, k) => {
+        const ridge = Math.pow(1 - Math.abs(2 * fbm(s * 14 + 3, n * 2.2) - 1), 5);
+        const a = Math.exp(-(n + 0.15) * (n + 0.15) * 2.2) * ridge * (0.3 + 0.5 * k);
+        return [12, 9, 33, a];
+      }, at, near, width, L);
+    },
+  ];
 }
 
 /**
@@ -257,10 +267,8 @@ function drawTrail(ctx: CanvasRenderingContext2D, w: number, h: number) {
   for (let i = 0; i < w * 4; i++) {
     const s = Math.random();
     const [x, y] = at(s);
-    ctx.beginPath();
-    ctx.arc(x + spread() * width(s), y + spread() * width(s) * 0.6, Math.random() * 0.4, 0, Math.PI * 2);
     ctx.fillStyle = `hsla(${250 + Math.random() * 50},90%,90%,${(0.3 + Math.random() * 0.5) * (1 - s * 0.4)})`;
-    ctx.fill();
+    dot(ctx, x + spread() * width(s), y + spread() * width(s) * 0.6, Math.random() * 0.4);
   }
   for (let c = 0; c < w / 25; c++) {
     const s = Math.random();
@@ -272,10 +280,8 @@ function drawTrail(ctx: CanvasRenderingContext2D, w: number, h: number) {
     for (let i = 0; i < 25; i++) {
       const a = Math.random() * Math.PI * 2;
       const d = Math.pow(Math.random(), 0.7) * size;
-      ctx.beginPath();
-      ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, 0.3 + Math.random() * 0.4, 0, Math.PI * 2);
       ctx.fillStyle = `hsla(${hue},100%,${75 + Math.random() * 15}%,${0.3 + Math.random() * 0.35})`;
-      ctx.fill();
+      dot(ctx, x + Math.cos(a) * d, y + Math.sin(a) * d, 0.3 + Math.random() * 0.4);
     }
   }
 }
@@ -287,10 +293,8 @@ function drawTrail(ctx: CanvasRenderingContext2D, w: number, h: number) {
 function drawGlimpse(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const spread = () => Math.random() + Math.random() + Math.random() - 1.5;
   for (let i = 0; i < w * 1.5; i++) {
-    ctx.beginPath();
-    ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 0.35, 0, Math.PI * 2);
     ctx.fillStyle = `hsla(${250 + Math.random() * 50},80%,90%,${0.15 + Math.random() * 0.4})`;
-    ctx.fill();
+    dot(ctx, Math.random() * w, Math.random() * h, Math.random() * 0.35);
   }
   // Slanting down to the right with a gentle bend, from the banner's trail toward the launchpad's
   const at = (s: number) => [w * (0.8 + 0.08 * s) - Math.sin(s * Math.PI) * Math.min(40, w * 0.05), -10 + s * (h + 20)];
@@ -308,10 +312,8 @@ function drawGlimpse(ctx: CanvasRenderingContext2D, w: number, h: number) {
   }
   for (let i = 0; i < h * 30; i++) {
     const [x, y] = at(Math.random());
-    ctx.beginPath();
-    ctx.arc(x + spread() * width, y + spread() * 8, Math.random() * 0.5, 0, Math.PI * 2);
     ctx.fillStyle = `hsla(${250 + Math.random() * 50},90%,90%,${0.4 + Math.random() * 0.5})`;
-    ctx.fill();
+    dot(ctx, x + spread() * width, y + spread() * 8, Math.random() * 0.5);
   }
   for (let c = 0; c < h / 5; c++) {
     const [x0, y0] = at(Math.random());
@@ -321,10 +323,8 @@ function drawGlimpse(ctx: CanvasRenderingContext2D, w: number, h: number) {
     for (let i = 0; i < 25; i++) {
       const a = Math.random() * Math.PI * 2;
       const d = Math.pow(Math.random(), 0.7) * size;
-      ctx.beginPath();
-      ctx.arc(x + Math.cos(a) * d, y0 + Math.sin(a) * d, 0.3 + Math.random() * 0.45, 0, Math.PI * 2);
       ctx.fillStyle = `hsla(${hue},100%,${75 + Math.random() * 15}%,${0.35 + Math.random() * 0.4})`;
-      ctx.fill();
+      dot(ctx, x + Math.cos(a) * d, y0 + Math.sin(a) * d, 0.3 + Math.random() * 0.45);
     }
   }
 }
@@ -350,6 +350,32 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
     let shooters: Shooter[] = [];
     let sparks: Spark[] = [];
 
+    // The milky way is the heavy part: painted once the sky is near the screen, in an idle moment,
+    // then faded in
+    let near = false;
+    let cancelIdle = () => {};
+    const paintGalaxy = () => {
+      if (!near) return;
+      cancelIdle();
+      const steps =
+        galaxy === 'arch'
+          ? archSteps(mctx, w, h)
+          : [() => (galaxy === 'glimpse' ? drawGlimpse : drawMilkyWay)(mctx, w, h), ...(trail ? [() => drawTrail(mctx, w, h)] : [])];
+      steps.push(() => {
+        milky.dataset.painted = '';
+      });
+      // One step per idle moment, each queued after the one before
+      const next = (k: number): (() => void) => whenIdle(() => {
+        steps[k]();
+        if (k + 1 < steps.length) cancelIdle = next(k + 1);
+      });
+      cancelIdle = next(0);
+    };
+    const cancelNear = whenNear(wrap, () => {
+      near = true;
+      paintGalaxy();
+    });
+
     const sizeTo = () => {
       const nw = wrap.clientWidth;
       const nh = wrap.clientHeight;
@@ -362,8 +388,7 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
         c.height = Math.round(h * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
-      ({ diagonal: drawMilkyWay, arch: drawArch, glimpse: drawGlimpse })[galaxy](mctx, w, h);
-      if (trail) drawTrail(mctx, w, h);
+      paintGalaxy();
       glitter = Array.from({ length: Math.round((500 * w * h) / (1440 * 900)) }, () => {
         const size = 0.6 + Math.random() * 0.6;
         return { x: Math.random() * w, y: Math.random() * h, size };
@@ -447,7 +472,13 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
     observer.observe(wrap);
     sizeTo();
 
-    if (reduce) return () => observer.disconnect();
+    if (reduce) {
+      return () => {
+        observer.disconnect();
+        cancelNear();
+        cancelIdle();
+      };
+    }
 
     // Only animate while visible
     let visible = true;
@@ -491,6 +522,8 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
 
     return () => {
       observer.disconnect();
+      cancelNear();
+      cancelIdle();
       io.disconnect();
       cancelAnimationFrame(raf);
       window.removeEventListener('pointermove', onMove);
@@ -500,7 +533,7 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
 
   return (
     <div ref={wrapRef} aria-hidden className={className} style={{ background: BG }}>
-      <canvas ref={milkyRef} className="absolute inset-0 w-full h-full" />
+      <canvas ref={milkyRef} className="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-1000 data-[painted]:opacity-100" />
       <canvas ref={liveRef} className="absolute inset-0 w-full h-full" />
     </div>
   );

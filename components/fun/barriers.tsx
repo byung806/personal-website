@@ -98,7 +98,7 @@ export function TornEdge({ color, below = false, seed = 1 }: { color: string; be
   return (
     <div aria-hidden className={`relative z-10 h-14 md:h-16 pointer-events-none ${below ? '-mb-14 md:-mb-16' : '-mt-14 md:-mt-16'}`}>
       {/* Runs a pixel past the paper side so no hairline shows against the section */}
-      <PaintedCanvas paint={paint} grain={0} className={`absolute left-0 w-full h-[calc(100%_+_1px)] ${below ? '-top-px' : 'top-0'}`} />
+      <PaintedCanvas paint={paint} grain={0} eager className={`absolute left-0 w-full h-[calc(100%_+_1px)] ${below ? '-top-px' : 'top-0'}`} />
     </div>
   );
 }
@@ -140,22 +140,34 @@ function duskAt(t: number) {
   return a.map((v, j) => v + (b[j] - v) * e);
 }
 
+/** duskAt, worked out ahead for 1024 steps of t (as r, g, b, alpha), so painting is just lookups. */
+const DUSK_LUT = new Float32Array(1024 * 4);
+for (let i = 0; i < 1024; i++) DUSK_LUT.set(duskAt(i / 1023), i * 4);
+
 /**
  * Paints the dusk for `Dissolve`: white sky turning through peach, rose and lilac into night. It's a
  * wide dome, so the light lingers longest in the middle like the last glow over the horizon.
  * A fine grain keeps the gradient from banding.
  */
-function paintDusk(ctx: CanvasRenderingContext2D) {
+function paintDusk(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const r = rng(23);
-  const { width: cw, height: ch } = ctx.canvas;
-  const img = ctx.createImageData(cw, ch);
+  // Worked out per CSS pixel (not per device pixel) and scaled up: it's a soft gradient, and this is
+  // four times less work on a retina screen
+  const cw = Math.ceil(w);
+  const ch = Math.ceil(h);
+  const layer = document.createElement('canvas');
+  layer.width = cw;
+  layer.height = ch;
+  const lctx = layer.getContext('2d')!;
+  const img = lctx.createImageData(cw, ch);
   const d = img.data;
   for (let py = 0; py < ch; py++) {
     const y = py / ch;
     for (let px = 0; px < cw; px++) {
       const off = (px / cw - 0.5) * 2; // -1 at the left edge, 1 at the right
       const t = Math.pow(y, 1 + 0.25 * (1 - off * off)); // lingers in the middle (a dome), yet reaches 1 at the bottom everywhere
-      const [cr, cg, cb, ca] = duskAt(t);
+      const k = Math.round(t * 1023) * 4;
+      const [cr, cg, cb, ca] = [DUSK_LUT[k], DUSK_LUT[k + 1], DUSK_LUT[k + 2], DUSK_LUT[k + 3]];
       const grain = (r() - 0.5) * 9;
       const i = (py * cw + px) * 4;
       d[i] = cr + grain;
@@ -164,7 +176,8 @@ function paintDusk(ctx: CanvasRenderingContext2D) {
       d[i + 3] = Math.max(0, Math.min(255, ca * 255 + grain * ca));
     }
   }
-  ctx.putImageData(img, 0, 0);
+  lctx.putImageData(img, 0, 0);
+  ctx.drawImage(layer, 0, 0, w, h);
 }
 
 /**
