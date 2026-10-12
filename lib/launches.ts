@@ -1,7 +1,7 @@
 import type { ShipKind } from '@/components/launchpad/paint';
 
 /**
- * What can be launched from the /experiments launchpad. Add a kind here (and teach
+ * What can be launched from the /play launchpad. Add a kind here (and teach
  * `paintShip` to draw it) to add an easter egg ship; the database stores kinds as plain strings.
  */
 export const LAUNCH_KINDS: readonly ShipKind[] = ['rocket', 'ufo', 'satellite'];

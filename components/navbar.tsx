@@ -9,13 +9,13 @@ import StickyBackButton from './back-button';
  * Routes whose page starts with a dark, full-bleed hero: the header becomes a transparent overlay
  * with light text, and the page's hero runs underneath it.
  */
-const OVERLAY_HEADER_ROUTES = ['/p/planet-garden', '/fun', '/experiments'];
+const OVERLAY_HEADER_ROUTES = ['/p/planet-garden', '/fun', '/play'];
 
 export default function HeroSection() {
   const pathname = usePathname();
   if (pathname === '/memories' || pathname.startsWith('/memories/')) return null;
   const isWorkPage = pathname === '/' || pathname.startsWith('/p/');
-  const isExperimentsPage = pathname === '/experiments' || pathname.startsWith('/letters/');
+  const isPlayPage = pathname === '/play' || pathname.startsWith('/letters/');
   const showBackButton = pathname.startsWith('/p/');
   const overlay = OVERLAY_HEADER_ROUTES.includes(pathname);
 
@@ -37,10 +37,10 @@ export default function HeroSection() {
             Work
           </Link>
           <Link
-            href="/experiments"
-            className={isExperimentsPage ? activeClass : inactiveClass}
+            href="/play"
+            className={isPlayPage ? activeClass : inactiveClass}
           >
-            Experiments
+            Play
           </Link>
         </nav>
       </header>

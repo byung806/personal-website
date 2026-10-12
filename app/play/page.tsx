@@ -16,12 +16,12 @@ const PAPER = '#f7f6f1';
 const INK = '#2f55a4';
 
 /**
- * Experiments: each section is its own world, split by hard barriers. Each title says what to do there; no subtitles.
+ * Play: each section is its own world, split by hard barriers. Each title says what to do there; no subtitles.
  * Sky banner of ships, letters after bermawy.com (graph paper, typewriter ink), the wall after
  * dejiajetomobi.com (blackletter over a bare text grid), and a launchpad after tinycamp.site whose
  * rockets fly up to join the ships in the sky. (The planet drawer is parked, not deleted.)
  */
-export default function ExperimentsPage() {
+export default function PlayPage() {
   const { ships, launch, justLaunchedId } = useFleet();
 
   const onLaunch = (color: string) => {

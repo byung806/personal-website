@@ -88,3 +88,9 @@ strong, b {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* The 404 page is a full-screen sky with no header or footer (it can be at any URL, so this can't go by path) */
+body:has([data-not-found]) header,
+body:has([data-not-found]) footer {
+  display: none;
+}
