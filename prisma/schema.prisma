@@ -18,6 +18,8 @@ model GuestbookEntry {
   id        Int      @id @default(autoincrement())
   username  String   @db.VarChar(50)
   message   String   @db.Text
+  /// Note color the visitor picked (one of NOTE_COLORS in lib/note-colors.ts); older notes have none
+  color     String?  @db.VarChar(16)
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("guestbook")
@@ -31,6 +33,18 @@ model Planet {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("planets")
+}
+
+/// A ship launched from the /experiments launchpad. `kind` is a plain string so new
+/// (easter egg) kinds need no migration; the allowed list lives in lib/launches.ts.
+model Launch {
+  id        Int      @id @default(autoincrement())
+  kind      String   @db.VarChar(32)
+  color     String   @db.VarChar(16)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([kind])
+  @@map("launches")
 }
 
 enum MemoryType {

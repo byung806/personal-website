@@ -8,7 +8,7 @@ export type ProjectMetadata = {
     coverBgColor?: string;
     /** Case study cover: use larger phone mockup. */
     coverLarge?: boolean;
-    /** Case study cover: very big, immersive (taller section + much larger image). Echo only. */
+    /** Case study cover: very big, immersive (taller section + much larger image). Good for wide images. */
     coverImmersive?: boolean;
     /** Path to logo image (e.g. SVG) shown in case study sidebar. */
     logo?: string;
@@ -134,6 +134,7 @@ export const projects: Record<string, ProjectMetadata> = {
         subtitle: 'RESEARCH',
         tagline: 'Making machine-aided diagnosis explainable to doctors.',
         coverImage: '/p/eeg-classification/eeg_data.png',
+        coverImmersive: true,
         logo: '/p/eeg-classification/umd.svg',
         year: '2024',
         role: 'Research Intern',

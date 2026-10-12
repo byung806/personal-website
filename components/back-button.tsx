@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+/** White text with a difference blend, so it inverts against whatever is behind it (light or dark). */
 export default function StickyBackButton() {
   const [visible, setVisible] = useState(true);
 
@@ -30,11 +31,11 @@ export default function StickyBackButton() {
 
   return (
     <div
-      className={`fixed top-0 z-40 px-6 md:px-10 lg:px-16 py-6 md:py-8 pointer-events-none transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed top-0 z-40 px-6 md:px-10 lg:px-16 py-6 md:py-8 pointer-events-none transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'} mix-blend-difference`}
     >
       <Link
         href="/"
-        className="flex items-center text-sm font-medium uppercase tracking-wide text-gray-900 hover:text-gray-600 transition-colors pointer-events-auto"
+        className={`flex items-center text-sm font-medium uppercase tracking-wide transition-colors pointer-events-auto text-white hover:text-white/70`}
       >
         ← Projects
       </Link>

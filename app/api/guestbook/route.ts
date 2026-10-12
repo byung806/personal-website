@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Filter } from 'bad-words';
+import { NOTE_COLORS } from '@/lib/note-colors';
 
 const filter = new Filter();
 
@@ -22,7 +23,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { username, message } = await request.json();
+    const { username, message, color } = await request.json();
 
     // Validation
     if (!username || !message) {
@@ -46,6 +47,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (color !== undefined && !NOTE_COLORS.includes(color)) {
+      return NextResponse.json(
+        { error: 'Pick one of the colors!' },
+        { status: 400 }
+      );
+    }
+
     // Profanity filter
     if (filter.isProfane(username) || filter.isProfane(message)) {
       return NextResponse.json(
@@ -58,6 +66,7 @@ export async function POST(request: Request) {
       data: {
         username,
         message,
+        color,
       },
     });
 

@@ -42,7 +42,7 @@ export default function LetterLayout({
 
         <div className="mt-16 pt-8 border-t border-gray-100">
           <Link
-            href="/letters"
+            href="/experiments#letters"
             className="font-serif italic text-sm transition-opacity hover:opacity-70"
             style={{ color: '#81cc3e' }}
           >
