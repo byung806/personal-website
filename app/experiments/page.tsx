@@ -58,8 +58,8 @@ export default function ExperimentsPage() {
 
       {/* III. The Wall */}
       <section id="wall" className={`${inter.className} bg-white text-black px-6 md:px-8 pt-12 md:pt-16 pb-28`}>
-        <h2 className={`${fraktur.className} text-[17vw] leading-[0.85] tracking-[-0.01em] -ml-[0.03em] whitespace-nowrap`}>
-          Sign the Wall
+        <h2 className={`${fraktur.className} text-[12vw] md:text-[12.5vw] leading-[0.85] tracking-[-0.01em] -ml-[0.03em] whitespace-nowrap`}>
+          Sign the Guestbook
         </h2>
         <div className="mt-12 md:mt-16">
           <Guestbook colorWall />

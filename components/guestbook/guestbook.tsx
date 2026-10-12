@@ -7,12 +7,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { NOTE_COLORS, inkOn, noteColor } from '@/lib/note-colors';
 import { Playfair_Display, Space_Mono, DM_Serif_Display, Lora, Courier_Prime, Caveat } from 'next/font/google';
 
-const playfair  = Playfair_Display({ subsets: ['latin'], weight: ['400', '700'], style: ['normal', 'italic'] });
-const spaceMono = Space_Mono({ subsets: ['latin'], weight: ['400', '700'] });
-const dmSerif   = DM_Serif_Display({ subsets: ['latin'], weight: '400', style: ['normal', 'italic'] });
-const lora      = Lora({ subsets: ['latin'], weight: ['400', '600', '700'], style: ['normal', 'italic'] });
-const courier   = Courier_Prime({ subsets: ['latin'], weight: ['400', '700'], style: ['normal', 'italic'] });
-const caveat    = Caveat({ subsets: ['latin'], weight: ['400', '700'] });
+// Not preloaded: only the pastel cards (/p/guestbook) use these, so pages showing the color wall skip them
+const playfair  = Playfair_Display({ subsets: ['latin'], preload: false, weight: ['400', '700'], style: ['normal', 'italic'] });
+const spaceMono = Space_Mono({ subsets: ['latin'], preload: false, weight: ['400', '700'] });
+const dmSerif   = DM_Serif_Display({ subsets: ['latin'], preload: false, weight: '400', style: ['normal', 'italic'] });
+const lora      = Lora({ subsets: ['latin'], preload: false, weight: ['400', '600', '700'], style: ['normal', 'italic'] });
+const courier   = Courier_Prime({ subsets: ['latin'], preload: false, weight: ['400', '700'], style: ['normal', 'italic'] });
+const caveat    = Caveat({ subsets: ['latin'], preload: false, weight: ['400', '700'] });
 
 interface GuestbookEntry {
     id: number;
