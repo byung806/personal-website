@@ -14,10 +14,9 @@ const OVERLAY_HEADER_ROUTES = ['/p/planet-garden', '/fun', '/experiments'];
 export default function HeroSection() {
   const pathname = usePathname();
   if (pathname === '/memories' || pathname.startsWith('/memories/')) return null;
-  const isWorkPage = pathname === '/' || (pathname.startsWith('/p/') && pathname !== '/p/guestbook');
-  const isGuestbookPage = pathname === '/p/guestbook';
+  const isWorkPage = pathname === '/' || pathname.startsWith('/p/');
   const isExperimentsPage = pathname === '/experiments' || pathname.startsWith('/letters/');
-  const showBackButton = pathname.startsWith('/p/') && pathname !== '/p/guestbook';
+  const showBackButton = pathname.startsWith('/p/');
   const overlay = OVERLAY_HEADER_ROUTES.includes(pathname);
 
   const inactiveClass = overlay
@@ -42,12 +41,6 @@ export default function HeroSection() {
             className={isExperimentsPage ? activeClass : inactiveClass}
           >
             Experiments
-          </Link>
-          <Link
-            href="/p/guestbook"
-            className={isGuestbookPage ? activeClass : inactiveClass}
-          >
-            Guestbook
           </Link>
         </nav>
       </header>

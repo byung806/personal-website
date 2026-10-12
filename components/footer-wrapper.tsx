@@ -6,6 +6,6 @@ import Footer from './footer';
 export default function FooterWrapper() {
   const pathname = usePathname();
   // /experiments ends on the launchpad scene, with no footer
-  if (pathname === '/p/guestbook' || pathname === '/experiments' || pathname.startsWith('/letters') || pathname === '/adela-surprise' || pathname === '/memories' || pathname.startsWith('/memories/')) return null;
+  if (pathname === '/experiments' || pathname.startsWith('/letters') || pathname === '/adela-surprise' || pathname === '/memories' || pathname.startsWith('/memories/')) return null;
   return <Footer />;
 }
