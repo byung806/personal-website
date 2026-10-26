@@ -93,3 +93,12 @@ model Comment {
 
   @@map("comments")
 }
+
+/// One self-evaluation per day on /days. `date` is the local calendar day (YYYY-MM-DD) it was logged for.
+model Day {
+  date      String   @id @db.VarChar(10)
+  score     Int
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("days")
+}
