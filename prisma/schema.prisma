@@ -95,9 +95,12 @@ model Comment {
 }
 
 /// One self-evaluation per day on /days. `date` is the local calendar day (YYYY-MM-DD) it was logged for.
+/// `meters` maps meter keys (METERS in lib/days.ts) to 1..100; `score` is their average, kept for the grid.
 model Day {
   date      String   @id @db.VarChar(10)
-  score     Int
+  score     Int?
+  meters    Json     @default("{}")
+  note      String?  @db.VarChar(280)
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("days")

@@ -2,104 +2,63 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useSpring, useTransform } from 'framer-motion';
-import { MAX_SCORE, MIN_SCORE, scoreColor } from '@/lib/days';
+import { MIN_SCORE, scoreColor } from '@/lib/days';
 
 const SPARKS = 14;
 
 type Props = {
   size: number;
-  day: number;
+  date: Date;
   value: number | null;
   editable: boolean;
-  onDraft: (score: number) => void;
-  onCommit: (score: number) => void;
+  /** Bumped each time a meter is saved; fires a burst */
+  pulse: number;
 };
 
 /**
- * Today's evaluation: drag up inside the box (or tap a height) and it fills with liquid light,
- * glowing hotter and shifting color the higher it goes. Letting go saves it with a burst.
+ * Today's overall score, the average of its meters: liquid light that rises, glows hotter and
+ * shifts color as the meters fill. Each save sets off a burst.
  */
-export default function TodayBox({ size, day, value, editable, onDraft, onCommit }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const draftRef = useRef<number | null>(null);
-  const [dragging, setDragging] = useState(false);
+export default function TodayBox({ size, date, value, editable, pulse }: Props) {
   const [bursts, setBursts] = useState<{ id: number; score: number }[]>([]);
 
   const level = useSpring(0, { stiffness: 140, damping: 18 });
   const height = useTransform(level, (v) => `${v}%`);
   useEffect(() => { level.set(value ?? 0); }, [value, level]);
 
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  useEffect(() => {
+    if (pulse && valueRef.current) setBursts((b) => [...b, { id: pulse, score: valueRef.current! }]);
+  }, [pulse]);
+
   const shown = value ?? MIN_SCORE;
-  const glow = value ? 8 + value * (dragging ? 0.55 : 0.35) : 0;
-
-  const scoreAt = (clientY: number) => {
-    const rect = ref.current!.getBoundingClientRect();
-    const t = 1 - (clientY - rect.top) / rect.height;
-    return Math.min(MAX_SCORE, Math.max(MIN_SCORE, Math.round(t * MAX_SCORE)));
-  };
-
-  const draftTo = (score: number) => {
-    draftRef.current = score;
-    onDraft(score);
-  };
-
-  const commit = (score: number, burst: boolean) => {
-    onCommit(score);
-    if (burst) setBursts((b) => [...b, { id: Date.now(), score }]);
-  };
+  const glow = value ? 8 + value * 0.4 : 0;
 
   return (
     <motion.div
-      ref={ref}
-      role={editable ? 'slider' : undefined}
-      aria-valuemin={MIN_SCORE}
-      aria-valuemax={MAX_SCORE}
-      aria-valuenow={value ?? undefined}
-      tabIndex={editable ? 0 : -1}
       initial={{ opacity: 0, scale: 0.85 }}
-      animate={{ opacity: 1, scale: dragging ? 1.04 : 1 }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-      className={`relative shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-white/30 ${editable ? 'cursor-ns-resize' : ''}`}
+      className="relative shrink-0"
       style={{
         width: size,
         height: size,
         borderRadius: size * 0.2,
-        touchAction: 'none',
         boxShadow: value
           ? `0 0 ${glow}px ${glow / 4}px ${scoreColor(shown, 0.35)}, 0 0 ${glow * 2.5}px ${scoreColor(shown, 0.15)}`
           : undefined,
         transition: 'box-shadow 0.4s ease',
       }}
-      onPointerDown={(e) => {
-        if (!editable) return;
-        e.currentTarget.setPointerCapture(e.pointerId);
-        setDragging(true);
-        draftTo(scoreAt(e.clientY));
-      }}
-      onPointerMove={(e) => {
-        if (dragging) draftTo(scoreAt(e.clientY));
-      }}
-      onPointerUp={() => {
-        if (!dragging) return;
-        setDragging(false);
-        if (draftRef.current !== null) commit(draftRef.current, true);
-        draftRef.current = null;
-      }}
-      onKeyDown={(e) => {
-        if (!editable || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
-        e.preventDefault();
-        const next = Math.min(MAX_SCORE, Math.max(MIN_SCORE, (value ?? 0) + (e.key === 'ArrowUp' ? 5 : -5)));
-        commit(next, false);
-      }}
     >
-      {/* Glass shell; breathes while today is still empty */}
+      {/* Glass shell; breathes while today is still empty and yours to fill */}
       <div
         className="absolute inset-0 overflow-hidden"
         style={{
           borderRadius: 'inherit',
           background: 'rgba(255, 255, 255, 0.04)',
           border: '1px solid rgba(255, 255, 255, 0.09)',
-          animation: value ? undefined : 'days-breathe 3.2s ease-in-out infinite',
+          animation: value || !editable ? undefined : 'days-breathe 3.2s ease-in-out infinite',
         }}
       >
         <motion.div
@@ -133,7 +92,28 @@ export default function TodayBox({ size, day, value, editable, onDraft, onCommit
         </motion.div>
       </div>
 
-      <span className="pointer-events-none absolute left-2.5 top-2 select-none text-[11px] text-white/45">{day}</span>
+      {/* Calendar face: two binding rings, the day big in the middle, the month along the bottom */}
+      {[0.3, 0.7].map((p) => (
+        <span
+          key={p}
+          className="pointer-events-none absolute -translate-x-1/2 rounded-full bg-white/30"
+          style={{ left: `${p * 100}%`, top: -size * 0.05, width: size * 0.05, height: size * 0.13 }}
+        />
+      ))}
+      <div
+        className="pointer-events-none absolute inset-0 flex select-none items-center justify-center text-white"
+        style={{ textShadow: '0 1px 10px rgba(0, 0, 0, 0.3)' }}
+      >
+        <span className="font-semibold leading-none tabular-nums" style={{ fontSize: size * 0.42, opacity: value ? 0.95 : 0.75 }}>
+          {date.getDate()}
+        </span>
+        <span
+          className="absolute uppercase tracking-[0.2em]"
+          style={{ bottom: size * 0.09, fontSize: Math.max(9, size * 0.1), opacity: value ? 0.85 : 0.45 }}
+        >
+          {date.toLocaleString('en-US', { month: 'short' })}
+        </span>
+      </div>
 
       {/* Saving: a ring and a spray of sparks in today's color */}
       <AnimatePresence>
