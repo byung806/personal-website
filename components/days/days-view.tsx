@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { METERS, averageScore, dayKey, scoreColor, type DayEntry, type MeterKey, type Meters } from '@/lib/days';
+import { METERS, dayScore, dayKey, scoreColor, type DayEntry, type MeterKey, type Meters } from '@/lib/days';
 import TodayBox from './today-box';
 import Meter from './meter';
 import DayTooltip from './day-tooltip';
@@ -66,7 +66,7 @@ export default function DaysView() {
     const optimistic: DayEntry = {
       ...base,
       meters,
-      score: averageScore(meters) ?? base.score,
+      score: dayScore(meters) ?? base.score,
       note: patch.note === undefined ? base.note : patch.note.trim() || null,
     };
     setDays((d) => ({ ...d, [todayKey]: optimistic }));
@@ -93,7 +93,7 @@ export default function DaysView() {
 
   // While a meter is being dragged, today's box follows the would-be average live
   const liveMeters: Meters = { ...todayEntry?.meters, ...(draft ? { [draft.key]: draft.value } : {}) };
-  const value = averageScore(liveMeters) ?? todayEntry?.score ?? null;
+  const value = dayScore(liveMeters) ?? todayEntry?.score ?? null;
 
   const small = width < 640;
   const cell = small ? 11 : 14;

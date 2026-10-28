@@ -31,7 +31,6 @@ export function dayKey(d: Date) {
 
 /** The daily meters, in display order. Keys are stored in Day.meters, so rename labels freely but keep keys. */
 export const METERS = [
-  { key: 'health', label: 'Health' },
   { key: 'sleep', label: 'Sleep' },
   { key: 'focus', label: 'Focus' },
   { key: 'academic', label: 'Academic' },
@@ -44,8 +43,14 @@ export type MeterKey = (typeof METERS)[number]['key'];
 export type Meters = Partial<Record<MeterKey, number>>;
 export type DayEntry = { date: string; score: number | null; meters: Meters; note: string | null };
 
-/** The day's score: the average of whichever meters were rated. */
-export function averageScore(meters: Meters) {
-  const values = Object.values(meters).filter((v): v is number => typeof v === 'number');
-  return values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : null;
+/** The bonus meter: it adds like one more bar but isn't needed, so full core meters alone make 100. */
+export const BONUS_METER: MeterKey = 'extra';
+
+/** The day's score: core meters averaged with unrated ones as 0, plus the bonus, capped at 100. */
+export function dayScore(meters: Meters) {
+  const rated = METERS.filter((m) => typeof meters[m.key] === 'number');
+  if (!rated.length) return null;
+  const core = METERS.filter((m) => m.key !== BONUS_METER);
+  const sum = METERS.reduce((total, m) => total + (meters[m.key] ?? 0), 0);
+  return Math.min(MAX_SCORE, Math.max(MIN_SCORE, Math.round(sum / core.length)));
 }

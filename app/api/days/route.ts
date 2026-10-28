@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { MAX_SCORE, METERS, MIN_SCORE, averageScore, type Meters } from '@/lib/days';
+import { MAX_SCORE, METERS, MIN_SCORE, dayScore, type Meters } from '@/lib/days';
 
 const SELECT = { date: true, score: true, meters: true, note: true } as const;
 const METER_KEYS = new Set<string>(METERS.map((m) => m.key));
@@ -41,10 +41,13 @@ export async function PUT(request: Request) {
     }
 
     const existing = await prisma.day.findUnique({ where: { date }, select: SELECT });
-    const merged: Meters = { ...((existing?.meters as Meters) ?? {}), ...(meters ?? {}) };
+    // Merge, dropping keys of meters that have since been removed
+    const merged: Meters = Object.fromEntries(
+      Object.entries({ ...((existing?.meters as Meters) ?? {}), ...(meters ?? {}) }).filter(([k]) => METER_KEYS.has(k)),
+    );
     const data = {
       meters: merged,
-      score: averageScore(merged) ?? existing?.score ?? null,
+      score: dayScore(merged) ?? existing?.score ?? null,
       note: note === undefined ? existing?.note ?? null : note.trim() || null,
     };
     const day = await prisma.day.upsert({ where: { date }, create: { date, ...data }, update: data, select: SELECT });
