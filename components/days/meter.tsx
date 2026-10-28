@@ -6,7 +6,7 @@ import { MAX_SCORE, MIN_SCORE, scoreColor, type MeterKey } from '@/lib/days';
 import { METER_ICONS } from './meter-icons';
 
 type Props = {
-  meter: { key: MeterKey; label: string };
+  meter: { key: MeterKey; label: string; description: string };
   width: number;
   height: number;
   value: number | null;
@@ -47,10 +47,11 @@ export default function Meter({ meter, width, height, value, editable, onDraft, 
       onPointerLeave={() => setHovered(false)}
     >
       <span
-        className="pointer-events-none absolute bottom-full mb-2 whitespace-nowrap rounded-md border border-white/10 bg-[#111118]/95 px-1.5 py-0.5 text-[10px] text-white/80 transition-opacity duration-150"
+        className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-40 -translate-x-1/2 rounded-lg border border-white/10 bg-[#111118]/95 px-2 py-1.5 text-center text-[10px] leading-snug text-white/50 transition-opacity duration-150"
         style={{ opacity: hovered || dragging ? 1 : 0 }}
       >
-        {meter.label}
+        <span className="block text-[11px] text-white/85">{meter.label}</span>
+        {meter.description}
       </span>
       <motion.div
         ref={ref}

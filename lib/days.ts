@@ -31,12 +31,12 @@ export function dayKey(d: Date) {
 
 /** The daily meters, in display order. Keys are stored in Day.meters, so rename labels freely but keep keys. */
 export const METERS = [
-  { key: 'sleep', label: 'Sleep' },
-  { key: 'focus', label: 'Focus' },
-  { key: 'academic', label: 'Academic' },
-  { key: 'social', label: 'Social' },
-  { key: 'rest', label: 'Rest' },
-  { key: 'extra', label: 'Extra' },
+  { key: 'sleep', label: 'Sleep', description: 'Rested, on a decent schedule' },
+  { key: 'focus', label: 'Focus', description: 'Deep work instead of drifting or the phone' },
+  { key: 'academic', label: 'Academic', description: 'Classes, homework, recruiting, interview prep' },
+  { key: 'social', label: 'Social', description: 'Real time with friends and Adela' },
+  { key: 'rest', label: 'Rest', description: 'Actually recharged: tennis, games, hanging out' },
+  { key: 'extra', label: 'Extra', description: 'Growth nobody asked for: building, learning, practicing' },
 ] as const;
 
 export type MeterKey = (typeof METERS)[number]['key'];
