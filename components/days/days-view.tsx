@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { PenLine } from 'lucide-react';
 import { METERS, dayScore, dayKey, scoreColor, type DayEntry, type MeterKey, type Meters } from '@/lib/days';
 import TodayBox from './today-box';
 import Meter from './meter';
@@ -143,6 +144,24 @@ export default function DaysView() {
     />
   ));
 
+  const noteInput = key && (
+    <label
+      className="flex w-full max-w-xs items-center gap-2 rounded-xl border bg-white/[0.04] px-3 py-2 transition-colors focus-within:bg-white/[0.07]"
+      style={{ borderColor: value ? scoreColor(value, 0.4) : 'rgba(255, 255, 255, 0.14)' }}
+    >
+      <PenLine size={13} className="shrink-0 text-white/45" />
+      <input
+        value={note}
+        maxLength={280}
+        placeholder="One line about today"
+        onChange={(e) => setNote(e.target.value)}
+        onBlur={() => note.trim() !== (todayEntry?.note ?? '') && save({ note })}
+        onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+        className="w-full bg-transparent text-sm text-white/85 outline-none placeholder:text-white/30"
+      />
+    </label>
+  );
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center px-4 transition-[background] duration-700"
@@ -199,21 +218,19 @@ export default function DaysView() {
                   ))}
                 </div>
               </div>
-              <TodayBox size={todaySize} date={today} value={value} editable={!!key} pulse={pulse} />
-              {!small && <div className="flex" style={{ gap: pillGap }}>{meters}</div>}
+              {small ? (
+                <TodayBox size={todaySize} date={today} value={value} editable={!!key} pulse={pulse} />
+              ) : (
+                // The note hangs under today's inputs without shifting the row's alignment with the grid
+                <div className="relative flex items-end" style={{ gap: split }}>
+                  <TodayBox size={todaySize} date={today} value={value} editable={!!key} pulse={pulse} />
+                  <div className="flex" style={{ gap: pillGap }}>{meters}</div>
+                  <div className="absolute inset-x-0 top-full mt-5">{noteInput}</div>
+                </div>
+              )}
             </div>
             {small && <div className="flex" style={{ gap: pillGap }}>{meters}</div>}
-            {key && (
-              <input
-                value={note}
-                maxLength={280}
-                onChange={(e) => setNote(e.target.value)}
-                onBlur={() => note.trim() !== (todayEntry?.note ?? '') && save({ note })}
-                onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-                aria-label="Today's note"
-                className="w-full max-w-md bg-transparent border-b border-white/10 pb-1.5 text-center text-sm text-white/75 outline-none transition-colors focus:border-white/35"
-              />
-            )}
+            {small && noteInput}
           </>
         )}
       </div>
