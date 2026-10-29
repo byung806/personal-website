@@ -53,6 +53,7 @@ export default function ProjectCard({
     <>
       {/* Single rounded container scales as a whole so corners stay consistent on hover */}
       <div
+        data-ledge
         className={`relative overflow-hidden transition-transform duration-500 will-change-transform ${hasLink || disableLink ? 'md:group-hover:scale-[0.985]' : 'md:group-active:scale-[0.985]'}`}
         style={{
           backgroundColor: effectiveBg,
