@@ -15,7 +15,7 @@ type Props = {
   onCommit: (score: number) => void;
 };
 
-/** One of today's meters: a slim pill you drag up to fill, with its icon underneath. */
+/** One of today's meters: a fat pill you drag up to fill, with its icon underneath. */
 export default function Meter({ meter, width, height, value, editable, onDraft, onCommit }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const draftRef = useRef<number | null>(null);
@@ -42,7 +42,7 @@ export default function Meter({ meter, width, height, value, editable, onDraft, 
 
   return (
     <div
-      className="relative flex flex-col items-center gap-1.5"
+      className="relative flex flex-col items-center gap-2.5"
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
     >
@@ -61,7 +61,7 @@ export default function Meter({ meter, width, height, value, editable, onDraft, 
         aria-valuemax={MAX_SCORE}
         aria-valuenow={value ?? undefined}
         tabIndex={editable ? 0 : -1}
-        animate={{ scaleX: dragging ? 1.25 : 1 }}
+        animate={{ scale: dragging ? 1.06 : 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         className={`relative overflow-hidden rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/30 ${editable ? 'cursor-ns-resize' : ''}`}
         style={{
@@ -102,7 +102,7 @@ export default function Meter({ meter, width, height, value, editable, onDraft, 
           }}
         />
       </motion.div>
-      <Icon size={12} strokeWidth={2} style={{ color: value ? scoreColor(shown) : 'rgba(255, 255, 255, 0.3)' }} />
+      <Icon size={18} strokeWidth={2} style={{ color: value ? scoreColor(shown) : 'rgba(255, 255, 255, 0.3)' }} />
     </div>
   );
 }

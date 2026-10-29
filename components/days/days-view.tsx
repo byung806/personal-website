@@ -97,24 +97,22 @@ export default function DaysView() {
   const value = dayScore(liveMeters) ?? todayEntry?.score ?? null;
 
   const small = width < 640;
-  const cell = small ? 11 : 14;
-  const gap = small ? 3 : 4;
-  const todaySize = 7 * cell + 6 * gap;
-  const split = gap * 4;
-  const pillWidth = small ? 14 : 12;
-  const pillGap = small ? 14 : 8;
-  const metersWidth = METERS.length * pillWidth + (METERS.length - 1) * pillGap;
-  // On phones the meters drop below the row; on wider screens they sit right of today
-  const rowWidth = width - todaySize - split - (small ? 0 : metersWidth + split);
-  const weeks = Math.max(4, Math.min(53, Math.floor((rowWidth + gap) / (cell + gap))));
+  // Today and its meters are the centerpiece: a big box and fat pills that are easy to grab
+  const todaySize = small ? 150 : 220;
+  const pillWidth = small ? 40 : 46;
+  const pillGap = small ? 14 : 16;
+  // The history grid sits underneath as a smaller strip
+  const cell = small ? 9 : 12;
+  const gap = 3;
+  const weeks = Math.max(4, Math.min(53, Math.floor((Math.min(width, 900) + gap) / (cell + gap))));
 
-  // Columns are weeks (Sunday on top); the last column is this week, up to yesterday
+  // Columns are weeks (Sunday on top); the last column is this week, ending with today
   const start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() - 7 * (weeks - 1));
   const midnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const columns = Array.from({ length: weeks }, (_, c) =>
     Array.from({ length: 7 }, (_, r) => {
       const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + c * 7 + r);
-      return d < midnight ? dayKey(d) : null;
+      return d <= midnight ? dayKey(d) : null;
     }),
   );
 
@@ -136,7 +134,7 @@ export default function DaysView() {
       key={m.key}
       meter={m}
       width={pillWidth}
-      height={small ? 84 : todaySize - 18}
+      height={small ? 150 : todaySize - 26}
       value={draft?.key === m.key ? draft.value : todayEntry?.meters[m.key] ?? null}
       editable={!!key}
       onDraft={(v) => setDraft({ key: m.key, value: v })}
@@ -146,7 +144,7 @@ export default function DaysView() {
 
   const noteInput = key && (
     <label
-      className="flex w-full max-w-xs items-center gap-2 rounded-xl border bg-white/[0.04] px-3 py-2 transition-colors focus-within:bg-white/[0.07]"
+      className="flex w-full max-w-sm items-center gap-2 rounded-xl border bg-white/[0.04] px-3 py-2 transition-colors focus-within:bg-white/[0.07]"
       style={{ borderColor: value ? scoreColor(value, 0.4) : 'rgba(255, 255, 255, 0.14)' }}
     >
       <PenLine size={13} className="shrink-0 text-white/45" />
@@ -168,69 +166,67 @@ export default function DaysView() {
       style={{
         backgroundColor: BG,
         backgroundImage: value
-          ? `radial-gradient(ellipse at 80% 60%, ${scoreColor(value, 0.06 + value / 900)}, transparent 60%)`
+          ? `radial-gradient(ellipse at 50% 40%, ${scoreColor(value, 0.06 + value / 900)}, transparent 60%)`
           : undefined,
       }}
       onClick={() => setTip(null)}
     >
-      <div ref={wrapRef} className="w-full max-w-[1100px] flex flex-col items-center gap-8">
+      <div ref={wrapRef} className="w-full max-w-[1100px] flex flex-col items-center gap-12">
         {width > 0 && (
           <>
-            <div className="flex items-end" style={{ gap: split }}>
-              <div className="flex flex-col" style={{ gap: gap * 2 }}>
-                <div className="relative h-3 text-[10px] leading-3 text-white/30 select-none">
-                  {months.map(({ c, d }) => (
-                    <span key={c} className="absolute" style={{ left: c * (cell + gap) }}>
-                      {d.toLocaleString('en-US', { month: 'short' })}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex" style={{ gap }}>
-                  {columns.map((col, c) => (
-                    <div key={c} className="flex flex-col" style={{ gap }}>
-                      {col.map((date, r) => {
-                        if (!date) return <div key={r} style={{ width: cell, height: cell }} />;
-                        const score = days[date]?.score;
-                        return (
-                          <motion.div
-                            key={date}
-                            initial={{ opacity: 0, scale: 0.4 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: (weeks - c) * 0.014 + r * 0.01, duration: 0.4, ease: 'easeOut' }}
-                            whileHover={{ scale: 1.35 }}
-                            onPointerEnter={(e) => showTip(date, e.currentTarget)}
-                            onPointerLeave={() => setTip(null)}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              showTip(date, e.currentTarget);
-                            }}
-                            style={{
-                              width: cell,
-                              height: cell,
-                              borderRadius: cell * 0.3,
-                              background: score ? scoreColor(score) : 'rgba(255, 255, 255, 0.05)',
-                              boxShadow: score ? `0 0 ${score / 12}px ${scoreColor(score, 0.45)}` : undefined,
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {small ? (
+            <div className="flex flex-col items-center gap-8">
+              <div className={`flex items-end ${small ? 'flex-col items-center gap-8' : 'gap-12'}`}>
                 <TodayBox size={todaySize} date={today} value={value} editable={!!key} pulse={pulse} />
-              ) : (
-                // The note hangs under today's inputs without shifting the row's alignment with the grid
-                <div className="relative flex items-end" style={{ gap: split }}>
-                  <TodayBox size={todaySize} date={today} value={value} editable={!!key} pulse={pulse} />
-                  <div className="flex" style={{ gap: pillGap }}>{meters}</div>
-                  <div className="absolute inset-x-0 top-full mt-5">{noteInput}</div>
-                </div>
-              )}
+                <div className="flex" style={{ gap: pillGap }}>{meters}</div>
+              </div>
+              {noteInput}
             </div>
-            {small && <div className="flex" style={{ gap: pillGap }}>{meters}</div>}
-            {small && noteInput}
+            <div className="flex flex-col" style={{ gap: gap * 2 }}>
+              <div className="relative h-3 text-[10px] leading-3 text-white/30 select-none">
+                {months.map(({ c, d }) => (
+                  <span key={c} className="absolute" style={{ left: c * (cell + gap) }}>
+                    {d.toLocaleString('en-US', { month: 'short' })}
+                  </span>
+                ))}
+              </div>
+              <div className="flex" style={{ gap }}>
+                {columns.map((col, c) => (
+                  <div key={c} className="flex flex-col" style={{ gap }}>
+                    {col.map((date, r) => {
+                      if (!date) return <div key={r} style={{ width: cell, height: cell }} />;
+                      // Today's dot follows the meters live and wears a ring, tying the grid to the box above
+                      const isToday = date === todayKey;
+                      const score = isToday ? value : days[date]?.score;
+                      return (
+                        <motion.div
+                          key={date}
+                          initial={{ opacity: 0, scale: 0.4 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: (weeks - c) * 0.014 + r * 0.01, duration: 0.4, ease: 'easeOut' }}
+                          whileHover={{ scale: 1.35 }}
+                          onPointerEnter={(e) => showTip(date, e.currentTarget)}
+                          onPointerLeave={() => setTip(null)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            showTip(date, e.currentTarget);
+                          }}
+                          style={{
+                            width: cell,
+                            height: cell,
+                            borderRadius: cell * 0.3,
+                            background: score ? scoreColor(score) : 'rgba(255, 255, 255, 0.05)',
+                            boxShadow: [
+                              score ? `0 0 ${score / 12}px ${scoreColor(score, 0.45)}` : '',
+                              isToday ? `0 0 0 1.5px ${BG}, 0 0 0 2.5px rgba(255, 255, 255, 0.7)` : '',
+                            ].filter(Boolean).join(', ') || undefined,
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
           </>
         )}
       </div>
