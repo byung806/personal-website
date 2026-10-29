@@ -10,13 +10,15 @@ type Props = {
   width: number;
   height: number;
   value: number | null;
+  /** The saved value, drawn as a dashed silhouette while a past day is being changed */
+  ghost?: number | null;
   editable: boolean;
   onDraft: (score: number) => void;
   onCommit: (score: number) => void;
 };
 
 /** One of today's meters: a fat pill you drag up to fill, with its icon underneath. */
-export default function Meter({ meter, width, height, value, editable, onDraft, onCommit }: Props) {
+export default function Meter({ meter, width, height, value, ghost, editable, onDraft, onCommit }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const draftRef = useRef<number | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -101,6 +103,12 @@ export default function Meter({ meter, width, height, value, editable, onDraft, 
             background: `linear-gradient(to top, ${scoreColor(shown, 0.95)}, ${scoreColor(shown, 0.75)})`,
           }}
         />
+        {ghost != null && (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 rounded-full border-2 border-dashed border-white/50 bg-white/[0.06]"
+            style={{ height: `${ghost}%` }}
+          />
+        )}
       </motion.div>
       <Icon size={18} strokeWidth={2} style={{ color: value ? scoreColor(shown) : 'rgba(255, 255, 255, 0.3)' }} />
     </div>

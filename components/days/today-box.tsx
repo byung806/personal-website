@@ -10,6 +10,8 @@ type Props = {
   size: number;
   date: Date;
   value: number | null;
+  /** The saved score, drawn as a dashed silhouette while a past day is being changed */
+  ghost?: number | null;
   editable: boolean;
   /** Bumped each time a meter is saved; fires a burst */
   pulse: number;
@@ -19,7 +21,7 @@ type Props = {
  * Today's overall score, the average of its meters: liquid light that rises, glows hotter and
  * shifts color as the meters fill. Each save sets off a burst.
  */
-export default function TodayBox({ size, date, value, editable, pulse }: Props) {
+export default function TodayBox({ size, date, value, ghost, editable, pulse }: Props) {
   const [bursts, setBursts] = useState<{ id: number; score: number }[]>([]);
 
   const level = useSpring(0, { stiffness: 140, damping: 18 });
@@ -90,6 +92,12 @@ export default function TodayBox({ size, date, value, editable, pulse }: Props) 
           ))}
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/15 to-white/0" />
         </motion.div>
+        {ghost != null && (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 border-t-2 border-dashed border-white/50 bg-white/[0.06]"
+            style={{ height: `${ghost}%` }}
+          />
+        )}
       </div>
 
       {/* Calendar face: two binding rings, the day big in the middle, the month along the bottom */}
