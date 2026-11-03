@@ -91,7 +91,6 @@ function ago(iso: string) {
 function FloatingRocket({ entry, fresh, index }: { entry: RocketEntry; fresh: boolean; index: number }) {
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
-  const [arrived, setArrived] = useState(!fresh);
   // How far the note slides sideways to stay on screen
   const [nudge, setNudge] = useState(0);
   const noteRef = useRef<HTMLDivElement>(null);
@@ -109,7 +108,7 @@ function FloatingRocket({ entry, fresh, index }: { entry: RocketEntry; fresh: bo
   // How near it is, 0 (far) to 1 (near), with more far ones than near: nearer ones are bigger,
   // brighter and scroll faster (see DEPTH_DRIFT)
   const depth = Math.pow(hash01(id * 41), 1.4);
-  const size = 34 + depth * 86;
+  const size = 36 + depth * 54;
   const dx = (4 + hash01(id * 3) * 10) * (0.5 + depth);
   const dy = (4 + hash01(id * 5) * 10) * (0.5 + depth);
   const anchor = useRef<HTMLSpanElement>(null);
@@ -117,7 +116,8 @@ function FloatingRocket({ entry, fresh, index }: { entry: RocketEntry; fresh: bo
   const [far, near] = DEPTH_DRIFT;
   const drift = far + (near - far) * depth;
   const parallaxY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [-drift / 2, drift / 2]);
-  const tilt = Math.round(hash01(id * 23) * 60 - 30);
+  // All heading up together, like one fleet, each a few degrees off
+  const tilt = Math.round(hash01(id * 23) * 10 - 5);
 
   return (
     <>
@@ -132,7 +132,6 @@ function FloatingRocket({ entry, fresh, index }: { entry: RocketEntry; fresh: bo
           initial={reduce ? false : fresh ? { y: 700, opacity: 0 } : { scale: 0, opacity: 0 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           transition={fresh ? { duration: 2.2, ease: [0.2, 0.7, 0.2, 1] } : { type: 'spring', stiffness: 420, damping: 13, delay: 0.2 + (index % 6) * 0.08 }}
-          onAnimationComplete={() => setArrived(true)}
           onHoverStart={() => setOpen(true)}
           onHoverEnd={() => setOpen(false)}
           onTap={() => setOpen((o) => !o)}
@@ -140,7 +139,7 @@ function FloatingRocket({ entry, fresh, index }: { entry: RocketEntry; fresh: bo
           <motion.div
             style={{ width: size, height: size }}
             initial={{ rotate: tilt }}
-            animate={reduce ? undefined : { x: [0, dx, 0, -dx, 0], y: [0, -dy, 0, dy, 0], rotate: [tilt, tilt + 5, tilt, tilt - 5, tilt] }}
+            animate={reduce ? undefined : { x: [0, dx, 0, -dx, 0], y: [0, -dy, 0, dy, 0], rotate: [tilt, tilt + 2, tilt, tilt - 2, tilt] }}
             transition={{ duration: 14 + hash01(id * 7) * 12, repeat: Infinity, ease: 'easeInOut' }}
           >
             <motion.div
@@ -148,12 +147,13 @@ function FloatingRocket({ entry, fresh, index }: { entry: RocketEntry; fresh: bo
               animate={open && !reduce ? { scale: 1.2, rotate: [0, -7, 6, -3, 0] } : { scale: 1, rotate: 0 }}
               transition={open ? { scale: { type: 'spring', stiffness: 400, damping: 12 }, rotate: { duration: 0.5 } } : { duration: 0.25 }}
             >
-              <RocketCanvas design={design} seed={id * 13} flame={open || !arrived} className="w-full h-full" style={{ opacity: 0.6 + depth * 0.4 }} />
+              <RocketCanvas design={design} seed={id * 13} flame className="w-full h-full" style={{ opacity: 0.6 + depth * 0.4 }} />
             </motion.div>
           </motion.div>
           <span
-            className={`${hand.className} mt-1 max-w-[120px] truncate leading-none text-[#f0dfd2]`}
-            style={{ fontSize: 12 + depth * 5, opacity: 0.5 + depth * 0.35 }}
+            // Only while hovered, so the sky isn't a wall of names
+            className={`${hand.className} mt-1 max-w-[120px] truncate leading-none text-[#f0dfd2] transition-opacity duration-200`}
+            style={{ fontSize: 13 + depth * 4, opacity: open ? 0.9 : 0 }}
           >
             {entry.username}
           </span>
