@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { RocketCanvas } from './ships';
-import RocketBuilder from './rocket-builder';
+import RocketCallouts from './rocket-callouts';
+import { Dices } from 'lucide-react';
 import { randomRocket, type RocketDesign } from '@/lib/rocket';
 import PaintedCanvas from './painted-canvas';
 import NightSky from './night-sky';
@@ -142,7 +143,7 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (de
     <section
       ref={sectionRef}
       id={id}
-      className="relative overflow-hidden h-[max(calc(70vh_+_520px),1040px)] sm:h-[max(calc(70vh_+_420px),940px)]"
+      className="relative overflow-hidden h-[max(calc(70vh_+_400px),920px)] sm:h-[max(calc(70vh_+_420px),940px)]"
     >
       <motion.div className="absolute inset-x-0 bottom-0" style={{ top: -SKY_LAG, y: skyY }}>
         <NightSky galaxy="arch" className="absolute inset-0" />
@@ -153,16 +154,8 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (de
         {/* The scene itself, laid out above the extra ground */}
         <div className="absolute inset-x-0 top-0 bottom-[150px] sm:bottom-[80px]">
 
-          {/* Build the rocket on the pad */}
-          <RocketBuilder
-            design={design}
-            onDesign={setDesign}
-            disabled={phase !== 'ready'}
-            className="pointer-events-auto absolute left-4 right-4 top-[19%] sm:left-[5%] sm:right-auto sm:top-[24%] sm:w-[380px] lg:left-auto lg:right-[6%]"
-          />
-
           {/* Launch tower, pad and rocket */}
-          <div className="absolute bottom-[24%] left-[68%] -translate-x-1/2 md:left-[60%] w-[150px] h-[230px]">
+          <div className="absolute bottom-[24%] left-[68%] -translate-x-1/2 sm:left-[40%] md:left-[52%] w-[150px] h-[230px]">
             <PaintedCanvas paint={paintTower} grain={10} className="absolute inset-0 w-full h-full pointer-events-none" />
 
             {/* Rocket: rumbles on the pad, then climbs on its own randomized arc. Clipped at the deck so the
@@ -207,12 +200,15 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (de
               </motion.div>
             </div>
 
+            {/* The parts and colors, called out beside the rocket while it waits on the pad */}
+            <RocketCallouts design={design} onDesign={setDesign} hidden={phase !== 'ready'} />
+
             {/* Smoke (stays mounted after the flight so late puffs finish fading; done puffs are invisible) */}
             {flight && flight.puffs.map((p) => <SmokePuff key={`${flight.id}-${p.id}`} puff={p} seed={flight.id + p.id} />)}
           </div>
 
           {/* Centered under the pad (same spot as the tower box) */}
-          <div className="absolute bottom-[15%] left-[68%] md:left-[60%] -translate-x-1/2 whitespace-nowrap">
+          <div className="absolute bottom-[15%] left-[68%] sm:left-[40%] md:left-[52%] -translate-x-1/2 flex items-center gap-2 whitespace-nowrap">
             <button
               onClick={launch}
               disabled={phase !== 'ready'}
@@ -224,6 +220,15 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (de
               <span className="relative">
                 {phase === 'ready' ? 'Launch a rocket' : phase === 'liftoff' ? 'Liftoff' : 'Rolling out the next one'}
               </span>
+            </button>
+            <button
+              onClick={() => setDesign(randomRocket())}
+              disabled={phase !== 'ready'}
+              aria-label="Shuffle the rocket"
+              title="Shuffle"
+              className="pointer-events-auto rounded-full p-1.5 text-[#f0dfd2]/70 transition-transform hover:rotate-12 hover:scale-110 hover:text-[#f0dfd2] active:scale-95 disabled:opacity-40"
+            >
+              <Dices className="h-6 w-6" />
             </button>
           </div>
         </div>
