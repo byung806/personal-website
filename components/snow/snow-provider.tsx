@@ -20,12 +20,13 @@ function snowAvailable() {
   return process.env.NEXT_PUBLIC_SNOW === '1';
 }
 
-/// Whether it's snowing on the homepage. Snowing turns the page into a winter night (the `snow-night` class on <html>).
-/// A visitor's on/off choice is remembered; it starts off for anyone who prefers reduced motion.
+/// Whether it's snowing on the homepage. Snowing turns the page into a winter day (`snow-day` on <html>), or a winter
+/// night (`snow-night`) for visitors in dark mode. The on/off choice is remembered; it starts off for reduced motion.
 export function SnowProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [available, setAvailable] = useState(false);
   const [isSnowing, setIsSnowing] = useState(false);
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     if (!snowAvailable()) return;
@@ -35,10 +36,19 @@ export function SnowProvider({ children }: { children: ReactNode }) {
     setIsSnowing(saved ? saved === 'on' : !matchMedia('(prefers-reduced-motion: reduce)').matches);
   }, []);
 
-  const night = available && isSnowing && pathname === '/';
   useEffect(() => {
-    document.documentElement.classList.toggle('snow-night', night);
-  }, [night]);
+    const query = matchMedia('(prefers-color-scheme: dark)');
+    const update = () => setDark(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+
+  const snowing = available && isSnowing && pathname === '/';
+  useEffect(() => {
+    document.documentElement.classList.toggle('snow-day', snowing && !dark);
+    document.documentElement.classList.toggle('snow-night', snowing && dark);
+  }, [snowing, dark]);
 
   const toggleSnow = () => {
     setIsSnowing(prev => {

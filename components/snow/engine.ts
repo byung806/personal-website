@@ -221,8 +221,9 @@ class Layer {
 }
 
 // MARK: - Shaders
-// Lit for the homepage's snow night: moonlit blue-white snow, warmed by the cards as if they were lit windows.
-// Flakes catch the glow as they drift past a card, and the snow on each card's top is lit gold from below.
+// Two lightings, blended by uNight (the page's `snow-night` class, i.e. the visitor's dark mode). Day: white snow with
+// crisp blue-grey edges so it reads against the pale sky. Night: moonlit blue-white snow, warmed by the cards as if
+// they were lit windows; flakes catch the glow as they drift past, and the snow on each card is lit gold from below.
 
 const SPRITE_VERTEX = `#version 300 es
   in vec2 aPosition;
@@ -251,6 +252,7 @@ const SPRITE_FRAGMENT = `#version 300 es
   uniform vec4 uMasks[${MAX_MASKS}];
   uniform float uMaskRadii[${MAX_MASKS}];
   uniform int uMaskCount;
+  uniform float uNight;
   out vec4 outColor;
   void main() {
     // Hidden behind the ledges: a rounded box test against each one, in viewport pixels.
@@ -265,13 +267,15 @@ const SPRITE_FRAGMENT = `#version 300 es
       if (distance < 0.0) discard;
       nearest = min(nearest, distance);
     }
-    float light = exp(-nearest / 55.0);
+    float light = exp(-nearest / 55.0) * uNight;
     float d = length(gl_PointCoord - 0.5) * 2.0;
     float a = (1.0 - smoothstep(mix(0.6, 0.0, vSoft), 1.0, d)) * vAlpha;
-    vec3 color = mix(vec3(0.95, 0.97, 1.0), vec3(0.62, 0.69, 0.84), clamp(smoothstep(0.35, 1.0, d) * 0.65, 0.0, 1.0));
+    vec3 day = mix(vec3(1.0), vec3(0.42, 0.5, 0.66), clamp(smoothstep(0.15, 1.0, d) * 0.95, 0.0, 1.0));
+    vec3 night = mix(vec3(0.95, 0.97, 1.0), vec3(0.62, 0.69, 0.84), clamp(smoothstep(0.35, 1.0, d) * 0.65, 0.0, 1.0));
+    vec3 color = mix(day, night, uNight);
     vec3 warm = vec3(1.0, 0.82, 0.58);
     color = mix(color, warm, light * 0.75);
-    a *= 0.8 + 0.2 * light;
+    a = min(1.0, a * mix(1.25, 0.8 + 0.2 * light, uNight));
     // A faint warm halo around the flakes nearest a window.
     float halo = max(0.0, 1.0 - d);
     halo = halo * halo * light * 0.35 * vAlpha;
@@ -303,6 +307,7 @@ const PILE_FRAGMENT = `#version 300 es
   uniform float uScale;
   uniform float uTime;
   uniform float uWarm;
+  uniform float uNight;
   out vec4 outColor;
 
   float heightAt(int row, float x) {
@@ -333,15 +338,15 @@ const PILE_FRAGMENT = `#version 300 es
     float slope = (heightAt(0, x + 2.0) - heightAt(0, x - 2.0)) * 0.25;
     float light = dot(normalize(vec2(-slope, 1.0)), normalize(vec2(-0.5, 1.0)));
 
-    vec3 surface = vec3(0.86, 0.9, 0.98);
-    vec3 shadow = vec3(0.42, 0.48, 0.64);
+    vec3 surface = mix(vec3(0.975, 0.98, 0.99), vec3(0.86, 0.9, 0.98), uNight);
+    vec3 shadow = mix(vec3(0.68, 0.75, 0.86), vec3(0.42, 0.48, 0.64), uNight);
     float shade = (1.0 - exp(-depth / 30.0)) * 0.32 + (1.0 - light) * 0.6 * exp(-depth / 5.0);
     vec3 color = mix(surface, shadow, clamp(shade, 0.0, 1.0));
     // Lit gold from the window underneath, fading up through the drift.
-    float glow = exp(-(y - bed) / 7.0) * uWarm;
+    float glow = exp(-(y - bed) / 7.0) * uWarm * uNight;
     color = mix(color, vec3(1.0, 0.8, 0.52), glow * 0.7);
-    // A bright moonlit rim along the top of the drift.
-    color = mix(color, vec3(1.0), exp(-depth * 1.4) * 0.45);
+    // A rim along the top of the drift: cool grey by day so it reads on the pale sky, bright moonlight by night.
+    color = mix(color, mix(vec3(0.62, 0.69, 0.82), vec3(1.0), uNight), exp(-depth * 1.4) * mix(0.75, 0.45, uNight));
     // Grain and sparkle are pinned to the drift, so they don't swim as the canvas moves with the scroll.
     vec2 cell = floor(vec2(x, y) * uScale);
     color += (hash(cell) - 0.5) * 0.02;
@@ -391,6 +396,8 @@ class Scene {
   height = 0;
   dpr = 1;
   scrollY = window.scrollY;
+  // 0 by day, 1 by night; eases toward the page's current lighting.
+  night = Scene.isNight() ? 1 : 0;
   // The canvas's place in the document (`top`), its height, and where its top sits in the viewport (`offset`).
   top = -1;
   canvasHeight = 0;
@@ -426,6 +433,10 @@ class Scene {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  }
+
+  static isNight() {
+    return document.documentElement.classList.contains('snow-night');
   }
 
   get layers() {
@@ -524,6 +535,7 @@ class Scene {
 
   step(dt: number, pointer: Point | null) {
     this.time += dt;
+    this.night += ((Scene.isNight() ? 1 : 0) - this.night) * Math.min(1, dt * 3);
     this.track();
     this.trackCursor(pointer, dt);
     this.advanceFlakes(dt);
@@ -837,6 +849,7 @@ class Scene {
     gl.uniform1f(u.uOffset, this.offset);
     gl.uniform1f(u.uScale, this.dpr);
     gl.uniform1f(u.uTime, this.time % 1000);
+    gl.uniform1f(u.uNight, this.night);
     gl.uniform1i(u.uHeights, 0);
     gl.activeTexture(gl.TEXTURE0);
     for (const layer of this.layers) {
@@ -889,6 +902,7 @@ class Scene {
     gl.uniform4fv(s['uMasks[0]'], this.masks);
     gl.uniform1fv(s['uMaskRadii[0]'], this.maskRadii);
     gl.uniform1i(s.uMaskCount, masks);
+    gl.uniform1f(s.uNight, this.night);
     gl.bindVertexArray(this.spriteVAO);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.spriteBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, data.subarray(0, k), gl.DYNAMIC_DRAW);
