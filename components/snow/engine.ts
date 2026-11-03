@@ -33,8 +33,6 @@ const PARALLAX = [0.55, 1];
 // The canvas reaches this far past the viewport, top and bottom, so a fast scroll doesn't uncover its edge.
 const OVERSCAN = 0.35;
 const MAX_MASKS = 32;
-// Per sprite: x, y, size, alpha, softness, then the crystal's angle and whether it's a crystal at all.
-const SPRITE_STRIDE = 7;
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 const smoothstep = (a: number, b: number, x: number) => {
@@ -46,7 +44,6 @@ type Point = { x: number; y: number };
 type Flake = {
   x: number; y: number; vx: number; vy: number; fall: number; size: number; depth: number;
   alpha: number; soft: number; phase: number; swayRate: number; swayAmount: number; settles: boolean;
-  angle: number; spin: number;
 };
 type Grain = { x: number; y: number; vx: number; vy: number; area: number; size: number };
 type Mote = { x: number; y: number; vx: number; vy: number; size: number; alpha: number; age: number; life: number };
@@ -231,28 +228,20 @@ class Layer {
 const SPRITE_VERTEX = `#version 300 es
   in vec2 aPosition;
   in vec3 aLook;
-  in vec2 aSpin;
   uniform vec2 uView;
   uniform float uOffset;
   uniform float uScale;
   uniform float uNight;
   out float vAlpha;
   out float vSoft;
-  out float vAngle;
-  out float vCrystal;
-  out float vPixels;
   void main() {
-    // By day the flakes are drawn bigger and more solid, so they read against the pale sky.
-    float size = aLook.x * mix(1.7, 1.0, uNight);
-    // Everything but the tiniest specks is drawn as a six-armed crystal, in a larger sprite; big round dots looked like blobs.
-    vCrystal = aSpin.y * smoothstep(3.0, 4.5, size);
-    float pixels = size * uScale * mix(1.0, 1.6, vCrystal);
+    // By day the flakes are drawn a little bigger and more solid, so they read against the pale sky, but kept to
+    // small dots: bigger round flakes looked like blobs.
+    float pixels = min(aLook.x * mix(1.3, 1.0, uNight), 4.5) * uScale;
     gl_Position = vec4(aPosition.x / uView.x * 2.0 - 1.0, 1.0 - (aPosition.y - uOffset) / uView.y * 2.0, 0.0, 1.0);
     gl_PointSize = max(pixels, 2.0);
     vAlpha = min(1.0, aLook.y * mix(1.6, 1.0, uNight)) * min(pixels / 2.0, 1.0);
     vSoft = aLook.z * mix(0.5, 1.0, uNight);
-    vAngle = aSpin.x;
-    vPixels = pixels;
   }
 `;
 
@@ -260,9 +249,6 @@ const SPRITE_FRAGMENT = `#version 300 es
   precision highp float;
   in float vAlpha;
   in float vSoft;
-  in float vAngle;
-  in float vCrystal;
-  in float vPixels;
   uniform vec2 uView;
   uniform float uOffset;
   uniform float uScale;
@@ -271,26 +257,6 @@ const SPRITE_FRAGMENT = `#version 300 es
   uniform int uMaskCount;
   uniform float uNight;
   out vec4 outColor;
-
-  float segment(vec2 p, vec2 a, vec2 b) {
-    vec2 pa = p - a, ba = b - a;
-    return length(pa - ba * clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0));
-  }
-
-  // Coverage of a six-armed crystal, each arm with two pairs of branches, at c in [-1, 1].
-  float crystal(vec2 c, float r) {
-    const float SECTOR = 1.0471976;
-    float angle = mod(atan(c.y, c.x) + vAngle, SECTOR) - SECTOR * 0.5;
-    vec2 q = r * vec2(cos(angle), abs(sin(angle)));
-    vec2 slant = vec2(0.5, 0.866);
-    float distance = min(segment(q, vec2(0.0), vec2(0.9, 0.0)),
-      min(segment(q, vec2(0.42, 0.0), vec2(0.42, 0.0) + slant * 0.3), segment(q, vec2(0.66, 0.0), vec2(0.66, 0.0) + slant * 0.18)));
-    float pixel = 2.0 / vPixels;
-    float blur = pixel + vSoft * 0.12;
-    float width = max(0.075, pixel * 0.75);
-    return max(1.0 - smoothstep(width - blur, width + blur, distance), 1.0 - smoothstep(0.12, 0.12 + blur * 2.0, r));
-  }
-
   void main() {
     // Hidden behind the ledges: a rounded box test against each one, in viewport pixels.
     // The distance to the nearest one is how brightly its window light reaches this flake.
@@ -305,10 +271,8 @@ const SPRITE_FRAGMENT = `#version 300 es
       nearest = min(nearest, distance);
     }
     float light = exp(-nearest / 55.0) * uNight;
-    vec2 c = (gl_PointCoord - 0.5) * 2.0;
-    float d = length(c);
-    float disc = 1.0 - smoothstep(mix(0.6, 0.0, vSoft), 1.0, d);
-    float a = (vCrystal > 0.0 ? mix(disc, crystal(c, d), vCrystal) : disc) * vAlpha;
+    float d = length(gl_PointCoord - 0.5) * 2.0;
+    float a = (1.0 - smoothstep(mix(0.6, 0.0, vSoft), 1.0, d)) * vAlpha;
     vec3 day = vec3(1.0);
     vec3 night = mix(vec3(0.95, 0.97, 1.0), vec3(0.62, 0.69, 0.84), clamp(smoothstep(0.35, 1.0, d) * 0.65, 0.0, 1.0));
     vec3 color = mix(day, night, uNight);
@@ -463,13 +427,10 @@ class Scene {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.spriteBuffer);
     const position = gl.getAttribLocation(this.sprite.program, 'aPosition');
     const look = gl.getAttribLocation(this.sprite.program, 'aLook');
-    const spin = gl.getAttribLocation(this.sprite.program, 'aSpin');
     gl.enableVertexAttribArray(position);
-    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, SPRITE_STRIDE * 4, 0);
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 20, 0);
     gl.enableVertexAttribArray(look);
-    gl.vertexAttribPointer(look, 3, gl.FLOAT, false, SPRITE_STRIDE * 4, 8);
-    gl.enableVertexAttribArray(spin);
-    gl.vertexAttribPointer(spin, 2, gl.FLOAT, false, SPRITE_STRIDE * 4, 20);
+    gl.vertexAttribPointer(look, 3, gl.FLOAT, false, 20, 8);
     gl.bindVertexArray(null);
     this.pileVAO = gl.createVertexArray()!;
     gl.enable(gl.BLEND);
@@ -569,8 +530,6 @@ class Scene {
       phase: rand(0, PHASE_WRAP),
       swayRate: rand(0.5, 1.4),
       swayAmount: near ? rand(10, 20) : rand(4, 9) + depth * 10,
-      angle: rand(0, Math.PI / 3),
-      spin: rand(-0.8, 0.8),
       settles: !near,
     };
   }
@@ -641,7 +600,6 @@ class Scene {
         }
       }
       f.phase += f.swayRate * dt;
-      f.angle += f.spin * dt;
       if (f.phase > PHASE_WRAP) f.phase -= PHASE_WRAP;
       const sway = (Math.cos(f.phase) + 0.3 * Math.cos(f.phase * 2.3)) * f.swayAmount;
       const flutter = 1 + 0.12 * Math.sin(f.phase * 1.3);
@@ -919,22 +877,19 @@ class Scene {
 
     const total = this.flakes.length + this.grains.length + this.motes.length;
     if (!total) return;
-    if (this.spriteData.length < total * SPRITE_STRIDE) this.spriteData = new Float32Array(Math.ceil(total * 1.5) * SPRITE_STRIDE);
+    if (this.spriteData.length < total * 5) this.spriteData = new Float32Array(Math.ceil(total * 1.5) * 5);
     const data = this.spriteData;
     let k = 0;
     for (const f of this.flakes) {
       data[k++] = f.x; data[k++] = f.y; data[k++] = f.size; data[k++] = f.alpha; data[k++] = f.soft;
-      data[k++] = f.angle; data[k++] = 1;
     }
     for (const g of this.grains) {
       data[k++] = g.x; data[k++] = g.y; data[k++] = g.size; data[k++] = 0.95; data[k++] = 0.3;
-      data[k++] = 0; data[k++] = 0;
     }
     for (const m of this.motes) {
       const t = m.age / m.life;
       data[k++] = m.x; data[k++] = m.y; data[k++] = m.size * (1 + t);
       data[k++] = m.alpha * Math.min(1, m.age / 0.06) * Math.pow(1 - t, 1.5); data[k++] = 1;
-      data[k++] = 0; data[k++] = 0;
     }
     gl.useProgram(this.sprite.program);
     const s = this.sprite.uniforms;
