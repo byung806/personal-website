@@ -24,7 +24,7 @@ type Spark = { x: number; y: number; size: number; vx: number; vy: number };
 const SHOOTER_LIFE = 60;
 
 /** A star: tiny ones as squares (much faster than circles, and they look the same), bigger ones round. */
-function dot(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
+export function dot(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
   if (r > 1) {
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -39,7 +39,7 @@ function biased(min: number, max: number, bias: number, influence: number) {
   return v * (1 - k) + bias * k;
 }
 
-function drawMilkyWay(ctx: CanvasRenderingContext2D, w: number, h: number) {
+export function drawMilkyWay(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const bandH = h * 0.7;
   const slope = 0.6 * (h / 900); // keeps the band's angle similar on short and tall skies
   const bandY = (x: number) => bandH / 2 + (w / 2 - x) * slope;
@@ -163,7 +163,7 @@ function paintBand(
  * if it runs on up to the galaxy at the top of the page. Crisp field stars everywhere. Returned as
  * steps to run in order.
  */
-function archSteps(ctx: CanvasRenderingContext2D, w: number, h: number) {
+export function archSteps(ctx: CanvasRenderingContext2D, w: number, h: number) {
   // A quadratic curve: in from the left, down low over the hills, and up off the top right
   // On tall, narrow screens the curve runs wider than the sky, so it doesn't fold into a V
   const span = Math.max(w, h * 0.8);
@@ -252,7 +252,7 @@ function archSteps(ctx: CanvasRenderingContext2D, w: number, h: number) {
  * A thin trail of stars peeling off the banner's milky way and curving down out of the bottom right,
  * where the launchpad's milky way climbs out of its dusk: the same river of stars, top and bottom.
  */
-function drawTrail(ctx: CanvasRenderingContext2D, w: number, h: number) {
+export function drawTrail(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const slope = 0.6 * (h / 900); // matches drawMilkyWay's band
   const P0 = [w * 0.58, h * 0.35 + (w / 2 - w * 0.58) * slope];
   const P1 = [w * 0.9, h * 0.45];
@@ -290,7 +290,7 @@ function drawTrail(ctx: CanvasRenderingContext2D, w: number, h: number) {
  * Just a glimpse of sky: a faint haze of dust stars and a violet stream of stars slanting down
  * through it on the right, where the banner's trail leaves and the launchpad's arrives.
  */
-function drawGlimpse(ctx: CanvasRenderingContext2D, w: number, h: number) {
+export function drawGlimpse(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const spread = () => Math.random() + Math.random() + Math.random() - 1.5;
   for (let i = 0; i < w * 1.5; i++) {
     ctx.fillStyle = `hsla(${250 + Math.random() * 50},80%,90%,${0.15 + Math.random() * 0.4})`;

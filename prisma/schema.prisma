@@ -25,6 +25,18 @@ model GuestbookEntry {
   @@map("guestbook")
 }
 
+/// Experimental copy of `guestbook` for the /play rockets (copied 2026-11-03; the original table is untouched).
+/// Each entry is a rocket: `rocket` is a design code from encodeRocket in lib/rocket.ts.
+model GuestbookRocket {
+  id        Int      @id @default(autoincrement())
+  username  String   @db.VarChar(50)
+  message   String   @db.Text
+  rocket    String   @db.VarChar(32)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("guestbook_rockets")
+}
+
 model Planet {
   id        Int      @id @default(autoincrement())
   drawingData String @db.Text

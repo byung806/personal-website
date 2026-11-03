@@ -1,8 +1,10 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { SHIP_COLORS, ShipCanvas } from './ships';
+import { RocketCanvas } from './rocket-field';
+import RocketBuilder from './rocket-builder';
+import { randomRocket, type RocketDesign } from '@/lib/rocket';
 import PaintedCanvas from './painted-canvas';
 import NightSky from './night-sky';
 import { Patrick_Hand } from 'next/font/google';
@@ -10,7 +12,7 @@ import { paintLaunchSite, paintPencilButton, paintSmokePuff, paintTower } from '
 
 const hand = Patrick_Hand({ subsets: ['latin'], weight: '400' });
 
-type Phase = 'ready' | 'liftoff' | 'gone';
+type Phase = 'ready' | 'signing' | 'liftoff' | 'gone';
 
 type Puff = { id: number; x: number; y: number; size: number; dx: number; rise: number; duration: number; delay: number };
 
@@ -26,6 +28,9 @@ const SKY_LAG = 150;
 /** Px of extra ground under the scene (more on phones).
  *  Keep in sync with the section height and scene `bottom` classes below. */
 const groundBelow = (w: number) => (w < 640 ? 150 : 80);
+
+/** The rocket on the pad before the page shuffles it (fixed, so the server and first render agree). */
+const FIRST_ROCKET: RocketDesign = { nose: 0, body: 0, fins: 0, window: 0, paint: 0, trim: 0 };
 const paintSite = (ctx: CanvasRenderingContext2D, w: number, h: number) => paintLaunchSite(ctx, w, h, groundBelow(w));
 
 function planFlight(id: number): Flight {
@@ -94,14 +99,28 @@ function SmokePuff({ puff, seed }: { puff: Puff; seed: number }) {
 
 /**
  * Pencil-drawn night meadow with a launch tower under a living night sky, after tinycamp.site.
- * "Launch a rocket" lifts it off the pad;
- * `onLaunch` fires once it's out of sight (with its color) and a fresh rocket rolls out after.
+ * Build a rocket, sign it with your name (and a note), and "Launch a rocket" saves it (`sign`) and lifts
+ * it off the pad; `onGone` fires once it's out of sight, and a fresh random rocket rolls out after.
  */
-export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (color: string) => void }) {
+export default function Launchpad({
+  id,
+  sign,
+  onGone,
+}: {
+  id?: string;
+  sign: (design: RocketDesign, name: string, message: string) => Promise<string | null>;
+  onGone: () => void;
+}) {
   const [phase, setPhase] = useState<Phase>('ready');
   const [flight, setFlight] = useState<Flight | null>(null);
-  const [colorIndex, setColorIndex] = useState(0);
-  const color = SHIP_COLORS[colorIndex % SHIP_COLORS.length];
+  const [design, setDesign] = useState(FIRST_ROCKET);
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [rolls, setRolls] = useState(0);
+
+  // A new random rocket every visit
+  useEffect(() => setDesign(randomRocket()), []);
 
   // Parallax: the ground starts a little low and rises into place as you scroll down, so it moves faster
   // than the sky behind it. It lands exactly at the bottom of the page.
@@ -113,17 +132,27 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (co
   // at the bottom is behind the ground.
   const skyY = useTransform(scrollYProgress, [0, 1], [reduce ? 0 : -SKY_LAG, 0]);
 
-  const launch = () => {
+  const launch = async () => {
     if (phase !== 'ready') return;
+    if (!name.trim()) return setError('Sign your name first!');
+    setError(null);
+    setPhase('signing');
+    const failed = await sign(design, name.trim(), message.trim());
+    if (failed) {
+      setError(failed);
+      return setPhase('ready');
+    }
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const plan = planFlight(Date.now());
     setFlight(reduce ? null : plan);
     setPhase('liftoff');
     setTimeout(() => {
-      onLaunch(color);
+      onGone();
       setPhase('gone');
       setTimeout(() => {
-        setColorIndex((i) => i + 1);
+        setDesign(randomRocket());
+        setMessage('');
+        setRolls((n) => n + 1);
         setPhase('ready');
       }, 1800);
     }, reduce ? 0 : (plan.ignite + plan.climb) * 1000);
@@ -133,9 +162,13 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (co
     <section
       ref={sectionRef}
       id={id}
-      className="relative overflow-hidden h-[max(calc(70vh_+_400px),920px)] sm:h-[max(calc(70vh_+_420px),940px)]"
+      className="relative overflow-hidden h-[max(calc(70vh_+_640px),1160px)] sm:h-[max(calc(70vh_+_420px),940px)]"
     >
-      <motion.div className="absolute inset-x-0 bottom-0" style={{ top: -SKY_LAG, y: skyY }}>
+      {/* The sky fades in at the top, out of the space above */}
+      <motion.div
+        className="absolute inset-x-0 bottom-0 [mask-image:linear-gradient(transparent_300px,black_700px)]"
+        style={{ top: -SKY_LAG, y: skyY }}
+      >
         <NightSky galaxy="arch" className="absolute inset-0" />
       </motion.div>
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: groundY }}>
@@ -143,6 +176,21 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (co
 
         {/* The scene itself, laid out above the extra ground */}
         <div className="absolute inset-x-0 top-0 bottom-[150px] sm:bottom-[80px]">
+
+          {/* Build and sign the rocket on the pad */}
+          <RocketBuilder
+            design={design}
+            onDesign={setDesign}
+            name={name}
+            onName={(v) => {
+              setName(v);
+              setError(null);
+            }}
+            message={message}
+            onMessage={setMessage}
+            error={error}
+            className="pointer-events-auto absolute left-4 right-4 top-[19%] sm:left-[5%] sm:right-auto sm:top-[24%] sm:w-[380px] lg:left-auto lg:right-[6%]"
+          />
 
           {/* Launch tower, pad and rocket */}
           <div className="absolute bottom-[24%] left-[68%] -translate-x-1/2 md:left-[60%] w-[150px] h-[230px]">
@@ -185,7 +233,7 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (co
                   animate={flight && phase === 'liftoff' ? { x: [0, -1.4, 1.2, -1, 1.4, -0.8, 0.6, 0] } : { x: 0 }}
                   transition={{ duration: flight ? flight.ignite : 0, ease: 'linear' }}
                 >
-                  <ShipCanvas kind="rocket" color={color} seed={7 + colorIndex} flame={phase === 'liftoff'} className="w-full h-full" />
+                  <RocketCanvas design={design} seed={7 + rolls} eager flame={phase === 'liftoff'} className="w-full h-full" />
                 </motion.div>
               </motion.div>
             </div>
@@ -205,7 +253,7 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (co
                 <PaintedCanvas paint={paintPencilButton} grain={12} className="w-full h-full" />
               </span>
               <span className="relative">
-                {phase === 'ready' ? 'Launch a rocket' : phase === 'liftoff' ? 'Liftoff' : 'Rolling out the next one'}
+                {phase === 'ready' ? 'Launch a rocket' : phase === 'signing' ? 'Fueling up' : phase === 'liftoff' ? 'Liftoff' : 'Rolling out the next one'}
               </span>
             </button>
           </div>
