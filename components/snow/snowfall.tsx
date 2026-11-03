@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { startSnow } from './engine';
 
 /// On when NEXT_PUBLIC_SNOW=1; `?snow=1` / `?snow=0` overrides it for a single visit.
@@ -26,5 +27,6 @@ export default function Snowfall({ rootId }: { rootId: string }) {
   }, [enabled, rootId]);
 
   if (!enabled) return null;
-  return <canvas ref={canvasRef} aria-hidden className="pointer-events-none fixed inset-0 z-20 h-screen w-screen" />;
+  // In the body, positioned against the document: the engine slides it along with the scroll and sizes it.
+  return createPortal(<canvas ref={canvasRef} aria-hidden className="pointer-events-none absolute left-0 top-0 z-20" />, document.body);
 }

@@ -2,7 +2,9 @@
 // web demo (https://github.com/mbezruchko/Snowhush, MIT, Copyright (c) 2026 Mykhailo Bezruchko). Kept: the drift model,
 // the flakes, the loose grains and powder puffs, and the cursor ploughing through the snow. Dropped:
 // the night scene, the gust, the settings menu. Changed: one fixed canvas over the viewport instead of
-// one per section, so ledges are re-measured every frame and the snowfall moves with the scroll.
+// one per section, so ledges are re-measured every frame and the snowfall moves with the scroll. The canvas sits in
+// the document, not fixed to the viewport, so the browser scrolls the drifts along with the cards instead of a frame late.
+// Falling snow is masked out over the ledges, so it passes behind them rather than across them.
 // Coordinates are viewport CSS pixels with y pointing down; heights are measured up from each layer's bed.
 
 const COLUMN = 2;
@@ -28,6 +30,9 @@ const MAX_MOTES = 800;
 const PHASE_WRAP = 20 * Math.PI;
 // How much of the scroll each flake follows: far flakes lag behind the page, near ones move with it.
 const PARALLAX = [0.55, 1];
+// The canvas reaches this far past the viewport, top and bottom, so a fast scroll doesn't uncover its edge.
+const OVERSCAN = 0.35;
+const MAX_MASKS = 32;
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 const smoothstep = (a: number, b: number, x: number) => {
@@ -222,12 +227,13 @@ const SPRITE_VERTEX = `#version 300 es
   in vec2 aPosition;
   in vec3 aLook;
   uniform vec2 uView;
+  uniform float uOffset;
   uniform float uScale;
   out float vAlpha;
   out float vSoft;
   void main() {
     float pixels = aLook.x * uScale;
-    gl_Position = vec4(aPosition.x / uView.x * 2.0 - 1.0, 1.0 - aPosition.y / uView.y * 2.0, 0.0, 1.0);
+    gl_Position = vec4(aPosition.x / uView.x * 2.0 - 1.0, 1.0 - (aPosition.y - uOffset) / uView.y * 2.0, 0.0, 1.0);
     gl_PointSize = max(pixels, 2.0);
     vAlpha = aLook.y * min(pixels / 2.0, 1.0);
     vSoft = aLook.z;
@@ -238,8 +244,22 @@ const SPRITE_FRAGMENT = `#version 300 es
   precision highp float;
   in float vAlpha;
   in float vSoft;
+  uniform vec2 uView;
+  uniform float uOffset;
+  uniform float uScale;
+  uniform vec4 uMasks[${MAX_MASKS}];
+  uniform float uMaskRadii[${MAX_MASKS}];
+  uniform int uMaskCount;
   out vec4 outColor;
   void main() {
+    // Hidden behind the ledges: a rounded box test against each one, in viewport pixels.
+    vec2 p = vec2(gl_FragCoord.x / uScale, uOffset + uView.y - gl_FragCoord.y / uScale);
+    for (int i = 0; i < uMaskCount; i++) {
+      vec4 r = uMasks[i];
+      vec2 extent = (r.zw - r.xy) * 0.5;
+      vec2 q = abs(p - (r.xy + r.zw) * 0.5) - extent + uMaskRadii[i];
+      if (length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - uMaskRadii[i] < 0.0) discard;
+    }
     float d = length(gl_PointCoord - 0.5) * 2.0;
     float a = (1.0 - smoothstep(mix(0.6, 0.0, vSoft), 1.0, d)) * vAlpha;
     vec3 color = mix(vec3(0.97, 0.98, 1.0), vec3(0.58, 0.64, 0.76), clamp(smoothstep(0.2, 1.0, d) * 0.9, 0.0, 1.0));
@@ -251,12 +271,13 @@ const SPRITE_FRAGMENT = `#version 300 es
 const PILE_VERTEX = `#version 300 es
   uniform vec4 uRect;
   uniform vec2 uView;
+  uniform float uOffset;
   out vec2 vPoint;
   void main() {
     vec2 corner = vec2(float(gl_VertexID & 1), float(gl_VertexID >> 1));
     vec2 p = mix(uRect.xy, uRect.zw, corner);
     vPoint = p;
-    gl_Position = vec4(p.x / uView.x * 2.0 - 1.0, 1.0 - p.y / uView.y * 2.0, 0.0, 1.0);
+    gl_Position = vec4(p.x / uView.x * 2.0 - 1.0, 1.0 - (p.y - uOffset) / uView.y * 2.0, 0.0, 1.0);
   }
 `;
 
@@ -305,9 +326,11 @@ const PILE_FRAGMENT = `#version 300 es
     vec3 color = mix(surface, shadow, clamp(shade, 0.0, 1.0));
     // A thin cool rim along the top of the drift, where the original had a bright highlight.
     color = mix(color, vec3(0.66, 0.72, 0.84), exp(-depth * 1.4) * 0.75);
-    color += (hash(floor(gl_FragCoord.xy)) - 0.5) * 0.02;
+    // Grain and sparkle are pinned to the drift, so they don't swim as the canvas moves with the scroll.
+    vec2 cell = floor(vec2(x, y) * uScale);
+    color += (hash(cell) - 0.5) * 0.02;
 
-    float seed = hash(floor(gl_FragCoord.xy * 0.5) + 31.7);
+    float seed = hash(floor(cell * 0.5) + 31.7);
     if (seed > 0.992) {
       float twinkle = pow(clamp(sin(uTime * (0.6 + seed * 1.8) + seed * 90.0), 0.0, 1.0), 28.0) * exp(-depth / 7.0);
       color = mix(color, vec3(1.0), twinkle);
@@ -341,7 +364,7 @@ function program(gl: WebGL2RenderingContext, vertex: string, fragment: string) {
 
 class Scene {
   ground = new Layer(GROUND_DEPTH, false);
-  ledges: { element: Element; layer: Layer }[];
+  ledges: { element: Element; layer: Layer; box: DOMRect | null; radius: number }[];
   flakes: Flake[] = [];
   grains: Grain[] = [];
   motes: Mote[] = [];
@@ -352,6 +375,12 @@ class Scene {
   height = 0;
   dpr = 1;
   scrollY = window.scrollY;
+  // The canvas's place in the document (`top`), its height, and where its top sits in the viewport (`offset`).
+  top = -1;
+  canvasHeight = 0;
+  offset = 0;
+  masks = new Float32Array(MAX_MASKS * 4);
+  maskRadii = new Float32Array(MAX_MASKS);
   gl: WebGL2RenderingContext;
   sprite: ReturnType<typeof program>;
   pile: ReturnType<typeof program>;
@@ -362,7 +391,7 @@ class Scene {
   spriteData = new Float32Array(0);
 
   constructor(public root: HTMLElement, public canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
-    this.ledges = Array.from(root.querySelectorAll('[data-ledge]')).map(element => ({ element, layer: new Layer(LEDGE_DEPTH, true) }));
+    this.ledges = Array.from(root.querySelectorAll('[data-ledge]')).map(element => ({ element, layer: new Layer(LEDGE_DEPTH, true), box: null, radius: 0 }));
     this.gl = gl;
     this.sprite = program(gl, SPRITE_VERTEX, SPRITE_FRAGMENT);
     this.pile = program(gl, PILE_VERTEX, PILE_FRAGMENT);
@@ -389,11 +418,13 @@ class Scene {
 
   resize() {
     const first = this.width === 0;
-    this.width = window.innerWidth;
+    // The page's width without the scrollbar, so the canvas never widens the page.
+    this.width = document.documentElement.clientWidth;
     this.height = window.innerHeight;
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvasHeight = 0;
     this.canvas.width = Math.round(this.width * this.dpr);
-    this.canvas.height = Math.round(this.height * this.dpr);
+    this.canvas.style.width = `${this.width}px`;
     if (first) {
       const target = this.target();
       while (this.flakes.length < target) this.flakes.push(this.makeFlake(rand(-20, this.height)));
@@ -414,13 +445,33 @@ class Scene {
       for (const g of this.grains) g.y -= scrolled;
       for (const m of this.motes) m.y -= scrolled;
     }
+    this.place();
     const root = this.root.getBoundingClientRect();
     // Sunk a little below the edge so no sliver of background shows under the drift after rounding.
     this.ground.place(root.left, root.bottom + 2, root.width);
-    for (const { element, layer } of this.ledges) {
-      const box = element.getBoundingClientRect();
-      layer.place(box.left, box.top, box.width, Number((element as HTMLElement).dataset.ledge) || 0, 2.5);
+    for (const ledge of this.ledges) {
+      const box = ledge.element.getBoundingClientRect();
+      ledge.box = box;
+      ledge.radius = Number((ledge.element as HTMLElement).dataset.ledge) || 0;
+      ledge.layer.place(box.left, box.top, box.width, ledge.radius, 2.5);
     }
+  }
+
+  /// Keeps the canvas covering the viewport plus the overscan, clamped inside the document so it never lengthens the page.
+  place() {
+    const page = Math.max(document.body.getBoundingClientRect().bottom + this.scrollY, this.height);
+    const height = Math.round(Math.min(this.height * (1 + 2 * OVERSCAN), page));
+    const top = Math.round(Math.min(Math.max(this.scrollY - this.height * OVERSCAN, 0), page - height));
+    if (height !== this.canvasHeight) {
+      this.canvasHeight = height;
+      this.canvas.height = Math.round(height * this.dpr);
+      this.canvas.style.height = `${height}px`;
+    }
+    if (top !== this.top) {
+      this.top = top;
+      this.canvas.style.top = `${top}px`;
+    }
+    this.offset = top - this.scrollY;
   }
 
   target() {
@@ -766,15 +817,16 @@ class Scene {
     gl.useProgram(this.pile.program);
     gl.bindVertexArray(this.pileVAO);
     const u = this.pile.uniforms;
-    gl.uniform2f(u.uView, this.width, this.height);
+    gl.uniform2f(u.uView, this.width, this.canvasHeight);
+    gl.uniform1f(u.uOffset, this.offset);
     gl.uniform1f(u.uScale, this.dpr);
     gl.uniform1f(u.uTime, this.time % 1000);
     gl.uniform1i(u.uHeights, 0);
     gl.activeTexture(gl.TEXTURE0);
     for (const layer of this.layers) {
       if (layer.top <= 0.05) continue;
-      // Ledges scrolled out of view keep melting but aren't drawn.
-      if (layer.y + layer.bedDepth < 0 || layer.y - layer.top - 2 > this.height) continue;
+      // Ledges scrolled off the canvas keep melting but aren't drawn.
+      if (layer.y + layer.bedDepth < this.offset || layer.y - layer.top - 2 > this.offset + this.canvasHeight) continue;
       let texture = this.textures.get(layer);
       if (!texture) {
         texture = gl.createTexture()!;
@@ -808,8 +860,18 @@ class Scene {
     }
     gl.useProgram(this.sprite.program);
     const s = this.sprite.uniforms;
-    gl.uniform2f(s.uView, this.width, this.height);
+    gl.uniform2f(s.uView, this.width, this.canvasHeight);
+    gl.uniform1f(s.uOffset, this.offset);
     gl.uniform1f(s.uScale, this.dpr);
+    let masks = 0;
+    for (const { box, radius } of this.ledges) {
+      if (!box || masks === MAX_MASKS || box.bottom < this.offset || box.top > this.offset + this.canvasHeight) continue;
+      this.masks.set([box.left, box.top, box.right, box.bottom], masks * 4);
+      this.maskRadii[masks++] = Math.min(radius, box.width / 2, box.height / 2);
+    }
+    gl.uniform4fv(s['uMasks[0]'], this.masks);
+    gl.uniform1fv(s['uMaskRadii[0]'], this.maskRadii);
+    gl.uniform1i(s.uMaskCount, masks);
     gl.bindVertexArray(this.spriteVAO);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.spriteBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, data.subarray(0, k), gl.DYNAMIC_DRAW);
