@@ -22,6 +22,27 @@ export const PLANETS = {
   garden: { wash: '#5f9a93', light: '#bfe3d6', shade: '#1f4b5a', ring: '#e8c98f' },
 } satisfies Record<string, PlanetLook>;
 
+/** Colors for the other planets in the sky: [wash, light hatch, shadow hatch]. */
+const PALETTES: [string, string, string][] = [
+  ['#c98f9b', '#f3d3d8', '#6f3446'],
+  ['#9c8cc9', '#ddd3f3', '#4a3c7a'],
+  ['#d9a25f', '#f7dcae', '#7a4a22'],
+  ['#6f8fc9', '#c9dbf7', '#2a3f7a'],
+  ['#8fb39a', '#d6ecd9', '#2f5a44'],
+  ['#d97f6a', '#f6c9b8', '#7a2f2a'],
+];
+const RINGS = ['#e8c98f', '#f0dfd2', '#b9a3d6', '#9fd3c0'];
+
+/** A random planet look from `rand`: a palette, sometimes craters, sometimes a ring. */
+export function randomPlanetLook(rand: () => number): PlanetLook {
+  const [wash, light, shade] = PALETTES[Math.floor(rand() * PALETTES.length)];
+  const ringed = rand() < 0.4;
+  return { wash, light, shade, craters: ringed ? 0 : Math.floor(rand() * 7), ring: ringed ? RINGS[Math.floor(rand() * RINGS.length)] : undefined };
+}
+
+/** The sphere's radius as a fraction of the box `paintPlanet` fills (smaller when it has a ring). */
+export const planetRadius = (look: PlanetLook, box: number) => box * (look.ring ? 0.3 : 0.42);
+
 const circle = (cx: number, cy: number, rx: number, ry: number, n = 28, from = 0, to = Math.PI * 2) =>
   Array.from({ length: n + 1 }, (_, i) => {
     const a = from + ((to - from) * i) / n;
@@ -33,7 +54,7 @@ export function paintPlanet(ctx: CanvasRenderingContext2D, w: number, h: number,
   const r = rng(seed);
   const cx = w / 2;
   const cy = h / 2;
-  const R = Math.min(w, h) * (look.ring ? 0.3 : 0.42);
+  const R = planetRadius(look, Math.min(w, h));
   const lit = (x: number, y: number) => Math.hypot(x - (cx - R * 0.45), y - (cy - R * 0.45)) < R * 1.05;
 
   // Back half of the ring
