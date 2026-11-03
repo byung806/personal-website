@@ -231,14 +231,16 @@ const SPRITE_VERTEX = `#version 300 es
   uniform vec2 uView;
   uniform float uOffset;
   uniform float uScale;
+  uniform float uNight;
   out float vAlpha;
   out float vSoft;
   void main() {
-    float pixels = aLook.x * uScale;
+    // By day the flakes are drawn bigger and more solid, so they read against the pale sky.
+    float pixels = aLook.x * uScale * mix(1.7, 1.0, uNight);
     gl_Position = vec4(aPosition.x / uView.x * 2.0 - 1.0, 1.0 - (aPosition.y - uOffset) / uView.y * 2.0, 0.0, 1.0);
     gl_PointSize = max(pixels, 2.0);
-    vAlpha = aLook.y * min(pixels / 2.0, 1.0);
-    vSoft = aLook.z;
+    vAlpha = min(1.0, aLook.y * mix(1.6, 1.0, uNight)) * min(pixels / 2.0, 1.0);
+    vSoft = aLook.z * mix(0.5, 1.0, uNight);
   }
 `;
 
@@ -270,12 +272,12 @@ const SPRITE_FRAGMENT = `#version 300 es
     float light = exp(-nearest / 55.0) * uNight;
     float d = length(gl_PointCoord - 0.5) * 2.0;
     float a = (1.0 - smoothstep(mix(0.6, 0.0, vSoft), 1.0, d)) * vAlpha;
-    vec3 day = mix(vec3(1.0), vec3(0.42, 0.5, 0.66), clamp(smoothstep(0.15, 1.0, d) * 0.95, 0.0, 1.0));
+    vec3 day = mix(vec3(1.0), vec3(0.3, 0.38, 0.54), smoothstep(0.35, 0.95, d));
     vec3 night = mix(vec3(0.95, 0.97, 1.0), vec3(0.62, 0.69, 0.84), clamp(smoothstep(0.35, 1.0, d) * 0.65, 0.0, 1.0));
     vec3 color = mix(day, night, uNight);
     vec3 warm = vec3(1.0, 0.82, 0.58);
     color = mix(color, warm, light * 0.75);
-    a = min(1.0, a * mix(1.25, 0.8 + 0.2 * light, uNight));
+    a = min(1.0, a * mix(1.0, 0.8 + 0.2 * light, uNight));
     // A faint warm halo around the flakes nearest a window.
     float halo = max(0.0, 1.0 - d);
     halo = halo * halo * light * 0.35 * vAlpha;
