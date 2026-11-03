@@ -221,8 +221,8 @@ class Layer {
 }
 
 // MARK: - Shaders
-// Two lightings, blended by uNight (the page's `snow-night` class, i.e. the visitor's dark mode). Day: white snow with
-// crisp blue-grey edges so it reads against the pale sky. Night: moonlit blue-white snow, warmed by the cards as if
+// Two lightings, blended by uNight (the page's `snow-night` class, i.e. the visitor's dark mode). Day: plain white
+// snow, drawn bigger and more solid so it reads against the pale sky. Night: moonlit blue-white snow, warmed by the cards as if
 // they were lit windows; flakes catch the glow as they drift past, and the snow on each card is lit gold from below.
 
 const SPRITE_VERTEX = `#version 300 es
@@ -272,7 +272,7 @@ const SPRITE_FRAGMENT = `#version 300 es
     float light = exp(-nearest / 55.0) * uNight;
     float d = length(gl_PointCoord - 0.5) * 2.0;
     float a = (1.0 - smoothstep(mix(0.6, 0.0, vSoft), 1.0, d)) * vAlpha;
-    vec3 day = mix(vec3(1.0), vec3(0.3, 0.38, 0.54), smoothstep(0.35, 0.95, d));
+    vec3 day = vec3(1.0);
     vec3 night = mix(vec3(0.95, 0.97, 1.0), vec3(0.62, 0.69, 0.84), clamp(smoothstep(0.35, 1.0, d) * 0.65, 0.0, 1.0));
     vec3 color = mix(day, night, uNight);
     vec3 warm = vec3(1.0, 0.82, 0.58);
