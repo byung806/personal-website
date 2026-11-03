@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { usePathname } from 'next/navigation';
 
 const STORAGE_KEY = 'snow';
+// How long turning the snow off takes to blow it away, before the snow and the sky fade out.
+export const BLOW_MS = 1800;
 
 interface SnowContextType {
   isSnowing: boolean;
@@ -35,9 +37,15 @@ export function SnowProvider({ children }: { children: ReactNode }) {
 
   const snowing = isSnowing && pathname === '/';
   useEffect(() => {
-    document.documentElement.classList.toggle('snow-day', snowing && !dark);
-    document.documentElement.classList.toggle('snow-night', snowing && dark);
-  }, [snowing, dark]);
+    const light = () => {
+      document.documentElement.classList.toggle('snow-day', snowing && !dark);
+      document.documentElement.classList.toggle('snow-night', snowing && dark);
+    };
+    // Turned off on the homepage: the sky stays while the snow blows away, so it can be seen going.
+    if (snowing || pathname !== '/') return light();
+    const timer = setTimeout(light, BLOW_MS);
+    return () => clearTimeout(timer);
+  }, [snowing, dark, pathname]);
 
   const toggleSnow = () => {
     setIsSnowing(prev => {

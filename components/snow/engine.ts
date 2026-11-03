@@ -33,6 +33,9 @@ const PARALLAX = [0.55, 1];
 // The canvas reaches this far past the viewport, top and bottom, so a fast scroll doesn't uncover its edge.
 const OVERSCAN = 0.35;
 const MAX_MASKS = 32;
+// Turning the snow off sends a gust through: the wind it builds to, and how fast it strips the drifts.
+const GUST = 750;
+const GUST_STRIP = 1.6;
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 const smoothstep = (a: number, b: number, x: number) => {
@@ -399,6 +402,8 @@ class Scene {
   height = 0;
   dpr = 1;
   scrollY = window.scrollY;
+  // Seconds since the snow was told to blow away, or -1 while it's snowing.
+  gust = -1;
   // 0 by day, 1 by night; eases toward the page's current lighting.
   night = Scene.isNight() ? 1 : 0;
   // The canvas's place in the document (`top`), its height, and where its top sits in the viewport (`offset`).
@@ -505,12 +510,14 @@ class Scene {
   }
 
   target() {
+    if (this.gust >= 0) return 0;
     return Math.round(DENSITY * this.width * this.height / 1e6);
   }
 
   wind() {
     const t = this.time;
-    return 10 * Math.sin(t * 0.07) + 6 * Math.sin(t * 0.19 + 1.7) + 3 * Math.sin(t * 0.43 + 4.1);
+    const breeze = 10 * Math.sin(t * 0.07) + 6 * Math.sin(t * 0.19 + 1.7) + 3 * Math.sin(t * 0.43 + 4.1);
+    return this.gust < 0 ? breeze : breeze + GUST * smoothstep(0, 1, this.gust);
   }
 
   makeFlake(y: number): Flake {
@@ -538,6 +545,7 @@ class Scene {
 
   step(dt: number, pointer: Point | null) {
     this.time += dt;
+    if (this.gust >= 0) this.gust += dt;
     this.night += ((Scene.isNight() ? 1 : 0) - this.night) * Math.min(1, dt * 3);
     this.track();
     this.trackCursor(pointer, dt);
@@ -545,9 +553,31 @@ class Scene {
     this.advanceGrains(dt);
     this.advanceMotes(dt);
     this.settle(dt);
+    if (this.gust >= 0) this.strip(dt);
     const target = this.target();
     while (this.flakes.length < target) this.flakes.push(this.makeFlake(-rand(0, this.height * 0.8)));
     for (const layer of this.layers) layer.refreshTop();
+  }
+
+  /// The gust scours the drifts: snow comes off every column as powder streaming downwind.
+  strip(dt: number) {
+    const rate = Math.min(1, dt * GUST_STRIP * smoothstep(0.1, 0.7, this.gust));
+    for (const layer of this.layers) {
+      let carried = 0;
+      for (let i = 0; i < layer.count; i++) {
+        const taken = layer.h[i] * rate;
+        if (taken <= 0) continue;
+        layer.h[i] -= taken;
+        carried += taken * COLUMN;
+        if (carried < 10 || this.motes.length >= MAX_MOTES) continue;
+        carried = 0;
+        this.motes.push({
+          x: layer.centerX(i), y: layer.surface(i) - rand(0, 3), vx: rand(150, 450), vy: rand(-160, -30),
+          size: rand(1.5, 4), alpha: rand(0.5, 0.85), age: 0, life: rand(0.6, 1.3),
+        });
+      }
+      if (this.gust > 2) layer.h.fill(0);
+    }
   }
 
   /// The highest snow surface crossed while falling from `from` to `to` at `x`.
@@ -570,7 +600,8 @@ class Scene {
 
   advanceFlakes(dt: number) {
     const wind = this.wind();
-    const follow = Math.min(1, dt * 1.2);
+    const gusting = this.gust >= 0;
+    const follow = Math.min(1, dt * (gusting ? 3 : 1.2));
     const settle = Math.min(1, dt * 1.6);
     const target = this.target();
     let wake: { x: number; y: number; vx: number; vy: number } | null = null;
@@ -588,7 +619,8 @@ class Scene {
     for (let i = flakes.length - 1; i >= 0; i--) {
       const f = flakes[i];
       f.vx += (wind * (0.35 + 0.65 * f.depth) - f.vx) * follow;
-      f.vy += (f.fall - f.vy) * settle;
+      // In the gust, flakes are lifted a little as well as blown sideways.
+      f.vy += ((gusting ? -0.2 * f.fall : f.fall) - f.vy) * settle;
       if (wake) {
         const dx = f.x - wake.x, dy = f.y - wake.y;
         const distance = Math.hypot(dx, dy);
@@ -606,11 +638,11 @@ class Scene {
       const from = f.y;
       f.x += (f.vx + sway) * dt;
       f.y += f.vy * flutter * dt;
+      let gone = gusting && f.x > this.width + 30;
       if (f.x < -30) f.x += this.width + 60;
       else if (f.x > this.width + 30) f.x -= this.width + 60;
 
-      let gone = false;
-      if (f.settles) {
+      if (!gone && f.settles && !gusting) {
         const hit = this.landing(f.x, from, f.y);
         if (hit) {
           const missed = hit.layer.deposit(f.size * f.size * DEPOSITION * hit.layer.fill(hit.i), f.x);
@@ -642,7 +674,7 @@ class Scene {
       g.x += g.vx * dt;
       g.y += g.vy * dt;
       let gone = g.x < -10 || g.x > this.width + 10 || g.y > this.height + 20;
-      if (!gone && g.vy >= 0) {
+      if (!gone && g.vy >= 0 && this.gust < 0) {
         const hit = this.landing(g.x, from, g.y);
         if (hit) {
           const missed = hit.layer.deposit(g.area, g.x);
@@ -916,17 +948,25 @@ class Scene {
 
 // MARK: - Page
 
+export type Snow = {
+  /// Blows all the snow away, falling and settled, in about two seconds.
+  blowAway: () => void;
+  /// Lets it snow again after `blowAway`.
+  resume: () => void;
+  stop: () => void;
+};
+
 /// Starts snow over the viewport: it piles on `root`'s [data-ledge] elements and along `root`'s bottom.
-/// Returns a function that stops it.
-export function startSnow(root: HTMLElement, canvas: HTMLCanvasElement): () => void {
+export function startSnow(root: HTMLElement, canvas: HTMLCanvasElement): Snow {
+  const none = { blowAway: () => {}, resume: () => {}, stop: () => {} };
   const gl = canvas.getContext('webgl2', { premultipliedAlpha: true, antialias: false });
-  if (!gl) return () => {};
+  if (!gl) return none;
   let scene: Scene;
   try {
     scene = new Scene(root, canvas, gl);
   } catch (error) {
     console.warn('Snow disabled:', error);
-    return () => {};
+    return none;
   }
 
   let pointer: Point | null = null;
@@ -954,12 +994,17 @@ export function startSnow(root: HTMLElement, canvas: HTMLCanvasElement): () => v
   document.documentElement.addEventListener('pointerleave', onLeave);
   document.addEventListener('visibilitychange', onVisibility);
 
-  return () => {
+  const stop = () => {
     cancelAnimationFrame(raf);
     removeEventListener('resize', onResize);
     removeEventListener('pointermove', onMove);
     removeEventListener('blur', onLeave);
     document.documentElement.removeEventListener('pointerleave', onLeave);
     document.removeEventListener('visibilitychange', onVisibility);
+  };
+  return {
+    blowAway: () => { if (scene.gust < 0) scene.gust = 0; },
+    resume: () => { scene.gust = -1; },
+    stop,
   };
 }

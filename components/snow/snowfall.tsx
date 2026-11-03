@@ -2,34 +2,46 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { startSnow } from './engine';
-import { useSnow } from './snow-provider';
+import { startSnow, type Snow } from './engine';
+import { BLOW_MS, useSnow } from './snow-provider';
 
 const FADE_MS = 900;
 
 /// Snow falling over the viewport and piling on the [data-ledge] elements inside `rootId`, while the snowflake button has it on.
+/// Turning it off blows it all away.
 export default function Snowfall({ rootId }: { rootId: string }) {
   const { isSnowing } = useSnow();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // Stays mounted through the fade-out after the snow is turned off.
+  const snow = useRef<Snow | null>(null);
+  // Stays mounted while the snow blows away and fades out after it's turned off.
   const [mounted, setMounted] = useState(false);
   const [shown, setShown] = useState(false);
-  
+
   useEffect(() => {
     if (isSnowing) {
+      snow.current?.resume();
       setMounted(true);
       const raf = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)));
       return () => cancelAnimationFrame(raf);
     }
-    setShown(false);
-    const timer = setTimeout(() => setMounted(false), FADE_MS);
-    return () => clearTimeout(timer);
+    snow.current?.blowAway();
+    const fade = setTimeout(() => setShown(false), snow.current ? BLOW_MS : 0);
+    const unmount = setTimeout(() => setMounted(false), (snow.current ? BLOW_MS : 0) + FADE_MS);
+    return () => {
+      clearTimeout(fade);
+      clearTimeout(unmount);
+    };
   }, [isSnowing]);
 
   useEffect(() => {
     const root = document.getElementById(rootId);
     if (!mounted || !root || !canvasRef.current) return;
-    return startSnow(root, canvasRef.current);
+    const started = startSnow(root, canvasRef.current);
+    snow.current = started;
+    return () => {
+      started.stop();
+      snow.current = null;
+    };
   }, [mounted, rootId]);
 
   if (!mounted) return null;
