@@ -1,8 +1,8 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { Patrick_Hand } from 'next/font/google';
 import PaintedCanvas from './painted-canvas';
 import { paintRocket } from './rocket-paint';
@@ -56,9 +56,13 @@ export function useRockets() {
 }
 
 /** One pencil rocket on its own canvas. */
-export function RocketCanvas({ design, seed, flame = false, eager = false, className = '' }: { design: RocketDesign; seed: number; flame?: boolean; eager?: boolean; className?: string }) {
+export function RocketCanvas({ design, seed, flame = false, eager = false, className = '', style }: { design: RocketDesign; seed: number; flame?: boolean; eager?: boolean; className?: string; style?: CSSProperties }) {
   const paint = useCallback((ctx: CanvasRenderingContext2D, w: number) => paintRocket(ctx, w, design, seed, flame), [design, seed, flame]);
-  return <PaintedCanvas paint={paint} grain={10} eager={eager} className={className} />;
+  return (
+    <div className={className} style={style}>
+      <PaintedCanvas paint={paint} grain={10} eager={eager} className="h-full w-full" />
+    </div>
+  );
 }
 
 /** Stable pseudo-random 0..1 per id. */
@@ -66,6 +70,12 @@ const hash01 = (n: number) => {
   const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
   return x - Math.floor(x);
 };
+
+/**
+ * How far rockets drift against the page while crossing the screen, in px: the farthest lag behind by
+ * this much (so they scroll slower), the nearest pull ahead (faster).
+ */
+const DEPTH_DRIFT = [420, -220];
 
 /** "3 days ago", in plain words. */
 function ago(iso: string) {
@@ -96,58 +106,79 @@ function FloatingRocket({ entry, fresh, index }: { entry: RocketEntry; fresh: bo
   }, [open]);
   const design = useMemo(() => decodeRocket(entry.rocket) ?? randomRocket(), [entry.rocket]);
   const id = entry.id;
-  const size = 62 + hash01(id) * 30;
-  const dx = 6 + hash01(id * 3) * 12;
-  const dy = 6 + hash01(id * 5) * 12;
+  // How near it is, 0 (far) to 1 (near), with more far ones than near: nearer ones are bigger,
+  // brighter and scroll faster (see DEPTH_DRIFT)
+  const depth = Math.pow(hash01(id * 41), 1.4);
+  const size = 34 + depth * 86;
+  const dx = (4 + hash01(id * 3) * 10) * (0.5 + depth);
+  const dy = (4 + hash01(id * 5) * 10) * (0.5 + depth);
+  const anchor = useRef<HTMLSpanElement>(null);
+  const { scrollYProgress } = useScroll({ target: anchor, offset: ['start end', 'end start'] });
+  const [far, near] = DEPTH_DRIFT;
+  const drift = far + (near - far) * depth;
+  const parallaxY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [-drift / 2, drift / 2]);
   const tilt = Math.round(hash01(id * 23) * 60 - 30);
 
   return (
-    <motion.div
-      className="absolute flex flex-col items-center pointer-events-auto cursor-help"
-      style={{ left: `${30 + hash01(id * 13) * 40}%`, x: '-50%', top: `${6 + hash01(id * 17) * 28}%`, zIndex: open ? 20 : undefined }}
-      initial={reduce ? false : fresh ? { y: 700, opacity: 0 } : { scale: 0, opacity: 0 }}
-      animate={{ y: 0, opacity: 1, scale: 1 }}
-      transition={fresh ? { duration: 2.2, ease: [0.2, 0.7, 0.2, 1] } : { type: 'spring', stiffness: 420, damping: 13, delay: 0.2 + (index % 6) * 0.08 }}
-      onAnimationComplete={() => setArrived(true)}
-      onHoverStart={() => setOpen(true)}
-      onHoverEnd={() => setOpen(false)}
-      onTap={() => setOpen((o) => !o)}
-    >
+    <>
+      {/* Measures the cell, since the rocket itself moves */}
+      <span ref={anchor} aria-hidden className="pointer-events-none absolute inset-0" />
       <motion.div
-        style={{ width: size, height: size }}
-        initial={{ rotate: tilt }}
-        animate={reduce ? undefined : { x: [0, dx, 0, -dx, 0], y: [0, -dy, 0, dy, 0], rotate: [tilt, tilt + 5, tilt, tilt - 5, tilt] }}
-        transition={{ duration: 14 + hash01(id * 7) * 12, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute"
+        style={{ left: `${30 + hash01(id * 13) * 40}%`, x: '-50%', top: `${6 + hash01(id * 17) * 28}%`, y: parallaxY, zIndex: open ? 60 : Math.round(depth * 10) }}
       >
         <motion.div
-          className="w-full h-full [filter:drop-shadow(0_0_8px_rgba(240,200,190,0.3))]"
-          animate={open && !reduce ? { scale: 1.2, rotate: [0, -7, 6, -3, 0] } : { scale: 1, rotate: 0 }}
-          transition={open ? { scale: { type: 'spring', stiffness: 400, damping: 12 }, rotate: { duration: 0.5 } } : { duration: 0.25 }}
+          className="flex flex-col items-center pointer-events-auto cursor-help"
+          initial={reduce ? false : fresh ? { y: 700, opacity: 0 } : { scale: 0, opacity: 0 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          transition={fresh ? { duration: 2.2, ease: [0.2, 0.7, 0.2, 1] } : { type: 'spring', stiffness: 420, damping: 13, delay: 0.2 + (index % 6) * 0.08 }}
+          onAnimationComplete={() => setArrived(true)}
+          onHoverStart={() => setOpen(true)}
+          onHoverEnd={() => setOpen(false)}
+          onTap={() => setOpen((o) => !o)}
         >
-          <RocketCanvas design={design} seed={id * 13} flame={open || !arrived} className="w-full h-full" />
+          <motion.div
+            style={{ width: size, height: size }}
+            initial={{ rotate: tilt }}
+            animate={reduce ? undefined : { x: [0, dx, 0, -dx, 0], y: [0, -dy, 0, dy, 0], rotate: [tilt, tilt + 5, tilt, tilt - 5, tilt] }}
+            transition={{ duration: 14 + hash01(id * 7) * 12, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <motion.div
+              className="w-full h-full [filter:drop-shadow(0_0_8px_rgba(240,200,190,0.3))]"
+              animate={open && !reduce ? { scale: 1.2, rotate: [0, -7, 6, -3, 0] } : { scale: 1, rotate: 0 }}
+              transition={open ? { scale: { type: 'spring', stiffness: 400, damping: 12 }, rotate: { duration: 0.5 } } : { duration: 0.25 }}
+            >
+              <RocketCanvas design={design} seed={id * 13} flame={open || !arrived} className="w-full h-full" style={{ opacity: 0.6 + depth * 0.4 }} />
+            </motion.div>
+          </motion.div>
+          <span
+            className={`${hand.className} mt-1 max-w-[120px] truncate leading-none text-[#f0dfd2]`}
+            style={{ fontSize: 12 + depth * 5, opacity: 0.5 + depth * 0.35 }}
+          >
+            {entry.username}
+          </span>
+
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                ref={noteRef}
+                className={`${hand.className} absolute top-full mt-2 left-1/2 w-max max-w-[min(240px,70vw)] rounded-2xl bg-[#f0dfd2] px-4 py-2.5 text-[#3a1f28] shadow-[0_0_18px_rgba(240,200,190,0.35)] pointer-events-none`}
+                style={{ marginLeft: nudge }}
+                initial={{ opacity: 0, scale: 0.5, x: '-50%', y: -8, rotate: -6 }}
+                animate={{ opacity: 1, scale: 1, x: '-50%', y: 0, rotate: hash01(id * 29) < 0.5 ? -2 : 2 }}
+                exit={{ opacity: 0, scale: 0.6, x: '-50%', transition: { duration: 0.15 } }}
+                transition={{ type: 'spring', stiffness: 520, damping: 16 }}
+              >
+                {entry.message && <p className="text-[17px] leading-snug break-words">{entry.message}</p>}
+                <p className="mt-1 text-[14px] leading-tight text-[#3a1f28]/60">
+                  {entry.username}, launched {ago(entry.createdAt)}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
-      <span className={`${hand.className} mt-1 max-w-[120px] truncate text-[15px] leading-none text-[#f0dfd2]/75`}>{entry.username}</span>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            ref={noteRef}
-            className={`${hand.className} absolute top-full mt-2 left-1/2 w-max max-w-[min(240px,70vw)] rounded-2xl bg-[#f0dfd2] px-4 py-2.5 text-[#3a1f28] shadow-[0_0_18px_rgba(240,200,190,0.35)] pointer-events-none`}
-            style={{ marginLeft: nudge }}
-            initial={{ opacity: 0, scale: 0.5, x: '-50%', y: -8, rotate: -6 }}
-            animate={{ opacity: 1, scale: 1, x: '-50%', y: 0, rotate: hash01(id * 29) < 0.5 ? -2 : 2 }}
-            exit={{ opacity: 0, scale: 0.6, x: '-50%', transition: { duration: 0.15 } }}
-            transition={{ type: 'spring', stiffness: 520, damping: 16 }}
-          >
-            {entry.message && <p className="text-[17px] leading-snug break-words">{entry.message}</p>}
-            <p className="mt-1 text-[14px] leading-tight text-[#3a1f28]/60">
-              {entry.username}, launched {ago(entry.createdAt)}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+    </>
   );
 }
 
