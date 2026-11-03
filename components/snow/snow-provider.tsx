@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 
 const STORAGE_KEY = 'snow';
 // How long turning the snow off takes to blow it away, before the snow and the sky fade out.
-export const BLOW_MS = 1800;
+export const BLOW_MS = 1400;
 
 interface SnowContextType {
   isSnowing: boolean;
