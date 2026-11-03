@@ -8,8 +8,8 @@ const rotations = [-1.5, 1, -0.5, 2, -2, 0.5, 1.5];
 /** Staggered drops so the prints read as laid down by hand, not gridded. */
 const drops = [0, 40, 12, 56, 4, 32, 18];
 
-/** The letters as photo prints on graph paper, under a typewritten "read my letters". */
-export default function LettersSection() {
+/** The letters as photo prints under a typewritten "read my letters" (blue ink unless `titleColor` says otherwise). */
+export default function LettersSection({ titleColor = '#2f55a4' }: { titleColor?: string }) {
   return (
     <section className="mx-auto max-w-6xl px-6 md:px-12 pt-20 md:pt-28 pb-24 md:pb-32">
       {/* Rough paper edge for the prints (applied to their white mounts only) */}
@@ -20,7 +20,7 @@ export default function LettersSection() {
         </filter>
       </svg>
 
-      <h2 className={`${typewriter.className} text-[#2f55a4] text-5xl sm:text-6xl md:text-[84px] leading-[0.95]`}>
+      <h2 className={`${typewriter.className} text-5xl sm:text-6xl md:text-[84px] leading-[0.95]`} style={{ color: titleColor }}>
         read my letters
       </h2>
 
