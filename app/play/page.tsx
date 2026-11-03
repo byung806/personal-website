@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import { Inter, Special_Elite, UnifrakturCook } from 'next/font/google';
 import SkyBanner from '@/components/launchpad/sky-banner';
 import Launchpad from '@/components/launchpad/launchpad';
@@ -55,7 +56,13 @@ export default function PlayPage() {
           className={`${typewriter.className} group mx-auto block max-w-6xl text-5xl sm:text-6xl md:text-[84px] leading-[0.95] underline-offset-[10px] decoration-2 hover:underline`}
           style={{ color: INK }}
         >
-          read my letters <span className="inline-block transition-transform duration-300 group-hover:translate-x-3">→</span>
+          read my letters{' '}
+          {/* Diagonal: it opens its own page */}
+          <ArrowUpRight
+            aria-hidden
+            strokeWidth={2.5}
+            className="inline-block -ml-[0.12em] h-[1.05em] w-[1.05em] align-[-0.17em] transition-transform duration-300 group-hover:-translate-y-1.5 group-hover:translate-x-1.5"
+          />
         </Link>
       </section>
       <TornEdge color={PAPER} below seed={4} />
