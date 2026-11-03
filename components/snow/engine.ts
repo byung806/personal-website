@@ -244,8 +244,8 @@ const SPRITE_VERTEX = `#version 300 es
   void main() {
     // By day the flakes are drawn bigger and more solid, so they read against the pale sky.
     float size = aLook.x * mix(1.7, 1.0, uNight);
-    // Flakes big enough to show their arms are drawn as six-armed crystals, in a larger sprite; the rest stay dots.
-    vCrystal = aSpin.y * smoothstep(6.0, 10.0, size);
+    // Everything but the tiniest specks is drawn as a six-armed crystal, in a larger sprite; big round dots looked like blobs.
+    vCrystal = aSpin.y * smoothstep(3.0, 4.5, size);
     float pixels = size * uScale * mix(1.0, 1.6, vCrystal);
     gl_Position = vec4(aPosition.x / uView.x * 2.0 - 1.0, 1.0 - (aPosition.y - uOffset) / uView.y * 2.0, 0.0, 1.0);
     gl_PointSize = max(pixels, 2.0);
