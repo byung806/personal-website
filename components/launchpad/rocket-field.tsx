@@ -6,7 +6,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion
 import { Patrick_Hand } from 'next/font/google';
 import PaintedCanvas from './painted-canvas';
 import { paintRocket } from './rocket-paint';
-import { PLANETS, paintPlanet, planetRadius, randomPlanetLook, type PlanetLook } from './planet-paint';
+import { PLANETS, PLANET_KINDS, paintPlanet, planetRadius, randomMoonLook, randomPlanetLook, type PlanetLook } from './planet-paint';
 import { rng } from '@/lib/pencil';
 import { decodeRocket, encodeRocket, randomRocket, type RocketDesign } from '@/lib/rocket';
 
@@ -88,6 +88,8 @@ function ago(iso: string) {
 type Orbit = { rx: number; ry: number; tilt: number; speed: number };
 /** A rocket on an orbit, starting `phase` radians round it. */
 type Rider = { entry: RocketEntry; orbit: Orbit; phase: number; size: number; design: RocketDesign };
+/** A little moon on its own orbit; `key` is negative so it never clashes with a rocket's id. */
+type Moon = { key: number; orbit: Orbit; phase: number; size: number; look: PlanetLook; seed: number };
 type System = {
   key: string;
   look: PlanetLook;
@@ -102,6 +104,7 @@ type System = {
   drift: number;
   orbits: Orbit[];
   riders: Rider[];
+  moons: Moon[];
 };
 
 /** Planets that lead somewhere, by system number. */
@@ -110,61 +113,87 @@ const LINKS: Record<number, { href: string; label: string; look: PlanetLook }> =
   2: { href: '/p/planet-garden', label: 'draw a planet', look: PLANETS.garden },
 };
 
+/** A lap takes about a minute or two, longer further out. */
+const lap = (rx: number, dir: number) => (dir * Math.PI * 2) / (45 + rx * 0.15);
+
 /**
- * Splits the rockets (newest first) into little solar systems down the page: a planet each, alternating
- * sides, with one or two tilted orbits its rockets coast round. Laid out for a field `W` px wide.
+ * Splits the rockets (newest first) into a few solar systems down the page: a planet each (every one a
+ * different kind), alternating sides, with up to three tilted orbits its rockets coast round and a moon
+ * or two. Laid out for a field `W` px wide.
  */
 function buildSystems(rockets: RocketEntry[], W: number): System[] {
   const phone = W < 640;
   const r = rng(99);
   const groups: RocketEntry[][] = [];
   for (let i = 0; i < rockets.length; ) {
-    const n = 7 + Math.floor(r() * 5);
+    const n = 14 + Math.floor(r() * 7);
     groups.push(rockets.slice(i, i + n));
     i += n;
   }
+  // A few stragglers join the system before them rather than get a planet of their own
+  if (groups.length > 3 && groups[groups.length - 1].length < 8) groups[groups.length - 2].push(...groups.pop()!);
   while (groups.length < 3) groups.push([]);
+  // Planet kinds in a shuffled order, so neighbors never match (not the cratered rock, which the letters moon already is)
+  const kinds = PLANET_KINDS.map((_, k) => k).slice(1).sort(() => r() - 0.5);
 
   return groups.map((group, g) => {
     const sr = rng(g * 977 + 3);
     const link = LINKS[g];
-    const look = link?.look ?? randomPlanetLook(sr);
-    const box = phone ? 140 + sr() * 60 : 180 + sr() * 120;
+    const look = link?.look ?? randomPlanetLook(sr, kinds[g % kinds.length]);
+    const box = phone ? 140 + sr() * 70 : 220 + sr() * 130;
     const R = planetRadius(look, box);
-    const side = phone ? 0.5 : (g % 2 ? 0.64 : 0.36) + (sr() - 0.5) * 0.1;
+    const side = phone ? 0.5 : (g % 2 ? 0.62 : 0.38) + (sr() - 0.5) * 0.08;
     const cx = side * W;
-    const room = Math.min(cx, W - cx) - 30;
-    const squash = 0.3 + sr() * 0.14;
+    // On phones the outer orbit runs a little past the screen's edges, and orbits are rounder, for room
+    const room = phone ? W / 2 + 10 : Math.min(cx, W - cx) - 30;
+    const squash = phone ? 0.5 + sr() * 0.12 : 0.3 + sr() * 0.14;
     const tilt = (sr() - 0.5) * 0.5;
     const dir = g % 2 ? 1 : -1;
-    const outer = Math.min(room, (R * 1.6 + 26) * 1.5);
-    const radii = group.length > 6 ? [Math.min(R * 1.6 + 26, outer * 0.7), outer] : [Math.min(R * 1.8 + 30, room)];
-    const orbits: Orbit[] = radii.map((rx, k) => ({
-      rx,
-      ry: rx * squash,
-      tilt: tilt + k * (sr() - 0.5) * 0.25,
-      // Outer orbits are slower; a lap takes about a minute or two
-      speed: (dir * Math.PI * 2) / (45 + rx * 0.15),
-    }));
-    const inner = orbits.length > 1 ? Math.ceil(group.length * 0.4) : group.length;
-    const riders = group.map((entry, i) => {
-      const k = i < inner ? 0 : 1;
-      const [m, j] = k ? [group.length - inner, i - inner] : [inner, i];
-      return {
+
+    const count = group.length > 12 ? 3 : group.length > 5 ? 2 : 1;
+    // Clear of the planet and its ring, and out to most of the room beside it
+    const inner = Math.min(Math.max(R * 1.45 + 24, box * 0.62), room * 0.55);
+    const outer = Math.min(room, Math.max(inner * (count === 3 ? 2 : 1.6), phone ? 0 : 330));
+    const orbits: Orbit[] = Array.from({ length: count }, (_, k) => {
+      const rx = count === 1 ? inner : inner + ((outer - inner) * k) / (count - 1);
+      return { rx, ry: rx * squash, tilt: tilt + k * (sr() - 0.5) * 0.2, speed: lap(rx, dir) };
+    });
+
+    // More rockets on the longer outer orbits
+    const total = orbits.reduce((t, o) => t + o.rx ** 1.5, 0);
+    const shares = orbits.map((o) => Math.round((group.length * o.rx ** 1.5) / total));
+    shares[shares.length - 1] += group.length - shares.reduce((a, b) => a + b, 0);
+    let next = 0;
+    const riders = orbits.flatMap((orbit, k) =>
+      group.slice(next, (next += shares[k])).map((entry, j, list) => ({
         entry,
-        orbit: orbits[k],
-        phase: (Math.PI * 2 * j) / m + (sr() - 0.5) * 0.3,
-        size: phone ? 34 + sr() * 10 : 54 + sr() * 16,
+        orbit,
+        phase: (Math.PI * 2 * j) / list.length + (sr() - 0.5) * 0.3,
+        size: phone ? 30 + sr() * 8 : 54 + sr() * 16,
         design: decodeRocket(entry.rocket) ?? randomRocket(sr),
+      })),
+    );
+
+    // A moon or two: one close in, sometimes one way out, on orbits of their own
+    const moons: Moon[] = Array.from({ length: 1 + (sr() < 0.5 ? 1 : 0) }, (_, m) => {
+      const rx = m === 0 ? R * 1.15 + 14 : Math.min(room, outer * 1.08);
+      return {
+        key: -(g * 100 + m + 1),
+        orbit: { rx, ry: rx * squash * (0.8 + sr() * 0.5), tilt: tilt + (sr() - 0.5) * 0.6, speed: lap(rx, m ? dir : -dir) * 1.6 },
+        phase: sr() * Math.PI * 2,
+        size: (phone ? 22 : 28) + sr() * (m ? 10 : 18),
+        look: randomMoonLook(sr),
+        seed: g * 31 + m,
       };
     });
-    const ry = orbits[orbits.length - 1].ry;
-    const span = Math.max(box, 2 * ry + 80);
+
+    const ry = Math.max(...[...orbits, ...moons.map((m) => m.orbit)].map((o) => o.ry));
+    const span = Math.max(box, 2 * ry + 90);
     const label = link ? 50 : 0;
-    const near = Math.min(1, Math.max(0, (box - 140) / 160));
+    const near = Math.min(1, Math.max(0, (box - 140) / 200));
     // Gentler on phones, where systems sit closer together
     const drift = (200 - near * 320) * (phone ? 0.35 : 1);
-    return { key: `system-${g}`, look, seed: g * 7 + 3, link, box, cx, cy: span / 2, height: span + label + (phone ? 90 : 70), drift, orbits, riders };
+    return { key: `system-${g}`, look, seed: g * 7 + 3, link, box, cx, cy: span / 2, height: span + label + (phone ? 110 : 120), drift, orbits, riders, moons };
   });
 }
 
@@ -214,6 +243,25 @@ function Note({ entry }: { entry: RocketEntry }) {
 /** Moving parts the animation loop positions directly: the rocket's spot and its turn. */
 type Rig = { outer: HTMLDivElement | null; inner: HTMLDivElement | null };
 
+/** Hands an element to the loop as one of the parts of body `id`'s rig. */
+const rigRef = (rigs: Map<number, Rig>, id: number, part: keyof Rig) => (el: HTMLDivElement | null) => {
+  const rig = rigs.get(id) ?? { outer: null, inner: null };
+  rig[part] = el;
+  rigs.set(id, rig);
+};
+
+/** A little moon going round. */
+function MoonBody({ moon, rigs }: { moon: Moon; rigs: Map<number, Rig> }) {
+  const paint = useCallback((ctx: CanvasRenderingContext2D, w: number, h: number) => paintPlanet(ctx, w, h, moon.look, moon.seed), [moon.look, moon.seed]);
+  return (
+    <div ref={rigRef(rigs, moon.key, 'outer')} aria-hidden className="pointer-events-none absolute left-0 top-0 will-change-transform" style={{ width: moon.size, height: moon.size }}>
+      <div ref={rigRef(rigs, moon.key, 'inner')} className="h-full w-full">
+        <PaintedCanvas paint={paint} grain={10} className="h-full w-full" />
+      </div>
+    </div>
+  );
+}
+
 /** One system: its planet, orbit lines and rockets, drifting with the scroll at a speed set by its size. */
 function SystemBlock({ system, rigs, openId, onOpen, index }: { system: System; rigs: Map<number, Rig>; openId: number | null; onOpen: (id: number | null) => void; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -256,17 +304,15 @@ function SystemBlock({ system, rigs, openId, onOpen, index }: { system: System; 
 
         {system.orbits.map((o, k) => <OrbitLine key={`f${k}`} orbit={o} cx={cx} cy={cy} half="front" />)}
 
+        {system.moons.map((moon) => <MoonBody key={moon.key} moon={moon} rigs={rigs} />)}
+
         {system.riders.map((rider, i) => {
           const id = rider.entry.id;
           const open = openId === id;
           return (
             <div
               key={id}
-              ref={(el) => {
-                const rig = rigs.get(id) ?? { outer: null, inner: null };
-                rig.outer = el;
-                rigs.set(id, rig);
-              }}
+              ref={rigRef(rigs, id, 'outer')}
               className="absolute left-0 top-0 pointer-events-auto cursor-help will-change-transform"
               style={{ width: rider.size, height: rider.size, zIndex: open ? 60 : undefined }}
               onPointerEnter={(e) => e.pointerType === 'mouse' && onOpen(id)}
@@ -280,11 +326,7 @@ function SystemBlock({ system, rigs, openId, onOpen, index }: { system: System; 
                 transition={{ type: 'spring', stiffness: 420, damping: 14, delay: open ? 0 : 0.2 + ((index * 3 + i) % 8) * 0.06 }}
               >
                 <div
-                  ref={(el) => {
-                    const rig = rigs.get(id) ?? { outer: null, inner: null };
-                    rig.inner = el;
-                    rigs.set(id, rig);
-                  }}
+                  ref={rigRef(rigs, id, 'inner')}
                   className="h-full w-full [filter:drop-shadow(0_0_6px_rgba(240,200,190,0.25))]"
                 >
                   <RocketCanvas design={rider.design} seed={id * 13} className="h-full w-full" />
@@ -326,20 +368,23 @@ export default function RocketField({ rockets, justLaunchedId }: { rockets: Rock
     return () => ro.disconnect();
   }, []);
 
-  // One loop moves every rocket round its orbit; a system stands still while one of its rockets is open
+  // One loop moves every rocket and moon round its orbit; a system stands still while one of its rockets is open
   const openRef = useRef(openId);
   openRef.current = openId;
   useEffect(() => {
-    const riders = systems.flatMap((s, si) => s.riders.map((rider) => ({ rider, si, cx: s.cx, cy: s.cy })));
+    const bodies = systems.flatMap((s, si) => [
+      ...s.riders.map((r) => ({ id: r.entry.id, orbit: r.orbit, phase: r.phase, size: r.size, turns: true, si, cx: s.cx, cy: s.cy })),
+      ...s.moons.map((m) => ({ id: m.key, orbit: m.orbit, phase: m.phase, size: m.size, turns: false, si, cx: s.cx, cy: s.cy })),
+    ]);
     const clocks = systems.map(() => 0);
     let last = performance.now();
     let raf = 0;
     const place = () => {
-      for (const { rider, si, cx, cy } of riders) {
-        const rig = rigs.get(rider.entry.id);
+      for (const { id, orbit, phase, size, turns, si, cx, cy } of bodies) {
+        const rig = rigs.get(id);
         if (!rig?.outer || !rig.inner) continue;
-        const { rx, ry, tilt, speed } = rider.orbit;
-        const a = rider.phase + clocks[si] * speed;
+        const { rx, ry, tilt, speed } = orbit;
+        const a = phase + clocks[si] * speed;
         const [c, s] = [Math.cos(a), Math.sin(a)];
         const [ct, st] = [Math.cos(tilt), Math.sin(tilt)];
         const [lx, ly] = [rx * c, ry * s];
@@ -351,9 +396,9 @@ export default function RocketField({ rockets, justLaunchedId }: { rockets: Rock
         const heading = Math.atan2(vx * st + vy * ct, vx * ct - vy * st) + Math.PI / 2;
         // The near side (lower half of the ellipse) passes in front of the planet, a little bigger
         const nearness = (s + 1) / 2;
-        rig.outer.style.transform = `translate(${cx + x - rider.size / 2}px, ${cy + y - rider.size / 2}px)`;
-        if (rider.entry.id !== openRef.current) rig.outer.style.zIndex = s > 0 ? '8' : '3';
-        rig.inner.style.transform = `rotate(${heading}rad) scale(${0.8 + 0.25 * nearness})`;
+        rig.outer.style.transform = `translate(${cx + x - size / 2}px, ${cy + y - size / 2}px)`;
+        if (id !== openRef.current) rig.outer.style.zIndex = s > 0 ? '8' : '3';
+        rig.inner.style.transform = `${turns ? `rotate(${heading}rad) ` : ''}scale(${0.8 + 0.25 * nearness})`;
         rig.inner.style.opacity = String(0.7 + 0.3 * nearness);
       }
     };
@@ -361,7 +406,7 @@ export default function RocketField({ rockets, justLaunchedId }: { rockets: Rock
       raf = requestAnimationFrame(tick);
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
-      const paused = riders.find((r) => r.rider.entry.id === openRef.current)?.si;
+      const paused = bodies.find((b) => b.id === openRef.current)?.si;
       clocks.forEach((_, i) => i !== paused && (clocks[i] += dt));
       place();
     };
