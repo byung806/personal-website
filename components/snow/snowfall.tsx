@@ -9,15 +9,14 @@ const FADE_MS = 900;
 
 /// Snow falling over the viewport and piling on the [data-ledge] elements inside `rootId`, while the snowflake button has it on.
 export default function Snowfall({ rootId }: { rootId: string }) {
-  const { available, isSnowing } = useSnow();
+  const { isSnowing } = useSnow();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // Stays mounted through the fade-out after the snow is turned off.
   const [mounted, setMounted] = useState(false);
   const [shown, setShown] = useState(false);
-  const on = available && isSnowing;
-
+  
   useEffect(() => {
-    if (on) {
+    if (isSnowing) {
       setMounted(true);
       const raf = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)));
       return () => cancelAnimationFrame(raf);
@@ -25,7 +24,7 @@ export default function Snowfall({ rootId }: { rootId: string }) {
     setShown(false);
     const timer = setTimeout(() => setMounted(false), FADE_MS);
     return () => clearTimeout(timer);
-  }, [on]);
+  }, [isSnowing]);
 
   useEffect(() => {
     const root = document.getElementById(rootId);

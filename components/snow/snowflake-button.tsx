@@ -7,7 +7,7 @@ import { useSnow } from './snow-provider';
 
 /// Spins to turn the homepage snow on and off; `className` colors it to match the nav around it.
 export default function SnowflakeButton({ className = '' }: { className?: string }) {
-  const { available, isSnowing, toggleSnow } = useSnow();
+  const { isSnowing, toggleSnow } = useSnow();
   const [isHovered, setIsHovered] = useState(false);
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
 
@@ -40,8 +40,6 @@ export default function SnowflakeButton({ className = '' }: { className?: string
 
     toggleSnow();
   };
-
-  if (!available) return null;
 
   return (
     <div className="relative inline-flex items-center">

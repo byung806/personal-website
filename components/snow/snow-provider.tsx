@@ -6,33 +6,22 @@ import { usePathname } from 'next/navigation';
 const STORAGE_KEY = 'snow';
 
 interface SnowContextType {
-  /// The snow can be offered at all: NEXT_PUBLIC_SNOW=1, or `?snow=1` / `?snow=0` for a single visit.
-  available: boolean;
   isSnowing: boolean;
   toggleSnow: () => void;
 }
 
 const SnowContext = createContext<SnowContextType | undefined>(undefined);
 
-function snowAvailable() {
-  const param = new URLSearchParams(window.location.search).get('snow');
-  if (param !== null) return param !== '0';
-  return process.env.NEXT_PUBLIC_SNOW === '1';
-}
-
 /// Whether it's snowing on the homepage. Snowing turns the page into a winter day (`snow-day` on <html>), or a winter
-/// night (`snow-night`) for visitors in dark mode. The on/off choice is remembered; it starts off for reduced motion.
+/// night (`snow-night`) for visitors in dark mode. On by default; the on/off choice is remembered, and it starts off for reduced motion.
 export function SnowProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [available, setAvailable] = useState(false);
   const [isSnowing, setIsSnowing] = useState(false);
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    if (!snowAvailable()) return;
     let saved: string | null = null;
     try { saved = localStorage.getItem(STORAGE_KEY); } catch {}
-    setAvailable(true);
     setIsSnowing(saved ? saved === 'on' : !matchMedia('(prefers-reduced-motion: reduce)').matches);
   }, []);
 
@@ -44,7 +33,7 @@ export function SnowProvider({ children }: { children: ReactNode }) {
     return () => query.removeEventListener('change', update);
   }, []);
 
-  const snowing = available && isSnowing && pathname === '/';
+  const snowing = isSnowing && pathname === '/';
   useEffect(() => {
     document.documentElement.classList.toggle('snow-day', snowing && !dark);
     document.documentElement.classList.toggle('snow-night', snowing && dark);
@@ -58,7 +47,7 @@ export function SnowProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <SnowContext.Provider value={{ available, isSnowing, toggleSnow }}>
+    <SnowContext.Provider value={{ isSnowing, toggleSnow }}>
       {children}
     </SnowContext.Provider>
   );
