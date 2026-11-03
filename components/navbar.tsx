@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 import StickyBackButton from './back-button';
+import SnowflakeButton from './snow/snowflake-button';
 
 /**
  * Routes whose page starts with a dark, full-bleed hero: the header becomes a transparent overlay
@@ -42,6 +43,7 @@ export default function HeroSection() {
           >
             Play
           </Link>
+          {pathname === '/' && <SnowflakeButton className={inactiveClass} />}
         </nav>
       </header>
     </>

@@ -221,7 +221,8 @@ class Layer {
 }
 
 // MARK: - Shaders
-// Recoloured from the original for a white page: snow keeps a cool grey rim so it reads against white.
+// Lit for the homepage's snow night: moonlit blue-white snow, warmed by the cards as if they were lit windows.
+// Flakes catch the glow as they drift past a card, and the snow on each card's top is lit gold from below.
 
 const SPRITE_VERTEX = `#version 300 es
   in vec2 aPosition;
@@ -253,18 +254,29 @@ const SPRITE_FRAGMENT = `#version 300 es
   out vec4 outColor;
   void main() {
     // Hidden behind the ledges: a rounded box test against each one, in viewport pixels.
+    // The distance to the nearest one is how brightly its window light reaches this flake.
     vec2 p = vec2(gl_FragCoord.x / uScale, uOffset + uView.y - gl_FragCoord.y / uScale);
+    float nearest = 1e4;
     for (int i = 0; i < uMaskCount; i++) {
       vec4 r = uMasks[i];
       vec2 extent = (r.zw - r.xy) * 0.5;
       vec2 q = abs(p - (r.xy + r.zw) * 0.5) - extent + uMaskRadii[i];
-      if (length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - uMaskRadii[i] < 0.0) discard;
+      float distance = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - uMaskRadii[i];
+      if (distance < 0.0) discard;
+      nearest = min(nearest, distance);
     }
+    float light = exp(-nearest / 55.0);
     float d = length(gl_PointCoord - 0.5) * 2.0;
     float a = (1.0 - smoothstep(mix(0.6, 0.0, vSoft), 1.0, d)) * vAlpha;
-    vec3 color = mix(vec3(0.97, 0.98, 1.0), vec3(0.58, 0.64, 0.76), clamp(smoothstep(0.2, 1.0, d) * 0.9, 0.0, 1.0));
-    if (a < 0.002) discard;
-    outColor = vec4(color * a, a);
+    vec3 color = mix(vec3(0.95, 0.97, 1.0), vec3(0.62, 0.69, 0.84), clamp(smoothstep(0.35, 1.0, d) * 0.65, 0.0, 1.0));
+    vec3 warm = vec3(1.0, 0.82, 0.58);
+    color = mix(color, warm, light * 0.75);
+    a *= 0.8 + 0.2 * light;
+    // A faint warm halo around the flakes nearest a window.
+    float halo = max(0.0, 1.0 - d);
+    halo = halo * halo * light * 0.35 * vAlpha;
+    if (a + halo < 0.002) discard;
+    outColor = vec4(color * a + warm * halo * (1.0 - a), a + halo * (1.0 - a));
   }
 `;
 
@@ -290,6 +302,7 @@ const PILE_FRAGMENT = `#version 300 es
   uniform vec2 uOrigin;
   uniform float uScale;
   uniform float uTime;
+  uniform float uWarm;
   out vec4 outColor;
 
   float heightAt(int row, float x) {
@@ -320,12 +333,15 @@ const PILE_FRAGMENT = `#version 300 es
     float slope = (heightAt(0, x + 2.0) - heightAt(0, x - 2.0)) * 0.25;
     float light = dot(normalize(vec2(-slope, 1.0)), normalize(vec2(-0.5, 1.0)));
 
-    vec3 surface = vec3(0.955, 0.965, 0.985);
-    vec3 shadow = vec3(0.72, 0.78, 0.88);
+    vec3 surface = vec3(0.86, 0.9, 0.98);
+    vec3 shadow = vec3(0.42, 0.48, 0.64);
     float shade = (1.0 - exp(-depth / 30.0)) * 0.32 + (1.0 - light) * 0.6 * exp(-depth / 5.0);
     vec3 color = mix(surface, shadow, clamp(shade, 0.0, 1.0));
-    // A thin cool rim along the top of the drift, where the original had a bright highlight.
-    color = mix(color, vec3(0.66, 0.72, 0.84), exp(-depth * 1.4) * 0.75);
+    // Lit gold from the window underneath, fading up through the drift.
+    float glow = exp(-(y - bed) / 7.0) * uWarm;
+    color = mix(color, vec3(1.0, 0.8, 0.52), glow * 0.7);
+    // A bright moonlit rim along the top of the drift.
+    color = mix(color, vec3(1.0), exp(-depth * 1.4) * 0.45);
     // Grain and sparkle are pinned to the drift, so they don't swim as the canvas moves with the scroll.
     vec2 cell = floor(vec2(x, y) * uScale);
     color += (hash(cell) - 0.5) * 0.02;
@@ -837,6 +853,7 @@ class Scene {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.uniform1i(u.uCount, layer.count);
+      gl.uniform1f(u.uWarm, layer === this.ground ? 0.35 : 1);
       gl.uniform2f(u.uOrigin, layer.x, layer.y);
       gl.uniform4f(u.uRect, layer.x, layer.y - layer.top - 2, layer.x + layer.width, layer.y + layer.bedDepth);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

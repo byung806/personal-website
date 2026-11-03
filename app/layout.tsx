@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 import ThemeProvider from "@/components/theme-provider";
+import { SnowProvider } from "@/components/snow/snow-provider";
 
 const typeVF = localFont({
     src: "../public/fonts/TypeVF.woff2",
@@ -45,13 +46,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </head>
             <body className={`${typeVF.variable} ${typeLight.variable} ${libreBaskerville.variable} font-sans antialiased bg-white text-gray-900 min-h-screen flex flex-col`}>
                 <ThemeProvider>
-                    <Navbar />
-                    <PageTransition>
-                        <div className="flex-1">
-                            {children}
-                        </div>
-                    </PageTransition>
-                    <FooterWrapper />
+                    <SnowProvider>
+                        <Navbar />
+                        <PageTransition>
+                            <div className="flex-1">
+                                {children}
+                            </div>
+                        </PageTransition>
+                        <FooterWrapper />
+                    </SnowProvider>
                 </ThemeProvider>
             </body>
             {process.env.NEXT_PUBLIC_GA_ID ? (

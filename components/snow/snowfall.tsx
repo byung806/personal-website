@@ -3,30 +3,45 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { startSnow } from './engine';
+import { useSnow } from './snow-provider';
 
-/// On when NEXT_PUBLIC_SNOW=1; `?snow=1` / `?snow=0` overrides it for a single visit.
-function snowEnabled() {
-  const param = new URLSearchParams(window.location.search).get('snow');
-  if (param !== null) return param !== '0';
-  return process.env.NEXT_PUBLIC_SNOW === '1';
-}
+const FADE_MS = 900;
 
-/// Snow falling over the viewport and piling on the [data-ledge] elements inside `rootId`.
+/// Snow falling over the viewport and piling on the [data-ledge] elements inside `rootId`, while the snowflake button has it on.
 export default function Snowfall({ rootId }: { rootId: string }) {
+  const { available, isSnowing } = useSnow();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [enabled, setEnabled] = useState(false);
+  // Stays mounted through the fade-out after the snow is turned off.
+  const [mounted, setMounted] = useState(false);
+  const [shown, setShown] = useState(false);
+  const on = available && isSnowing;
 
   useEffect(() => {
-    setEnabled(snowEnabled() && !matchMedia('(prefers-reduced-motion: reduce)').matches);
-  }, []);
+    if (on) {
+      setMounted(true);
+      const raf = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)));
+      return () => cancelAnimationFrame(raf);
+    }
+    setShown(false);
+    const timer = setTimeout(() => setMounted(false), FADE_MS);
+    return () => clearTimeout(timer);
+  }, [on]);
 
   useEffect(() => {
     const root = document.getElementById(rootId);
-    if (!enabled || !root || !canvasRef.current) return;
+    if (!mounted || !root || !canvasRef.current) return;
     return startSnow(root, canvasRef.current);
-  }, [enabled, rootId]);
+  }, [mounted, rootId]);
 
-  if (!enabled) return null;
+  if (!mounted) return null;
   // In the body, positioned against the document: the engine slides it along with the scroll and sizes it.
-  return createPortal(<canvas ref={canvasRef} aria-hidden className="pointer-events-none absolute left-0 top-0 z-20" />, document.body);
+  return createPortal(
+    <canvas
+      ref={canvasRef}
+      aria-hidden
+      className="pointer-events-none absolute left-0 top-0 z-20 transition-opacity ease-out"
+      style={{ opacity: shown ? 1 : 0, transitionDuration: `${FADE_MS}ms` }}
+    />,
+    document.body,
+  );
 }
