@@ -1,9 +1,11 @@
 'use client';
 
 import PaintedCanvas from '@/components/launchpad/painted-canvas';
-import { PLANETS } from '@/components/launchpad/planet-paint';
 import { INK } from '@/components/launchpad/paint';
 import { pencilFill, pencilOutline, rng, type Pt } from '@/lib/pencil';
+
+/** The moon's pencil colors: base wash, light hatch, shadow hatch. */
+const MOON = { wash: '#e9d6c6', light: '#fff6ec', shade: '#9a5868' };
 
 /** How far the horizon dips at the sides, in px. */
 const CURVE = 90;
@@ -14,7 +16,7 @@ const CURVE = 90;
  */
 function paintMoon(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const r = rng(17);
-  const look = PLANETS.letters;
+  const look = MOON;
   const top = 6;
   const horizon = (x: number) => top + CURVE * ((x - w / 2) / (w / 2)) ** 2;
   const rim: Pt[] = Array.from({ length: 25 }, (_, i) => {

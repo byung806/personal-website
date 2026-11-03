@@ -1,33 +1,78 @@
 'use client';
 
+import Link from 'next/link';
+import { Inter, Special_Elite, UnifrakturCook } from 'next/font/google';
+import SkyBanner from '@/components/launchpad/sky-banner';
 import Launchpad from '@/components/launchpad/launchpad';
-import DeepSpace from '@/components/launchpad/deep-space';
-import RocketField, { useRockets } from '@/components/launchpad/rocket-field';
+import { useFleet } from '@/components/launchpad/ships';
+import Guestbook from '@/components/guestbook/guestbook';
+import { Dissolve, TornEdge } from '@/components/fun/barriers';
+import { encodeRocket, PAINTS, type RocketDesign } from '@/lib/rocket';
+
+const inter = Inter({ subsets: ['latin'] });
+const fraktur = UnifrakturCook({ subsets: ['latin'], weight: '700' });
+const typewriter = Special_Elite({ subsets: ['latin'], weight: '400' });
+
+const PAPER = '#f7f6f1';
+const INK = '#2f55a4';
 
 /**
- * Play: one long stretch of procedural, parallax space. Every guestbook signature is a rocket orbiting one
- * of its planets (two of which lead to the other pages), and at the bottom is the launchpad where you
- * build a rocket, sign it and launch it up to join the rest.
+ * Play: each section is its own world, split by hard barriers. Each title says what to do
+ * there; no subtitles. Sky banner of ships, a link to the letters (their own page) on graph paper, the
+ * wall after dejiajetomobi.com (blackletter over a wall of colored notes), and a launchpad after
+ * tinycamp.site where you build a rocket that flies up to join the ships in the sky.
+ * (The planet drawer is parked, not deleted.)
  */
 export default function PlayPage() {
-  const { rockets, sign, land, justLaunchedId } = useRockets();
+  const { ships, launch, justLaunchedId } = useFleet();
 
-  const onGone = () => {
-    land();
-    // Follow the rocket up to the top, where it arrives
+  const onLaunch = (design: RocketDesign) => {
+    launch('rocket', PAINTS[design.paint], encodeRocket(design));
+    // Follow the rocket up to the sky, where it joins the fleet
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   };
 
   return (
-    <div className="relative overflow-x-clip">
-      <DeepSpace className="fixed inset-0" />
+    <div>
+      {/* I. The Sky */}
+      <SkyBanner id="sky" ships={ships} justLaunchedId={justLaunchedId} />
 
-      <div className="relative px-2 sm:px-6 lg:px-10 pt-24 md:pt-28 pb-16">
-        <RocketField rockets={rockets} justLaunchedId={justLaunchedId} />
-      </div>
+      <TornEdge color={PAPER} seed={11} />
 
-      <Launchpad id="launchpad" sign={sign} onGone={onGone} />
+      {/* II. Letters, which live on their own page */}
+      <section
+        id="letters"
+        className="px-6 md:px-12 py-16 md:py-24"
+        style={{
+          backgroundColor: PAPER,
+          backgroundImage: `linear-gradient(rgba(47,85,164,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(47,85,164,0.07) 1px, transparent 1px)`,
+          backgroundSize: '24px 24px',
+        }}
+      >
+        <Link
+          href="/letters"
+          className={`${typewriter.className} group mx-auto block max-w-6xl text-5xl sm:text-6xl md:text-[84px] leading-[0.95] underline-offset-[10px] decoration-2 hover:underline`}
+          style={{ color: INK }}
+        >
+          read my letters <span className="inline-block transition-transform duration-300 group-hover:translate-x-3">→</span>
+        </Link>
+      </section>
+      <TornEdge color={PAPER} below seed={4} />
+
+      {/* III. The Wall */}
+      <section id="wall" className={`${inter.className} bg-white text-black px-6 md:px-8 pt-12 md:pt-16 pb-28`}>
+        <h2 className={`${fraktur.className} text-[12vw] md:text-[12.5vw] leading-[0.85] tracking-[-0.01em] -ml-[0.03em] whitespace-nowrap`}>
+          Sign the Guestbook
+        </h2>
+        <div className="mt-12 md:mt-16">
+          <Guestbook colorWall />
+        </div>
+      </section>
+
+      {/* IV. Launchpad, which the white wall mists into */}
+      <Dissolve />
+      <Launchpad id="launchpad" onLaunch={onLaunch} />
     </div>
   );
 }

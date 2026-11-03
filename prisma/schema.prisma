@@ -25,8 +25,9 @@ model GuestbookEntry {
   @@map("guestbook")
 }
 
-/// Experimental copy of `guestbook` for the /play rockets (copied 2026-11-03; the original table is untouched).
-/// Each entry is a rocket: `rocket` is a design code from encodeRocket in lib/rocket.ts.
+/// Experimental copy of `guestbook` for the rockets-as-guestbook redesign (copied 2026-11-03; the original table is
+/// untouched). Unused on this branch, but kept so a schema push here doesn't drop the archived branch's data
+/// (branch play-orbits-archive). Each entry's `rocket` is a design code from encodeRocket in lib/rocket.ts.
 model GuestbookRocket {
   id        Int      @id @default(autoincrement())
   username  String   @db.VarChar(50)
@@ -53,6 +54,8 @@ model Launch {
   id        Int      @id @default(autoincrement())
   kind      String   @db.VarChar(32)
   color     String   @db.VarChar(16)
+  /// The rocket's design from the builder (encodeRocket in lib/rocket.ts); launches from before it have none
+  design    String?  @db.VarChar(32)
   createdAt DateTime @default(now()) @map("created_at")
 
   @@index([kind])

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Dices } from 'lucide-react';
 import { Patrick_Hand } from 'next/font/google';
-import { RocketCanvas } from './rocket-field';
+import { RocketCanvas } from './ships';
 import { BODIES, FINS, NOSES, PAINTS, TRIMS, WINDOWS, randomRocket, type RocketDesign } from '@/lib/rocket';
 
 const hand = Patrick_Hand({ subsets: ['latin'], weight: '400' });
@@ -39,32 +39,27 @@ function Swatches({ colors, value, onPick, label }: { colors: string[]; value: n
 
 /**
  * Builds the rocket on the pad: a tab per part, each showing the whole rocket with that part swapped
- * so you see what you'd get, a color tab, a shuffle, and the name and note that sign the guestbook.
+ * so you see what you'd get, a color tab and a shuffle. `disabled` while a launch is underway.
  */
 export default function RocketBuilder({
   design,
   onDesign,
-  name,
-  onName,
-  message,
-  onMessage,
-  error,
+  disabled = false,
   className = '',
 }: {
   design: RocketDesign;
   onDesign: (d: RocketDesign) => void;
-  name: string;
-  onName: (v: string) => void;
-  message: string;
-  onMessage: (v: string) => void;
-  error: string | null;
+  disabled?: boolean;
   className?: string;
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]['key']>('nose');
   const current = TABS.find((t) => t.key === tab)!;
 
   return (
-    <div className={`${hand.className} rounded-3xl border border-[#f0dfd2]/20 bg-[#11142b]/70 p-4 sm:p-5 text-[#f0dfd2] backdrop-blur-sm ${className}`}>
+    <fieldset
+      disabled={disabled}
+      className={`${hand.className} min-w-0 rounded-3xl border border-[#f0dfd2]/20 bg-[#11142b]/70 p-4 sm:p-5 text-[#f0dfd2] backdrop-blur-sm transition-opacity disabled:opacity-60 ${className}`}
+    >
       <div className="flex items-center gap-1">
         <div role="tablist" className="flex flex-1 flex-wrap gap-x-1">
           {TABS.map((t) => (
@@ -116,26 +111,6 @@ export default function RocketBuilder({
           </div>
         )}
       </div>
-
-      <div className="mt-4 flex flex-col gap-2.5">
-        <input
-          value={name}
-          onChange={(e) => onName(e.target.value)}
-          maxLength={50}
-          placeholder="your name"
-          aria-label="Your name"
-          className="w-full border-b border-[#f0dfd2]/35 bg-transparent px-1 py-1 text-[20px] text-[#f0dfd2] placeholder:text-[#f0dfd2]/40 focus:border-[#f0dfd2] focus:outline-none"
-        />
-        <input
-          value={message}
-          onChange={(e) => onMessage(e.target.value)}
-          maxLength={500}
-          placeholder="leave a note (optional)"
-          aria-label="Leave a note"
-          className="w-full border-b border-[#f0dfd2]/35 bg-transparent px-1 py-1 text-[18px] text-[#f0dfd2] placeholder:text-[#f0dfd2]/40 focus:border-[#f0dfd2] focus:outline-none"
-        />
-        {error && <p className="text-[16px] text-[#f2876b]">{error}</p>}
-      </div>
-    </div>
+    </fieldset>
   );
 }

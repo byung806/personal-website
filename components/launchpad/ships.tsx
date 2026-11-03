@@ -5,12 +5,15 @@ import { AnimatePresence, cubicBezier, motion, useReducedMotion } from 'framer-m
 import { Patrick_Hand } from 'next/font/google';
 import PaintedCanvas from './painted-canvas';
 import { paintPencilButton, paintShip, paintSmokePuff, type ShipKind } from './paint';
+import { paintRocket } from './rocket-paint';
+import { decodeRocket, type RocketDesign } from '@/lib/rocket';
 import { SKY_LAUNCHES, type Launch, type LaunchStats } from '@/lib/launches';
 
 const hand = Patrick_Hand({ subsets: ['latin'], weight: '400' });
 
 /** `launchedAt` is an ISO time; the default fleet has none. */
-export type Ship = { id: number; kind: ShipKind; color: string; x: number; y: number; tilt: number; launchedAt?: string };
+/** A launch built in the rocket builder carries its `design`; older launches are plain ships of a `kind` and `color`. */
+export type Ship = { id: number; kind: ShipKind; color: string; design?: RocketDesign; x: number; y: number; tilt: number; launchedAt?: string };
 
 export { SHIP_COLORS } from '@/lib/launches';
 
@@ -35,8 +38,9 @@ const SLOTS = [
 ];
 
 /** Where a launch floats: the `i`th open spot, nudged a little by its id. */
-const placed = ({ createdAt, ...l }: Launch, i: number): Ship => ({
+const placed = ({ createdAt, design, ...l }: Launch, i: number): Ship => ({
   ...l,
+  design: decodeRocket(design) ?? undefined,
   launchedAt: createdAt,
   id: LAUNCH_ID + l.id,
   x: SLOTS[i % SLOTS.length][0] + (hash01(l.id * 17) - 0.5) * 8,
@@ -57,12 +61,12 @@ export function useFleet() {
       .catch(() => {});
   }, []);
 
-  const launch = useCallback(async (kind: ShipKind, color: string) => {
+  const launch = useCallback(async (kind: ShipKind, color: string, design?: string) => {
     try {
       const res = await fetch('/api/launches', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind, color }),
+        body: JSON.stringify({ kind, color, design }),
       });
       if (!res.ok) return;
       const launched: Launch = await res.json();
@@ -80,13 +84,19 @@ export function useFleet() {
   return { ships, launch, justLaunchedId, total: stats.total };
 }
 
-/** One pencil-drawn ship on its own canvas. */
-export function ShipCanvas({ kind, color, seed, flame = true, className = '' }: { kind: ShipKind; color: string; seed: number; flame?: boolean; className?: string }) {
+/** One pencil-drawn ship on its own canvas: a built rocket if it has a `design`, else a plain ship of its `kind`. */
+export function ShipCanvas({ kind, color, design, seed, flame = true, className = '' }: { kind: ShipKind; color: string; design?: RocketDesign; seed: number; flame?: boolean; className?: string }) {
   const paint = useCallback(
-    (ctx: CanvasRenderingContext2D, w: number) => paintShip(ctx, w, kind, color, seed, flame),
-    [kind, color, seed, flame],
+    (ctx: CanvasRenderingContext2D, w: number) => (design ? paintRocket(ctx, w, design, seed, flame) : paintShip(ctx, w, kind, color, seed, flame)),
+    [kind, color, design, seed, flame],
   );
   return <PaintedCanvas paint={paint} grain={10} className={className} />;
+}
+
+/** A built rocket on its own canvas (the builder's previews and the one on the pad). */
+export function RocketCanvas({ design, seed, flame = false, eager = false, className = '' }: { design: RocketDesign; seed: number; flame?: boolean; eager?: boolean; className?: string }) {
+  const paint = useCallback((ctx: CanvasRenderingContext2D, w: number) => paintRocket(ctx, w, design, seed, flame), [design, seed, flame]);
+  return <PaintedCanvas paint={paint} grain={10} eager={eager} className={className} />;
 }
 
 /** Stable pseudo-random 0..1 per id. */
@@ -246,7 +256,7 @@ export function Fleet({ ships, justLaunchedId }: { ships: Ship[]; justLaunchedId
                   animate={reduce ? undefined : drift}
                   transition={{ duration: 16 + hash01(s.id * 7) * 14, repeat: Infinity, ease: 'easeInOut' }}
                 >
-                  <ShipCanvas kind={s.kind} color={s.color} seed={s.id * 13} flame={(fresh && arrivedId !== s.id) || hovered} className="w-full h-full" />
+                  <ShipCanvas kind={s.kind} color={s.color} design={s.design} seed={s.id * 13} flame={(fresh && arrivedId !== s.id) || hovered} className="w-full h-full" />
                 </motion.div>
               </motion.div>
             </motion.div>

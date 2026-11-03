@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { LAUNCH_KINDS, SHIP_COLORS, SKY_LAUNCHES, pickSpread, type Launch, type LaunchStats } from '@/lib/launches';
+import { PAINTS, decodeRocket } from '@/lib/rocket';
 
 export const dynamic = 'force-dynamic';
 
-const FIELDS = { id: true, kind: true, color: true, createdAt: true } as const;
+const FIELDS = { id: true, kind: true, color: true, design: true, createdAt: true } as const;
 
-const toJSON = (l: { id: number; kind: string; color: string; createdAt: Date }) =>
+const toJSON = (l: { id: number; kind: string; color: string; design: string | null; createdAt: Date }) =>
   ({ ...l, createdAt: l.createdAt.toISOString() }) as Launch;
 
 async function stats(): Promise<LaunchStats> {
@@ -34,16 +35,21 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { kind, color } = await request.json();
+    const { kind, color, design } = await request.json();
 
     if (!LAUNCH_KINDS.includes(kind)) {
       return NextResponse.json({ error: 'Unknown ship kind!' }, { status: 400 });
     }
-    if (!SHIP_COLORS.includes(color)) {
+    // A built rocket's color is its body paint
+    if (!SHIP_COLORS.includes(color) && !PAINTS.includes(color)) {
       return NextResponse.json({ error: 'Unknown ship color!' }, { status: 400 });
     }
 
-    const launch = await prisma.launch.create({ data: { kind, color }, select: FIELDS });
+    if (design !== undefined && !decodeRocket(design)) {
+      return NextResponse.json({ error: "That rocket won't fly!" }, { status: 400 });
+    }
+
+    const launch = await prisma.launch.create({ data: { kind, color, design }, select: FIELDS });
     return NextResponse.json(toJSON(launch), { status: 201 });
   } catch (error) {
     console.error('Error in POST /api/launches:', error);

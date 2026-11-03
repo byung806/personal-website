@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { RocketCanvas } from './rocket-field';
+import { RocketCanvas } from './ships';
 import RocketBuilder from './rocket-builder';
 import { randomRocket, type RocketDesign } from '@/lib/rocket';
 import PaintedCanvas from './painted-canvas';
@@ -12,7 +12,7 @@ import { paintLaunchSite, paintPencilButton, paintSmokePuff, paintTower } from '
 
 const hand = Patrick_Hand({ subsets: ['latin'], weight: '400' });
 
-type Phase = 'ready' | 'signing' | 'liftoff' | 'gone';
+type Phase = 'ready' | 'liftoff' | 'gone';
 
 type Puff = { id: number; x: number; y: number; size: number; dx: number; rise: number; duration: number; delay: number };
 
@@ -99,24 +99,13 @@ function SmokePuff({ puff, seed }: { puff: Puff; seed: number }) {
 
 /**
  * Pencil-drawn night meadow with a launch tower under a living night sky, after tinycamp.site.
- * Build a rocket, sign it with your name (and a note), and "Launch a rocket" saves it (`sign`) and lifts
- * it off the pad; `onGone` fires once it's out of sight, and a fresh random rocket rolls out after.
+ * Build a rocket on the pad and "Launch a rocket" lifts it off; `onLaunch` fires once it's out of sight
+ * (with its design) and a fresh random rocket rolls out after.
  */
-export default function Launchpad({
-  id,
-  sign,
-  onGone,
-}: {
-  id?: string;
-  sign: (design: RocketDesign, name: string, message: string) => Promise<string | null>;
-  onGone: () => void;
-}) {
+export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (design: RocketDesign) => void }) {
   const [phase, setPhase] = useState<Phase>('ready');
   const [flight, setFlight] = useState<Flight | null>(null);
   const [design, setDesign] = useState(FIRST_ROCKET);
-  const [name, setName] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [rolls, setRolls] = useState(0);
 
   // A new random rocket every visit
@@ -132,26 +121,17 @@ export default function Launchpad({
   // at the bottom is behind the ground.
   const skyY = useTransform(scrollYProgress, [0, 1], [reduce ? 0 : -SKY_LAG, 0]);
 
-  const launch = async () => {
+  const launch = () => {
     if (phase !== 'ready') return;
-    if (!name.trim()) return setError('Sign your name first!');
-    setError(null);
-    setPhase('signing');
-    const failed = await sign(design, name.trim(), message.trim());
-    if (failed) {
-      setError(failed);
-      return setPhase('ready');
-    }
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const plan = planFlight(Date.now());
     setFlight(reduce ? null : plan);
     setPhase('liftoff');
     setTimeout(() => {
-      onGone();
+      onLaunch(design);
       setPhase('gone');
       setTimeout(() => {
         setDesign(randomRocket());
-        setMessage('');
         setRolls((n) => n + 1);
         setPhase('ready');
       }, 1800);
@@ -162,13 +142,9 @@ export default function Launchpad({
     <section
       ref={sectionRef}
       id={id}
-      className="relative overflow-hidden h-[max(calc(70vh_+_640px),1160px)] sm:h-[max(calc(70vh_+_420px),940px)]"
+      className="relative overflow-hidden h-[max(calc(70vh_+_520px),1040px)] sm:h-[max(calc(70vh_+_420px),940px)]"
     >
-      {/* The sky fades in at the top, out of the space above */}
-      <motion.div
-        className="absolute inset-x-0 bottom-0 [mask-image:linear-gradient(transparent_300px,black_700px)]"
-        style={{ top: -SKY_LAG, y: skyY }}
-      >
+      <motion.div className="absolute inset-x-0 bottom-0" style={{ top: -SKY_LAG, y: skyY }}>
         <NightSky galaxy="arch" className="absolute inset-0" />
       </motion.div>
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: groundY }}>
@@ -177,18 +153,11 @@ export default function Launchpad({
         {/* The scene itself, laid out above the extra ground */}
         <div className="absolute inset-x-0 top-0 bottom-[150px] sm:bottom-[80px]">
 
-          {/* Build and sign the rocket on the pad */}
+          {/* Build the rocket on the pad */}
           <RocketBuilder
             design={design}
             onDesign={setDesign}
-            name={name}
-            onName={(v) => {
-              setName(v);
-              setError(null);
-            }}
-            message={message}
-            onMessage={setMessage}
-            error={error}
+            disabled={phase !== 'ready'}
             className="pointer-events-auto absolute left-4 right-4 top-[19%] sm:left-[5%] sm:right-auto sm:top-[24%] sm:w-[380px] lg:left-auto lg:right-[6%]"
           />
 
@@ -253,7 +222,7 @@ export default function Launchpad({
                 <PaintedCanvas paint={paintPencilButton} grain={12} className="w-full h-full" />
               </span>
               <span className="relative">
-                {phase === 'ready' ? 'Launch a rocket' : phase === 'signing' ? 'Fueling up' : phase === 'liftoff' ? 'Liftoff' : 'Rolling out the next one'}
+                {phase === 'ready' ? 'Launch a rocket' : phase === 'liftoff' ? 'Liftoff' : 'Rolling out the next one'}
               </span>
             </button>
           </div>

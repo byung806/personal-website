@@ -12,7 +12,8 @@ export const SHIP_COLORS = ['#f0dfd2', '#d9939c', '#e6a27e', '#9fb3d8', '#b9a3d6
 /** How many launches fly in the sky banner, so it never gets crowded. */
 export const SKY_LAUNCHES = 4;
 
-export type Launch = { id: number; kind: ShipKind; color: string; createdAt: string };
+/** `design` is a built rocket's code (encodeRocket in lib/rocket.ts); launches from before the builder have none. */
+export type Launch = { id: number; kind: ShipKind; color: string; design: string | null; createdAt: string };
 
 export type LaunchStats = {
   total: number;
