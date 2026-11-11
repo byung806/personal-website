@@ -33,8 +33,8 @@ const HEIGHT = 1.66;
 const RADIUS = 0.66;
 const GLYPHS = 'x+*:o%/=-.#@';
 // How long things stay white after they appear before cooling into their color (seconds).
-const LEAF_BIRTH = 2.6;
-const DECOR_BIRTH = 2.0;
+const LEAF_BIRTH = 1.6;
+const DECOR_BIRTH = 1.3;
 const LEVELS = 6;
 
 const clamp = (x: number, a = 0, b = 1) => Math.max(a, Math.min(b, x));
