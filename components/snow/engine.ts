@@ -14,12 +14,12 @@ const GRAVITY = 2500;
 const GRAIN_DRAG = 0.8;
 const CURSOR_RADIUS = 10;
 const CURSOR_OFFSET = [4, 8];
-const GROUND_DEPTH = 40;
-const LEDGE_DEPTH = 14;
-const THAW_DEPTH = 8;
-const LEDGE_THAW_DEPTH = 4;
+const GROUND_DEPTH = 64;
+const LEDGE_DEPTH = 26;
+const THAW_DEPTH = 22;
+const LEDGE_THAW_DEPTH = 12;
 const THAW_RATE = 0.02;
-const THAW_TIME = 30;
+const THAW_TIME = 60;
 const THAW_BALANCE = 184;
 const THAW_EXPONENT = 0.74;
 const BUILDUP = 1.5;
@@ -320,6 +320,7 @@ const PILE_FRAGMENT = `#version 300 es
   uniform float uTime;
   uniform float uWarm;
   uniform float uNight;
+  uniform float uSolid;
   out vec4 outColor;
 
   float heightAt(int row, float x) {
@@ -342,9 +343,9 @@ const PILE_FRAGMENT = `#version 300 es
     float level = heightAt(0, x);
     float bed = heightAt(1, x);
     float depth = level - y;
+    // The ground is solid snow below its drift, all the way down through the footer.
     float coverage = clamp(depth * uScale + 0.5, 0.0, 1.0)
-      * clamp((y - bed) * uScale + 0.5, 0.0, 1.0)
-      * clamp((level - bed) / 0.75, 0.0, 1.0);
+      * max(uSolid, clamp((y - bed) * uScale + 0.5, 0.0, 1.0) * clamp((level - bed) / 0.75, 0.0, 1.0));
     if (coverage <= 0.0) discard;
 
     float slope = (heightAt(0, x + 2.0) - heightAt(0, x - 2.0)) * 0.25;
@@ -352,10 +353,11 @@ const PILE_FRAGMENT = `#version 300 es
 
     vec3 surface = mix(vec3(0.975, 0.98, 0.99), vec3(0.86, 0.9, 0.98), uNight);
     vec3 shadow = mix(vec3(0.68, 0.75, 0.86), vec3(0.42, 0.48, 0.64), uNight);
-    float shade = (1.0 - exp(-depth / 30.0)) * 0.32 + (1.0 - light) * 0.6 * exp(-depth / 5.0);
+    // Deep down (the footer) the snowpack lightens again, so the footer reads as a bright bank, not a grey band.
+    float shade = (1.0 - exp(-depth / 30.0)) * 0.32 * exp(-max(depth - 40.0, 0.0) / 160.0) + (1.0 - light) * 0.6 * exp(-depth / 5.0);
     vec3 color = mix(surface, shadow, clamp(shade, 0.0, 1.0));
     // Lit gold from the window underneath, fading up through the drift.
-    float glow = exp(-(y - bed) / 7.0) * uWarm * uNight;
+    float glow = exp(-max(y - bed, 0.0) / 7.0) * uWarm * uNight * (1.0 - uSolid);
     color = mix(color, vec3(1.0, 0.8, 0.52), glow * 0.7);
     // A rim along the top of the drift: cool grey by day so it reads on the pale sky, bright moonlight by night.
     color = mix(color, mix(vec3(0.62, 0.69, 0.82), vec3(1.0), uNight), exp(-depth * 1.4) * mix(0.75, 0.45, uNight));
@@ -964,9 +966,12 @@ class Scene {
     gl.uniform1i(u.uHeights, 0);
     gl.activeTexture(gl.TEXTURE0);
     for (const layer of this.layers) {
-      if (layer.top <= 0.05) continue;
+      // The ground is drawn even when bare: it's the solid snowbank the footer sits in.
+      const solid = layer === this.ground;
+      const bottom = solid ? this.offset + this.canvasHeight : layer.y + layer.bedDepth;
+      if (layer.top <= 0.05 && !solid) continue;
       // Ledges scrolled off the canvas keep melting but aren't drawn.
-      if (layer.y + layer.bedDepth < this.offset || layer.y - layer.top - 2 > this.offset + this.canvasHeight) continue;
+      if (bottom < this.offset || layer.y - layer.top - 2 > this.offset + this.canvasHeight) continue;
       let texture = this.textures.get(layer);
       if (!texture) {
         texture = gl.createTexture()!;
@@ -979,7 +984,8 @@ class Scene {
       gl.uniform1i(u.uCount, layer.count);
       gl.uniform1f(u.uWarm, layer === this.ground ? 0.35 : 1);
       gl.uniform2f(u.uOrigin, layer.x, layer.y);
-      gl.uniform4f(u.uRect, layer.x, layer.y - layer.top - 2, layer.x + layer.width, layer.y + layer.bedDepth);
+      gl.uniform1f(u.uSolid, solid ? 1 : 0);
+      gl.uniform4f(u.uRect, layer.x, layer.y - layer.top - 2, layer.x + layer.width, bottom);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 

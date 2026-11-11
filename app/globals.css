@@ -153,8 +153,12 @@ html.snow-night header nav button[aria-pressed="true"] {
   color: #ffd79a;
   filter: drop-shadow(0 0 6px rgba(255, 190, 110, 0.65));
 }
-html.snow-night footer .text-gray-500 { color: rgba(232, 222, 204, 0.45); }
-html.snow-night footer .text-gray-900 { color: #f4ead6; }
+/* On the homepage the footer sits in the snowbank the engine draws under the ground drift, so it's lifted over the
+   snow canvas, and stays dark ink on the snow even at night. */
+footer { position: relative; z-index: 30; }
+html.snow-day footer .text-gray-500 { color: #5d6f86; }
+html.snow-night footer .text-gray-500 { color: #4d5a76; }
+html.snow-night footer .text-gray-900 { color: #1f2a44; }
 
 [data-ledge] { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.9s ease; }
 html.snow-day [data-ledge] {
