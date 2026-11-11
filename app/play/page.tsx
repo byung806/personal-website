@@ -8,6 +8,7 @@ import Launchpad from '@/components/launchpad/launchpad';
 import { useFleet } from '@/components/launchpad/ships';
 import Guestbook from '@/components/guestbook/guestbook';
 import { Dissolve, TornEdge } from '@/components/fun/barriers';
+import AsciiTree from '@/components/fun/ascii-tree';
 import { encodeRocket, PAINTS, type RocketDesign } from '@/lib/rocket';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -19,8 +20,8 @@ const INK = '#2f55a4';
 
 /**
  * Play: each section is its own world, split by hard barriers. Each title says what to do
- * there; no subtitles. Sky banner of ships, a link to the letters (their own page) on graph paper, the
- * wall after dejiajetomobi.com (blackletter over a wall of colored notes), and a launchpad after
+ * there; no subtitles. Sky banner of ships, a link to the letters (their own page) on graph paper, an ASCII
+ * Christmas tree, the wall after dejiajetomobi.com (blackletter over a wall of colored notes), and a launchpad after
  * tinycamp.site where you build a rocket that flies up to join the ships in the sky.
  * (The planet drawer is parked, not deleted.)
  */
@@ -67,7 +68,11 @@ export default function PlayPage() {
       </section>
       <TornEdge color={PAPER} below seed={4} />
 
-      {/* III. The Wall */}
+      {/* III. A Christmas tree, grown character by character */}
+      <AsciiTree className="h-[max(88svh,560px)] bg-[#070b12]" />
+
+      {/* IV. The Wall, its white paper torn over the night */}
+      <TornEdge color="#ffffff" seed={23} />
       <section id="wall" className={`${inter.className} bg-white text-black px-6 md:px-8 pt-12 md:pt-16 pb-28`}>
         <h2 className={`${fraktur.className} text-[12vw] md:text-[12.5vw] leading-[0.85] tracking-[-0.01em] -ml-[0.03em] whitespace-nowrap`}>
           Sign the Guestbook
@@ -77,7 +82,7 @@ export default function PlayPage() {
         </div>
       </section>
 
-      {/* IV. Launchpad, which the white wall mists into */}
+      {/* V. Launchpad, which the white wall mists into */}
       <Dissolve />
       <Launchpad id="launchpad" onLaunch={onLaunch} />
     </div>
