@@ -8,8 +8,12 @@
 // Coordinates are viewport CSS pixels with y pointing down; heights are measured up from each layer's bed.
 
 const COLUMN = 2;
-const REPOSE = 0.8;
-const ROUNDING = 0.15;
+const REPOSE = 0.55;
+// Snow on the cards stands steeper and settles less, so it holds a cap instead of sliding off the ends.
+const LEDGE_REPOSE = 0.8;
+const LEDGE_SETTLING = 0.03;
+const ROUNDING = 0.3;
+const SETTLING = 0.12;
 const GRAVITY = 2500;
 const GRAIN_DRAG = 0.8;
 const CURSOR_RADIUS = 10;
@@ -151,6 +155,24 @@ class Layer {
     return missed;
   }
 
+  /// Like `deposit`, but spread as a soft mound `width` wide, the way snow pushed aside heaps up.
+  spread(area: number, x: number, width: number) {
+    if (area <= 0) return 0;
+    const sigma = width / 2;
+    const reach = Math.ceil(width * 1.5 / COLUMN);
+    const center = Math.floor((x - this.x) / COLUMN);
+    let total = 0;
+    for (let k = -reach; k <= reach; k++) total += Math.exp(-0.5 * (k * COLUMN / sigma) ** 2);
+    let missed = 0;
+    for (let k = -reach; k <= reach; k++) {
+      const share = area * Math.exp(-0.5 * (k * COLUMN / sigma) ** 2) / total;
+      const i = center + k;
+      if (i >= 0 && i < this.h.length) this.h[i] += share / COLUMN;
+      else missed += share;
+    }
+    return missed;
+  }
+
   refreshTop() {
     let top = 0;
     for (let i = 0; i < this.h.length; i++) top = Math.max(top, this.h[i]);
@@ -202,6 +224,15 @@ class Layer {
       const kink = (s1 - s2) - 0.5 * ((s0 - s1) + (s2 - s3));
       if (Math.abs(kink) <= 0.02) continue;
       const t = kink > 0 ? Math.min(kink * ROUNDING, h[i]) : Math.max(kink * ROUNDING, -h[i + 1]);
+      h[i] -= t;
+      h[i + 1] += t;
+    }
+    // Loose snow settles: a little of each step in the surface evens out every frame, so heaps round off into
+    // soft mounds instead of holding straight-sided slopes at the angle of repose.
+    for (let i = 0; i < n - 1; i++) {
+      if (held[i] || held[i + 1]) continue;
+      const step = (this.open ? LEDGE_SETTLING : SETTLING) * ((h[i] - bed[i]) - (h[i + 1] - bed[i + 1]));
+      const t = step > 0 ? Math.min(step, h[i]) : Math.max(step, -h[i + 1]);
       h[i] -= t;
       h[i + 1] += t;
     }
@@ -792,7 +823,7 @@ class Scene {
     const meltPace = BUILDUP * (DENSITY / THAW_BALANCE) ** THAW_EXPONENT;
     for (const layer of this.layers) {
       layer.thaw(dt * meltPace, layer === this.ground ? THAW_DEPTH : LEDGE_THAW_DEPTH);
-      layer.relax(REPOSE);
+      layer.relax(layer.open ? LEDGE_REPOSE : REPOSE);
       if (layer.spill[0] > 1.5) {
         this.release(layer.spill[0], this.edgePoint(layer, true), [-6, 15], [0.25, 1]);
         layer.spill[0] = 0;
@@ -917,9 +948,10 @@ class Scene {
       if (side < 0) pushedLeft += area - sprayed;
       else pushedRight += area - sprayed;
     }
-    for (const [area, x] of [[pushedLeft, center.x - r - COLUMN * 3], [pushedRight, center.x + r + COLUMN * 3]]) {
+    // Heaped into a wide, soft berm beside the cursor rather than a narrow pile, which slumps into a pyramid.
+    for (const [area, x] of [[pushedLeft, center.x - r * 2.5], [pushedRight, center.x + r * 2.5]]) {
       if (area <= 0) continue;
-      const missed = layer.deposit(area, x);
+      const missed = layer.spread(area, x, r * 2);
       this.dropPast(layer, missed, x, velocity[0] * 0.5);
     }
   }
