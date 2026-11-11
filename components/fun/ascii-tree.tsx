@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 
 /**
  * A rotating ASCII Christmas tree, every needle, light and present a character in a terminal grid with a depth
@@ -8,7 +8,8 @@ import { useEffect, useRef } from 'react';
  * and cools into its color, so the tree and its decorations glow into being like orbs from nothing; white sparkles
  * twinkle across it; and the colors are more vivid. It grows when scrolled into view and sleeps offscreen.
  */
-export default function AsciiTree({ className = '' }: { className?: string }) {
+/** `children` (the section title) sits over the top of the night, above the tree. */
+export default function AsciiTree({ className = '', children }: { className?: string; children?: ReactNode }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -23,6 +24,7 @@ export default function AsciiTree({ className = '' }: { className?: string }) {
     <div ref={wrapRef} className={`relative overflow-hidden ${className}`}>
       <canvas ref={canvasRef} role="img" aria-label="An ASCII Christmas tree growing, decorating itself and sparkling" className="absolute inset-0 block h-full w-full" />
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ boxShadow: 'inset 0 0 130px 34px #060910bd' }} />
+      {children && <div className="relative">{children}</div>}
     </div>
   );
 }
@@ -215,9 +217,9 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     colorBuffer = new Uint8Array(cols * rows);
     whiteBuffer = new Uint8Array(cols * rows);
     activeBuffer = new Uint8Array(cols * rows);
-    // Leaves room above the star for the torn paper edge over the top of the section.
-    unit = Math.min(H * 0.38, W * 0.65);
-    baseY = H * 0.84;
+    // Leaves room above the star for the section title over the top of the night.
+    unit = Math.min(H * 0.3, W * 0.55);
+    baseY = H * 0.88;
     render(simTime);
   }
 

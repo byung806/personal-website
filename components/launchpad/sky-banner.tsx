@@ -1,11 +1,13 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import NightSky from './night-sky';
 import { Fleet, type Ship } from './ships';
 
 /** The night sky as a short banner of drifting ships. The sky itself is screen-height and centered in it. */
-export default function SkyBanner({ id, ships, justLaunchedId }: { id?: string; ships: Ship[]; justLaunchedId: number | null }) {
+/** `children` (the section title) sits over the sky. */
+export default function SkyBanner({ id, ships, justLaunchedId, children }: { id?: string; ships: Ship[]; justLaunchedId: number | null; children?: ReactNode }) {
   // Parallax: the sky and its ships drift down at a third of the scroll speed, hanging back as background.
   // What it uncovers is always above the screen.
   const { scrollY } = useScroll();
@@ -18,6 +20,7 @@ export default function SkyBanner({ id, ships, justLaunchedId }: { id?: string; 
         <NightSky trail className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[100svh]" />
         <Fleet ships={ships} justLaunchedId={justLaunchedId} />
       </motion.div>
+      {children && <div className="pointer-events-none relative">{children}</div>}
     </div>
   );
 }
