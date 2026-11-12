@@ -11,18 +11,22 @@ import { useEffect, useRef, type ReactNode } from 'react';
 /** `children` (the section title) sits over the top of the night, above the tree. */
 export default function AsciiTree({ className = '', children }: { className?: string; children?: ReactNode }) {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const nightRef = useRef<HTMLCanvasElement>(null);
+  const treeRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const wrap = wrapRef.current;
-    const canvas = canvasRef.current;
-    if (!wrap || !canvas) return;
-    return startTree(wrap, canvas);
+    const night = nightRef.current;
+    const tree = treeRef.current;
+    if (!wrap || !night || !tree) return;
+    return startTree(wrap, night, tree);
   }, []);
 
   return (
     <div ref={wrapRef} className={`relative overflow-hidden ${className}`}>
-      <canvas ref={canvasRef} role="img" aria-label="An ASCII Christmas tree growing, decorating itself and sparkling" className="absolute inset-0 block h-full w-full" />
+      {/* The night (sky, ground, snow) at 1x over the whole section; the tree at full resolution in just its own box. */}
+      <canvas ref={nightRef} role="img" aria-label="An ASCII Christmas tree growing, decorating itself and sparkling" className="absolute inset-0 block h-full w-full" />
+      <canvas ref={treeRef} aria-hidden className="pointer-events-none absolute block" />
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ boxShadow: 'inset 0 0 130px 34px #060910bd' }} />
       {children && <div className="relative">{children}</div>}
     </div>
@@ -95,12 +99,22 @@ const SHADES = COLORS.map(c => {
   });
 });
 
-function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
-  const ctx = canvas.getContext('2d', { alpha: false });
-  if (!ctx) return;
+/**
+ * Two canvases keep it cheap: the night (backdrop painted once, plus twinkling stars and falling snow) at 1x across the
+ * whole section, and the tree, its lights and star at full resolution on a canvas only as big as the tree, so the
+ * sharp, busy part of each frame covers a fraction of the screen.
+ */
+function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanvasElement) {
+  const bg = night.getContext('2d', { alpha: false });
+  const ctx = canvas.getContext('2d');
+  if (!ctx || !bg) return;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let simTime = reducedMotion ? 13.5 : 0, lastFrame = 0, lastDraw = 0, raf = 0, visible = false, started = false;
   let cw = 6.2, ch = 8.8, cols = 0, rows = 0, W = 0, H = 0, unit = 0, baseY = 0, dpr = 1;
+  let boxX = 0, boxY = 0;
+  // Glyph cells bucketed by (color, whiteness) each frame, so text is drawn one fill color at a time.
+  let order = new Int32Array(0);
+  const bucketStart = new Int32Array(COLORS.length * LEVELS + 1);
   let depthBuffer = new Float32Array(0), glyphBuffer = new Uint8Array(0), colorBuffer = new Uint8Array(0);
   let whiteBuffer = new Uint8Array(0), activeBuffer = new Uint8Array(0);
   const touched: number[] = [];
@@ -211,8 +225,7 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     const rect = wrap.getBoundingClientRect();
     W = Math.max(100, rect.width); H = Math.max(100, rect.height);
     dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.floor(W * dpr); canvas.height = Math.floor(H * dpr);
-    ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+    night.width = Math.round(W); night.height = Math.round(H);
     const mobile = W < 650;
     ch = mobile ? 7.5 : 8.5; cw = mobile ? 5.1 : 5.8;
     cols = Math.ceil(W / cw); rows = Math.ceil(H / ch);
@@ -221,17 +234,26 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     colorBuffer = new Uint8Array(cols * rows);
     whiteBuffer = new Uint8Array(cols * rows);
     activeBuffer = new Uint8Array(cols * rows);
+    order = new Int32Array(cols * rows);
     // Leaves room above the star for the section title over the top of the night.
     unit = Math.min(H * 0.3, W * 0.55);
     baseY = H * 0.88;
+    // The tree's box: wide enough for the presents (with perspective) and the lights' glow, from above the star's glow
+    // down past the presents nearest the viewer.
+    const halfW = unit * 1.05 + 30;
+    boxX = Math.max(0, Math.floor(W / 2 - halfW));
+    boxY = Math.max(0, Math.floor(baseY - (HEIGHT + 0.055) * unit - Math.max(92, unit * 0.17)));
+    const boxW = Math.min(W, Math.ceil(W / 2 + halfW)) - boxX;
+    const boxH = Math.min(H, Math.ceil(baseY + unit * 0.25 + ch * 2)) - boxY;
+    Object.assign(canvas.style, { left: `${boxX}px`, top: `${boxY}px`, width: `${boxW}px`, height: `${boxH}px` });
+    canvas.width = Math.round(boxW * dpr); canvas.height = Math.round(boxH * dpr);
     paintBackdrop();
     render(simTime);
   }
 
   function paintBackdrop() {
-    backdrop.width = canvas.width; backdrop.height = canvas.height;
+    backdrop.width = night.width; backdrop.height = night.height;
     const c = backdrop.getContext('2d')!;
-    c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.fillStyle = '#070b13'; c.fillRect(0, 0, W, H);
     const g = c.createRadialGradient(W * 0.5, H * 0.61, H * 0.05, W * 0.5, H * 0.61, Math.max(W * 0.66, H * 0.8));
     g.addColorStop(0, '#121e2e'); g.addColorStop(0.40, '#0b1322'); g.addColorStop(1, '#060911');
@@ -280,7 +302,7 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
   const noise = (a: number, b: number) => { const n = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return n - Math.floor(n); };
 
   function skyAndSnow(t: number) {
-    const c = ctx!;
+    const c = bg!;
     c.drawImage(backdrop, 0, 0, W, H);
     for (const s of sky) {
       const x = s.x * W, y = s.y * H;
@@ -327,6 +349,10 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
   }
   function tree(t: number) {
     const c = ctx!;
+    // Drawn in section coordinates, shifted into the tree's box.
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, canvas.width, canvas.height);
+    c.setTransform(dpr, 0, 0, dpr, -boxX * dpr, -boxY * dpr);
     const grow = smooth(0.1, 4.6, t);
     const decorate = smooth(5.8, 9.8, t);
     const presents = smooth(7.3, 10.2, t);
@@ -410,11 +436,16 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     c.font = `${Math.max(6, ch * 0.98)}px Menlo,Consolas,'Courier New',monospace`;
     c.textBaseline = 'alphabetic';
     c.textAlign = 'left';
-    touched.sort((a, b) => a - b);
-    let last = '';
-    for (const idx of touched) {
-      const fill = SHADES[colorBuffer[idx]][whiteBuffer[idx]];
-      if (fill !== last) { c.fillStyle = fill; last = fill; }
+    // Counting sort by (color, whiteness), then one fillStyle per run.
+    bucketStart.fill(0);
+    for (const idx of touched) bucketStart[colorBuffer[idx] * LEVELS + whiteBuffer[idx] + 1]++;
+    for (let k = 1; k < bucketStart.length; k++) bucketStart[k] += bucketStart[k - 1];
+    for (const idx of touched) order[bucketStart[colorBuffer[idx] * LEVELS + whiteBuffer[idx]]++] = idx;
+    let last = -1;
+    for (let k = 0; k < touched.length; k++) {
+      const idx = order[k];
+      const key = colorBuffer[idx] * LEVELS + whiteBuffer[idx];
+      if (key !== last) { c.fillStyle = SHADES[colorBuffer[idx]][whiteBuffer[idx]]; last = key; }
       c.fillText(GLYPHS[glyphBuffer[idx]], (idx % cols) * cw, ((idx / cols) | 0) * ch + ch * 0.8);
     }
     drawSparkles(t, maxY);
