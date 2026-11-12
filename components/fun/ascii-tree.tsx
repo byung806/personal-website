@@ -6,8 +6,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
  * A rotating ASCII Christmas tree, every needle, light and present a character in a terminal grid with a depth
  * buffer. Ported from Bryan's standalone "ASCII Christmas Tree" study, made more magical: everything is born white
  * and cools into its color, so the tree and its decorations glow into being like orbs from nothing; white sparkles
- * twinkle across it; and the colors are more vivid. Clicking it sends sparks off its outline. It grows when scrolled
- * into view and sleeps offscreen.
+ * twinkle across it; and the colors are more vivid. It grows when scrolled into view and sleeps offscreen.
  */
 /** `children` (the section title) sits over the top of the night, above the tree. */
 export default function AsciiTree({ className = '', children }: { className?: string; children?: ReactNode }) {
@@ -431,10 +430,8 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
       if (dz < -0.05) continue;
       // Each winks once per cycle of its own: a quick swell, then gone.
       const phase = (t * s.rate + s.phase) % 1;
-      let k = phase <= 0.22 ? Math.sin(phase / 0.22 * Math.PI) : 0;
-      // All of them at once, flickering, right after a click.
-      if (flashK > 0) k = Math.max(k, flashK * (0.55 + 0.45 * Math.sin(s.phase * 40 + t * 25)));
-      if (k <= 0.01) continue;
+      if (phase > 0.22) continue;
+      const k = Math.sin(phase / 0.22 * Math.PI);
       const [x, y] = project(s.x, s.y, s.z);
       const size = s.size * k * (0.8 + 0.3 * dz);
       c.globalAlpha = 0.5 * k;
@@ -452,7 +449,7 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
   function drawStar(power: number, t: number) {
     const c = ctx!;
     const p = project(0, HEIGHT + 0.055, 0); const x = p[0], y = p[1];
-    const pulse = (0.86 + 0.14 * Math.sin(t * 3.2)) * (1 + 0.7 * flashK);
+    const pulse = 0.86 + 0.14 * Math.sin(t * 3.2);
     c.save(); c.globalAlpha = power;
     const glow = c.createRadialGradient(x, y, 0, x, y, Math.max(27, unit * 0.17));
     glow.addColorStop(0, 'rgba(255,238,129,.42)');
@@ -475,82 +472,10 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     c.fillStyle = '#fff4bd'; c.fillText('+', x, y - 1);
     c.shadowBlur = 0; c.restore();
   }
-  // MARK: Click to sparkle
-  // A click on the tree sends a wave of glowing ASCII sparks off its outline, starting at the height clicked and racing
-  // up and down the edges; the star flares and every sparkle on the tree flashes at once. Real time, not simTime.
-  type Spark = { x: number; y: number; vx: number; vy: number; born: number; life: number; char: string; color: string };
-  const bursts: Spark[] = [];
-  const BURST_GLYPHS = ['*', '+', 'x', 'o', '.', "'", '*', '+', '*'];
-  const BURST_COLORS = ['#ffffff', '#ffffff', '#fff4bd', '#ffd95a', COLORS[18], COLORS[8], COLORS[26], COLORS[13]];
-  const FLASH = 0.9;
-  let flashAt = -10, flashK = 0;
-  const halfWidth = (ny: number) => RADIUS * (1 - clamp(ny)) ** 0.92 * unit * 1.04;
-
-  /** How far up the tree (0 base, 1 tip) a point is, or null if it isn't on the grown tree. */
-  function onTree(x: number, y: number) {
-    const ny = (baseY - y) / (HEIGHT * unit);
-    if (ny < -0.04 || ny > smooth(0.1, 4.6, simTime) + 0.06) return null;
-    return Math.abs(x - W / 2) <= halfWidth(ny) + 22 ? clamp(ny) : null;
-  }
-
-  function burst(from: number) {
-    const now = performance.now() / 1000;
-    flashAt = now;
-    const spark = (x: number, y: number, dx: number, dy: number, delay: number, speed: number) => {
-      const len = Math.hypot(dx, dy) || 1;
-      bursts.push({
-        x, y, vx: dx / len * speed, vy: dy / len * speed, born: now + delay, life: 1.3 + Math.random() * 1.4,
-        char: BURST_GLYPHS[(Math.random() * BURST_GLYPHS.length) | 0], color: BURST_COLORS[(Math.random() * BURST_COLORS.length) | 0],
-      });
-    };
-    for (let i = 0; i < 380; i++) {
-      const ny = Math.random(), side = Math.random() < 0.5 ? -1 : 1;
-      const x = W / 2 + side * halfWidth(ny) * (0.9 + Math.random() * 0.18);
-      // Off the edge and a little up, fanned out.
-      spark(x, baseY - ny * HEIGHT * unit, side + (Math.random() - 0.5) * 0.9, -0.35 + (Math.random() - 0.5) * 0.9,
-        Math.abs(ny - from) * 0.55 + Math.random() * 0.08, 60 + Math.random() * 190);
-    }
-    const [sx, sy] = project(0, HEIGHT + 0.055, 0);
-    for (let i = 0; i < 40; i++) {
-      const a = Math.random() * TAU;
-      spark(sx, sy, Math.cos(a), Math.sin(a), Math.abs(1 - from) * 0.55 + Math.random() * 0.05, 40 + Math.random() * 110);
-    }
-    if (bursts.length > 1500) bursts.splice(0, bursts.length - 1500);
-  }
-
-  function drawBursts(now: number) {
-    if (!bursts.length) return;
-    const c = ctx!;
-    c.font = `bold ${Math.max(8, ch * 1.25)}px Menlo,Consolas,monospace`;
-    c.textAlign = 'center'; c.textBaseline = 'middle';
-    const glow = Math.max(8, ch * 1.6);
-    for (let i = bursts.length - 1; i >= 0; i--) {
-      const p = bursts[i];
-      const age = now - p.born;
-      if (age < 0) continue;
-      if (age > p.life) { bursts[i] = bursts[bursts.length - 1]; bursts.pop(); continue; }
-      const k = age / p.life;
-      const alpha = (1 - k) ** 1.5 * Math.min(1, age / 0.08);
-      // Drifts out, slowing, and floats up like an ember.
-      const x = p.x + p.vx * age * (1 - k * 0.4), y = p.y + p.vy * age * (1 - k * 0.4) - 16 * age * age;
-      c.globalCompositeOperation = 'lighter';
-      c.globalAlpha = alpha * 0.75;
-      c.drawImage(glowSprite(p.color, 0), x - glow, y - glow, glow * 2, glow * 2);
-      c.globalCompositeOperation = 'source-over';
-      c.globalAlpha = alpha;
-      c.fillStyle = p.color;
-      c.fillText(p.char, x, y);
-    }
-    c.globalAlpha = 1;
-  }
-
   // Builds itself once, then just keeps turning (one turn every CYCLE seconds); it never starts over.
   function render(t: number) {
-    const now = performance.now() / 1000;
-    flashK = clamp(1 - (now - flashAt) / FLASH);
     skyAndSnow(t);
     tree(t);
-    drawBursts(now);
   }
   function loop(now: number) {
     raf = requestAnimationFrame(loop);
@@ -564,18 +489,10 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
   const onMove = (e: PointerEvent) => {
     const b = wrap.getBoundingClientRect();
     pointerX = clamp((e.clientX - b.left) / b.width * 2 - 1, -1, 1);
-    if (!reducedMotion) canvas.style.cursor = onTree(e.clientX - b.left, e.clientY - b.top) === null ? '' : 'pointer';
   };
   const onLeave = () => { pointerX = 0; };
-  const onClick = (e: MouseEvent) => {
-    if (reducedMotion) return;
-    const b = wrap.getBoundingClientRect();
-    const ny = onTree(e.clientX - b.left, e.clientY - b.top);
-    if (ny !== null) burst(ny);
-  };
   wrap.addEventListener('pointermove', onMove);
   wrap.addEventListener('pointerleave', onLeave);
-  wrap.addEventListener('click', onClick);
   const resizer = new ResizeObserver(resize);
   resizer.observe(wrap);
   // Runs only while on screen; it starts growing the first time it's seen.
@@ -600,6 +517,5 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     watcher.disconnect();
     wrap.removeEventListener('pointermove', onMove);
     wrap.removeEventListener('pointerleave', onLeave);
-    wrap.removeEventListener('click', onClick);
   };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, cubicBezier, motion, useReducedMotion } from 'framer-motion';
 import { Patrick_Hand } from 'next/font/google';
 import PaintedCanvas from './painted-canvas';
@@ -111,6 +111,25 @@ const fromStep = <T,>(frames: T[], k: number) => {
   const rotated = [...loop.slice(k), ...loop.slice(0, k)];
   return [...rotated, rotated[0]];
 };
+
+/**
+ * A ship's slow bob through its loop of offsets, run by the browser on the compositor (a Web Animations transform)
+ * instead of frame by frame in JavaScript, so a sky full of ships costs the main thread nothing. Starts (and
+ * server-renders) at the loop's first frame, so there's no jump when it begins.
+ */
+function Drift({ x, y, rotate, duration, still, className, children }: { x: number[]; y: number[]; rotate: number[]; duration: number; still: boolean; className: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const at = (i: number) => `translate(${x[i]}px, ${y[i]}px) rotate(${rotate[i]}deg)`;
+  const frames = x.map((_, i) => at(i)).join('|');
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || still) return;
+    // Each leg eases in and out, as framer-motion's easeInOut did between evenly spaced keyframes.
+    const animation = el.animate(frames.split('|').map((transform) => ({ transform, easing: 'ease-in-out' })), { duration: duration * 1000, iterations: Infinity });
+    return () => animation.cancel();
+  }, [frames, duration, still]);
+  return <div ref={ref} className={`${className} will-change-transform`} style={{ transform: at(0) }}>{children}</div>;
+}
 
 /** How a just-launched ship rises into the sky (from `ARRIVAL_DROP` px below its spot). */
 const ARRIVAL = { duration: 2.2, ease: [0.2, 0.7, 0.2, 1] as const };
@@ -249,15 +268,16 @@ export function Fleet({ ships, justLaunchedId }: { ships: Ship[]; justLaunchedId
                 animate={hovered && !reduce ? { scale: 1.18, rotate: [0, -7, 6, -3, 0] } : { scale: 1, rotate: 0 }}
                 transition={hovered ? { scale: { type: 'spring', stiffness: 400, damping: 12 }, rotate: { duration: 0.5 } } : { duration: 0.25 }}
               >
-                <motion.div
+                <Drift
                   className="w-full h-full [filter:drop-shadow(0_0_8px_rgba(240,200,190,0.35))]"
-                  // Start (and server-render) at the loop's first frame, so there's no jump when motion begins
-                  initial={{ x: drift.x[0], y: drift.y[0], rotate: drift.rotate[0] }}
-                  animate={reduce ? undefined : drift}
-                  transition={{ duration: 16 + hash01(s.id * 7) * 14, repeat: Infinity, ease: 'easeInOut' }}
+                  x={drift.x}
+                  y={drift.y}
+                  rotate={drift.rotate}
+                  duration={16 + hash01(s.id * 7) * 14}
+                  still={!!reduce}
                 >
                   <ShipCanvas kind={s.kind} color={s.color} design={s.design} seed={s.id * 13} flame={(fresh && arrivedId !== s.id) || hovered} className="w-full h-full" />
-                </motion.div>
+                </Drift>
               </motion.div>
             </motion.div>
           </Fragment>

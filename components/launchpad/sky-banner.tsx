@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import NightSky from './night-sky';
 import { Fleet, type Ship } from './ships';
+import { useScrollDriven } from '@/lib/scroll-driven';
 
 /** The night sky as a short banner of drifting ships. The sky itself is screen-height and centered in it. */
 /** `children` (the section title) sits over the sky. */
@@ -13,10 +14,12 @@ export default function SkyBanner({ id, ships, justLaunchedId, children }: { id?
   const { scrollY } = useScroll();
   const skyY = useTransform(scrollY, (v) => v / 3);
   const reduce = useReducedMotion();
+  // On the compositor where the browser can (globals.css `.parallax-banner`), so the sky never trails the scroll.
+  const scrollDriven = useScrollDriven();
 
   return (
     <div id={id} className="relative overflow-hidden bg-[#0c0f24]" style={{ height: 'max(78vh, 560px)' }}>
-      <motion.div className="absolute inset-0 will-change-transform" style={{ y: reduce ? 0 : skyY }}>
+      <motion.div className={`absolute inset-0 will-change-transform ${scrollDriven ? 'parallax-banner' : ''}`} style={{ y: reduce || scrollDriven ? 0 : skyY }}>
         <NightSky trail className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[100svh]" />
         <Fleet ships={ships} justLaunchedId={justLaunchedId} />
       </motion.div>

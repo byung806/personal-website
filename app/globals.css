@@ -183,3 +183,16 @@ html.snow-night [data-ledge] {
 @keyframes title-nebula { to { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 30% 10%, -20% 15%, 15% -10%, -10% 20%, 0 0; } }
 @keyframes title-ink { to { background-position: 0 0, 0 0, 20% 10%, -15% 10%, 10% -10%; } }
 @media (prefers-reduced-motion: reduce) { .title-fill { animation: none; } }
+
+/* Parallax on the compositor, where the browser has CSS scroll-driven animations (components add these classes only
+   then; elsewhere framer-motion moves them from JS). It runs in step with the scroll, with no JavaScript per frame. */
+@media (prefers-reduced-motion: no-preference) {
+  /* The /play rocket sky drifts down at a third of the scroll speed over the banner's height. */
+  .parallax-banner { animation: parallax-banner linear both; animation-timeline: scroll(root block); animation-range: 0 max(78vh, 560px); }
+  /* The launchpad's sky hangs back and its ground rises into place (ranges set in launchpad.tsx). */
+  .parallax-pad-sky { animation: parallax-pad-sky linear both; animation-timeline: scroll(root block); animation-range: var(--pad-from) var(--pad-to); }
+  .parallax-pad-ground { animation: parallax-pad-ground linear both; animation-timeline: scroll(root block); animation-range: var(--pad-from) var(--pad-to); }
+}
+@keyframes parallax-banner { from { translate: 0 0; } to { translate: 0 calc(max(78vh, 560px) / 3); } }
+@keyframes parallax-pad-sky { from { translate: 0 -150px; } to { translate: 0 0; } }
+@keyframes parallax-pad-ground { from { translate: 0 140px; } to { translate: 0 0; } }

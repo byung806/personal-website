@@ -348,12 +348,14 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
   const wrapRef = useRef<HTMLDivElement>(null);
   const milkyRef = useRef<HTMLCanvasElement>(null);
   const liveRef = useRef<HTMLCanvasElement>(null);
+  const glitterRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     const milky = milkyRef.current;
     const live = liveRef.current;
-    if (!wrap || !milky || !live) return;
+    const glitterLayer = glitterRef.current;
+    if (!wrap || !milky || !live || !glitterLayer) return;
     const mctx = milky.getContext('2d');
     const lctx = live.getContext('2d');
     if (!mctx || !lctx) return;
@@ -405,6 +407,8 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
         c.height = Math.round(h * scale);
         ctx.setTransform(scale, 0, 0, scale, 0, 0);
       }
+      glitterLayer.width = live.width;
+      glitterLayer.height = live.height;
       paintGalaxy();
       glitter = Array.from({ length: Math.round((500 * w * h) / (1440 * 900)) }, () => {
         const size = 0.6 + Math.random() * 0.6;
@@ -414,15 +418,15 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
     };
 
     let lastGlitter = 0;
-    const glitterLayer = document.createElement('canvas');
     const gctx = glitterLayer.getContext('2d')!;
 
-    // Glitter is redrawn ten times a second into its own layer; shooting stars and sparks every frame.
-    const drawLive = (refreshGlitter: boolean) => {
+    // Glitter has its own canvas, redrawn ten times a second; shooting stars and sparks are on the live canvas, drawn
+    // only while there are any. Neither copies the other, so a shooting star never means redrawing the glitter.
+    const drawLive = (refreshGlitter: boolean, fx = true) => {
       if (refreshGlitter) {
-        glitterLayer.width = live.width;
-        glitterLayer.height = live.height;
-        gctx.setTransform(live.width / w, 0, 0, live.height / h, 0, 0);
+        gctx.setTransform(1, 0, 0, 1, 0, 0);
+        gctx.clearRect(0, 0, glitterLayer.width, glitterLayer.height);
+        gctx.setTransform(glitterLayer.width / w, 0, 0, glitterLayer.height / h, 0, 0);
         for (const s of glitter) {
           gctx.beginPath();
           gctx.arc(s.x, s.y, Math.max(0.2, s.size + (Math.random() - 0.8) * 0.5), 0, Math.PI * 2);
@@ -430,10 +434,10 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
           gctx.fill();
         }
       }
+      if (!fx) return;
       lctx.save();
       lctx.setTransform(1, 0, 0, 1, 0, 0);
       lctx.clearRect(0, 0, live.width, live.height);
-      lctx.drawImage(glitterLayer, 0, 0);
       lctx.restore();
 
       lctx.lineWidth = 1.2;
@@ -517,7 +521,7 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
       // Redrawn only when something on it changed: the glitter ten times a second, and every frame only while a
       // shooting star or sparks are moving (plus once after, to clear them away).
       const moving = shooters.length > 0 || sparks.length > 0;
-      if (refresh || moving || wasMoving) drawLive(refresh);
+      if (refresh || moving || wasMoving) drawLive(refresh, moving || wasMoving);
       wasMoving = moving;
     };
     raf = requestAnimationFrame(tick);
@@ -556,6 +560,7 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
   return (
     <div ref={wrapRef} aria-hidden className={className} style={{ background: BG }}>
       <canvas ref={milkyRef} className="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-1000 data-[painted]:opacity-100" />
+      <canvas ref={glitterRef} className="absolute inset-0 w-full h-full" />
       <canvas ref={liveRef} className="absolute inset-0 w-full h-full" />
     </div>
   );

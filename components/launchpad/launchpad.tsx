@@ -8,6 +8,7 @@ import { Dices } from 'lucide-react';
 import { randomRocket, type RocketDesign } from '@/lib/rocket';
 import PaintedCanvas from './painted-canvas';
 import NightSky from './night-sky';
+import { useScrollDriven } from '@/lib/scroll-driven';
 import { Patrick_Hand } from 'next/font/google';
 import { paintLaunchSite, paintPencilButton, paintSmokePuff, paintTower } from './paint';
 
@@ -22,9 +23,9 @@ type Flight = { id: number; ignite: number; climb: number; drift: number; lean: 
 
 const ALTITUDE = 1500;
 /** How much further the ground travels than the sky while the section scrolls into view, in px. */
-const PARALLAX = 140;
+const PARALLAX = 140; // also in globals.css `parallax-pad-ground`
 /** How far the sky lags behind the page over the same scroll, in px (so the dusk above slides over it). */
-const SKY_LAG = 150;
+const SKY_LAG = 150; // also in globals.css `parallax-pad-sky`
 
 /** Px of extra ground under the scene (more on phones).
  *  Keep in sync with the section height and scene `bottom` classes below. */
@@ -122,6 +123,26 @@ export default function Launchpad({ id, onLaunch, children }: { id?: string; onL
   // The sky hangs back the other way. It's taller than the section by SKY_LAG, and whatever it uncovers
   // at the bottom is behind the ground.
   const skyY = useTransform(scrollYProgress, [0, 1], [reduce ? 0 : -SKY_LAG, 0]);
+  // Where the browser can, both run on the compositor instead (globals.css `.parallax-pad-*`), over the same stretch
+  // of scrolling: from the section's top entering the bottom of the screen to the end of the page.
+  const scrollDriven = useScrollDriven();
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!scrollDriven || !section) return;
+    const update = () => {
+      const top = section.getBoundingClientRect().top + window.scrollY;
+      section.style.setProperty('--pad-from', `${top - window.innerHeight}px`);
+      section.style.setProperty('--pad-to', `${top + section.offsetHeight - window.innerHeight}px`);
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(document.body);
+    window.addEventListener('resize', update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [scrollDriven]);
 
   const launch = () => {
     if (phase !== 'ready') return;
@@ -146,10 +167,10 @@ export default function Launchpad({ id, onLaunch, children }: { id?: string; onL
       id={id}
       className="relative overflow-hidden h-[max(calc(70vh_+_400px),920px)] sm:h-[max(calc(70vh_+_420px),940px)]"
     >
-      <motion.div className="absolute inset-x-0 bottom-0 will-change-transform" style={{ top: -SKY_LAG, y: skyY }}>
+      <motion.div className={`absolute inset-x-0 bottom-0 will-change-transform ${scrollDriven ? 'parallax-pad-sky' : ''}`} style={{ top: -SKY_LAG, y: scrollDriven ? 0 : skyY }}>
         <NightSky galaxy="arch" className="absolute inset-0" />
       </motion.div>
-      <motion.div className="absolute inset-0 pointer-events-none will-change-transform" style={{ y: groundY }}>
+      <motion.div className={`absolute inset-0 pointer-events-none will-change-transform ${scrollDriven ? 'parallax-pad-ground' : ''}`} style={{ y: scrollDriven ? 0 : groundY }}>
         <PaintedCanvas paint={paintSite} className="absolute inset-0 w-full h-full pointer-events-none" />
 
         {/* The scene itself, laid out above the extra ground */}
