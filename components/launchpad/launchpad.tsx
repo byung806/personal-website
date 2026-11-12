@@ -146,10 +146,10 @@ export default function Launchpad({ id, onLaunch, children }: { id?: string; onL
       id={id}
       className="relative overflow-hidden h-[max(calc(70vh_+_400px),920px)] sm:h-[max(calc(70vh_+_420px),940px)]"
     >
-      <motion.div className="absolute inset-x-0 bottom-0" style={{ top: -SKY_LAG, y: skyY }}>
+      <motion.div className="absolute inset-x-0 bottom-0 will-change-transform" style={{ top: -SKY_LAG, y: skyY }}>
         <NightSky galaxy="arch" className="absolute inset-0" />
       </motion.div>
-      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: groundY }}>
+      <motion.div className="absolute inset-0 pointer-events-none will-change-transform" style={{ y: groundY }}>
         <PaintedCanvas paint={paintSite} className="absolute inset-0 w-full h-full pointer-events-none" />
 
         {/* The scene itself, laid out above the extra ground */}

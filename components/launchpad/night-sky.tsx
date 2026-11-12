@@ -398,10 +398,12 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
       w = nw;
       h = nh;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      for (const [c, ctx] of [[milky, mctx], [live, lctx]] as const) {
-        c.width = Math.round(w * dpr);
-        c.height = Math.round(h * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // The milky way is sharp; the live layer (twinkling glitter, shooting stars, sparks) is redrawn all the time and
+      // is all tiny soft specks, so it's kept at 1x: a quarter of the pixels to push on a retina screen.
+      for (const [c, ctx, scale] of [[milky, mctx, dpr], [live, lctx, 1]] as const) {
+        c.width = Math.round(w * scale);
+        c.height = Math.round(h * scale);
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
       }
       paintGalaxy();
       glitter = Array.from({ length: Math.round((500 * w * h) / (1440 * 900)) }, () => {
@@ -501,6 +503,7 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
     io.observe(wrap);
 
     let raf = 0;
+    let wasMoving = false;
     let nextShot = performance.now() + 1200;
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
@@ -511,7 +514,11 @@ export default function NightSky({ className = '', galaxy = 'diagonal', trail = 
       }
       const refresh = now - lastGlitter > 100;
       if (refresh) lastGlitter = now;
-      drawLive(refresh);
+      // Redrawn only when something on it changed: the glitter ten times a second, and every frame only while a
+      // shooting star or sparks are moving (plus once after, to clear them away).
+      const moving = shooters.length > 0 || sparks.length > 0;
+      if (refresh || moving || wasMoving) drawLive(refresh);
+      wasMoving = moving;
     };
     raf = requestAnimationFrame(tick);
 
