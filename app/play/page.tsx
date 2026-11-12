@@ -40,7 +40,7 @@ export default function PlayPage() {
     <div>
       {/* I. The Sky */}
       <SkyBanner id="sky" ships={ships} justLaunchedId={justLaunchedId}>
-        <SectionTitle fill="space" className={TITLE_SPACING} />
+        <SectionTitle fill="rockets" className={TITLE_SPACING} />
       </SkyBanner>
 
       <TornEdge color={PAPER} seed={11} />
@@ -48,7 +48,7 @@ export default function PlayPage() {
       {/* II. Letters, which live on their own page */}
       <section
         id="letters"
-        className="pb-16 md:pb-20"
+        className="min-h-[55svh] pb-16 md:pb-20"
         style={{
           backgroundColor: PAPER,
           backgroundImage: `linear-gradient(rgba(47,85,164,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(47,85,164,0.07) 1px, transparent 1px)`,
@@ -85,7 +85,9 @@ export default function PlayPage() {
 
       {/* V. Launchpad, which the white wall mists into */}
       <Dissolve />
-      <Launchpad id="launchpad" onLaunch={onLaunch} />
+      <Launchpad id="launchpad" onLaunch={onLaunch}>
+        <SectionTitle fill="launchpad" className={TITLE_SPACING} />
+      </Launchpad>
     </div>
   );
 }

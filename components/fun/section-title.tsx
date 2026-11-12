@@ -22,9 +22,9 @@ function notesTile() {
   return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><rect width='220' height='220' fill='#f6d743'/>${notes.join('')}</svg>`)}")`;
 }
 
-/** What each section's title is filled with. Each drifts slowly (globals.css `.title-fill`). */
+/** What each section's title is filled with. Rockets and letters drift slowly (globals.css `.title-fill`); the rest hold still. */
 const FILLS: Record<string, CSSProperties> = {
-  space: {
+  rockets: {
     backgroundColor: '#3b2a9a',
     backgroundImage: [
       'radial-gradient(1.5px 1.5px at 10% 15%, #fff 50%, transparent 51%)',
@@ -64,11 +64,21 @@ const FILLS: Record<string, CSSProperties> = {
     backgroundImage: notesTile(),
     backgroundSize: '1.05em 1.05em',
   },
+  launchpad: {
+    // Rocket exhaust: white-hot at the top of each letter, burning down through gold and orange to red.
+    backgroundColor: '#f2541b',
+    backgroundImage: [
+      'radial-gradient(ellipse 18% 55% at 12% 100%, rgba(255,241,184,0.75) 0%, transparent 70%)',
+      'radial-gradient(ellipse 16% 50% at 47% 100%, rgba(255,241,184,0.6) 0%, transparent 70%)',
+      'radial-gradient(ellipse 18% 55% at 83% 100%, rgba(255,241,184,0.7) 0%, transparent 70%)',
+      'linear-gradient(180deg, #fff3c4 0%, #ffd23f 22%, #ff9a1f 48%, #f2541b 72%, #c4201a 100%)',
+    ].join(','),
+  },
 };
 
 /**
  * A section's title: one huge, heavy lowercase word filled with what the section is (a galaxy, candy cane, ink,
- * sticky notes). Every section on /play uses this, so they read as one set.
+ * sticky notes, rocket fire). Every section on /play uses this, so they read as one set.
  */
 export default function SectionTitle({ fill, children, className = '' }: { fill: keyof typeof FILLS; children?: ReactNode; className?: string }) {
   return (

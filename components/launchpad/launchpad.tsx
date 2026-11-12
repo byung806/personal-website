@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { RocketCanvas } from './ships';
 import RocketCallouts from './rocket-callouts';
@@ -103,7 +103,8 @@ function SmokePuff({ puff, seed }: { puff: Puff; seed: number }) {
  * Build a rocket on the pad and "Launch a rocket" lifts it off; `onLaunch` fires once it's out of sight
  * (with its design) and a fresh random rocket rolls out after.
  */
-export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (design: RocketDesign) => void }) {
+/** `children` (the section title) sits over the top of the scene, in the mist it rises out of. */
+export default function Launchpad({ id, onLaunch, children }: { id?: string; onLaunch: (design: RocketDesign) => void; children?: ReactNode }) {
   const [phase, setPhase] = useState<Phase>('ready');
   const [flight, setFlight] = useState<Flight | null>(null);
   const [design, setDesign] = useState(FIRST_ROCKET);
@@ -233,6 +234,7 @@ export default function Launchpad({ id, onLaunch }: { id?: string; onLaunch: (de
           </div>
         </div>
       </motion.div>
+      {children && <div className="pointer-events-none relative z-20">{children}</div>}
     </section>
   );
 }

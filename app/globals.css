@@ -171,19 +171,15 @@ html.snow-night [data-ledge] {
     0 24px 90px -12px rgba(255, 150, 70, 0.3);
 }
 
-/* /play section titles: each word is filled with its section (components/fun/section-title.tsx), drifting slowly. */
+/* /play section titles: each word is filled with its section (components/fun/section-title.tsx); rockets and letters drift slowly. */
 .title-fill {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
 }
-.title-fill-space { animation: title-nebula 24s ease-in-out infinite alternate; }
+.title-fill-rockets { animation: title-nebula 24s ease-in-out infinite alternate; }
 .title-fill-letters { animation: title-ink 30s ease-in-out infinite alternate; }
-.title-fill-christmas { animation: title-candy 6s linear infinite; }
-.title-fill-guestbook { animation: title-notes 40s linear infinite; }
 @keyframes title-nebula { to { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 30% 10%, -20% 15%, 15% -10%, -10% 20%, 0 0; } }
 @keyframes title-ink { to { background-position: 0 0, 0 0, 20% 10%, -15% 10%, 10% -10%; } }
-@keyframes title-candy { to { background-position: 0.5374em 0; } }
-@keyframes title-notes { to { background-position: 1.05em 1.05em; } }
 @media (prefers-reduced-motion: reduce) { .title-fill { animation: none; } }

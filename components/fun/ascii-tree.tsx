@@ -105,6 +105,10 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
   let whiteBuffer = new Uint8Array(0), activeBuffer = new Uint8Array(0);
   const touched: number[] = [];
   let pointerX = 0;
+  // Caches that keep each frame cheap: the still sky and ground painted once, and soft glows as sprites instead of
+  // fresh gradients.
+  const backdrop = document.createElement('canvas');
+  const glowSprites = new Map<string, HTMLCanvasElement>();
 
   // Stable, deterministic random values keep the tree's shape as it turns.
   const rng = mulberry32(7);
@@ -220,7 +224,35 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     // Leaves room above the star for the section title over the top of the night.
     unit = Math.min(H * 0.3, W * 0.55);
     baseY = H * 0.88;
+    paintBackdrop();
     render(simTime);
+  }
+
+  function paintBackdrop() {
+    backdrop.width = canvas.width; backdrop.height = canvas.height;
+    const c = backdrop.getContext('2d')!;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.fillStyle = '#070b13'; c.fillRect(0, 0, W, H);
+    const g = c.createRadialGradient(W * 0.5, H * 0.61, H * 0.05, W * 0.5, H * 0.61, Math.max(W * 0.66, H * 0.8));
+    g.addColorStop(0, '#121e2e'); g.addColorStop(0.40, '#0b1322'); g.addColorStop(1, '#060911');
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    ground(c);
+  }
+
+  /** A soft round glow in `color`, solid to `core` of its radius, then fading out. */
+  function glowSprite(color: string, core: number) {
+    const key = color + core;
+    let sprite = glowSprites.get(key);
+    if (!sprite) {
+      sprite = document.createElement('canvas');
+      sprite.width = sprite.height = 64;
+      const c = sprite.getContext('2d')!;
+      const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, color); g.addColorStop(core, color); g.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = g; c.fillRect(0, 0, 64, 64);
+      glowSprites.set(key, sprite);
+    }
+    return sprite;
   }
 
   // Screen-aligned cells act as a Z-buffer: nearer glyphs hide farther ones.
@@ -249,10 +281,7 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
 
   function skyAndSnow(t: number) {
     const c = ctx!;
-    c.fillStyle = '#070b13'; c.fillRect(0, 0, W, H);
-    const g = c.createRadialGradient(W * 0.5, H * 0.61, H * 0.05, W * 0.5, H * 0.61, Math.max(W * 0.66, H * 0.8));
-    g.addColorStop(0, '#121e2e'); g.addColorStop(0.40, '#0b1322'); g.addColorStop(1, '#060911');
-    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.drawImage(backdrop, 0, 0, W, H);
     for (const s of sky) {
       const x = s.x * W, y = s.y * H;
       const blink = 0.65 + 0.35 * Math.sin(t * 1.25 + s.phase);
@@ -269,8 +298,7 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
       else c.fillRect(x, y, f.size, f.size);
     }
   }
-  function ground(t: number) {
-    const c = ctx!;
+  function ground(c: CanvasRenderingContext2D) {
     const glow = c.createRadialGradient(W * 0.5, baseY, 8, W * 0.5, baseY, unit * 0.92);
     glow.addColorStop(0, 'rgba(151,178,156,.13)'); glow.addColorStop(0.3, 'rgba(82,107,99,.07)'); glow.addColorStop(1, 'rgba(13,25,29,0)');
     c.fillStyle = glow; c.fillRect(W * 0.5 - unit, baseY - unit * 0.44, unit * 2, unit * 1.2);
@@ -296,7 +324,6 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
       c.fillStyle = `rgba(187,201,191,${0.18 + 0.2 * (i % 7) / 7})`;
       c.fillText(i % 5 === 0 ? '*' : '.', W * 0.5 + Math.cos(a) * r, baseY + Math.sin(a) * r * 0.18);
     }
-    void t;
   }
   function tree(t: number) {
     const c = ctx!;
@@ -369,12 +396,15 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     c.globalCompositeOperation = 'lighter';
     for (const o of orbs) {
       const radius = o.r * (2.6 + 2.2 * o.white);
-      const g = c.createRadialGradient(o.x, o.y, 0, o.x, o.y, radius);
-      g.addColorStop(0, o.white > 0.02 ? `rgba(255,255,255,${0.55 * o.white})` : 'rgba(0,0,0,0)');
-      g.addColorStop(0.35, hexAlpha(o.color, 0.16 + 0.1 * o.white));
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      c.fillStyle = g; c.fillRect(o.x - radius, o.y - radius, radius * 2, radius * 2);
+      c.globalAlpha = 0.16 + 0.1 * o.white;
+      c.drawImage(glowSprite(o.color, 0.35), o.x - radius, o.y - radius, radius * 2, radius * 2);
+      if (o.white > 0.02) {
+        const core = radius * 0.6;
+        c.globalAlpha = 0.55 * o.white;
+        c.drawImage(glowSprite('#ffffff', 0), o.x - core, o.y - core, core * 2, core * 2);
+      }
     }
+    c.globalAlpha = 1;
     c.globalCompositeOperation = 'source-over';
 
     c.font = `${Math.max(6, ch * 0.98)}px Menlo,Consolas,'Courier New',monospace`;
@@ -404,10 +434,8 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
       const k = Math.sin(phase / 0.22 * Math.PI);
       const [x, y] = project(s.x, s.y, s.z);
       const size = s.size * k * (0.8 + 0.3 * dz);
-      const g = c.createRadialGradient(x, y, 0, x, y, size * 1.6);
-      g.addColorStop(0, `rgba(255,255,255,${0.5 * k})`);
-      g.addColorStop(1, 'rgba(255,255,255,0)');
-      c.fillStyle = g; c.fillRect(x - size * 1.6, y - size * 1.6, size * 3.2, size * 3.2);
+      c.globalAlpha = 0.5 * k;
+      c.drawImage(glowSprite('#ffffff', 0), x - size * 1.6, y - size * 1.6, size * 3.2, size * 3.2);
       c.globalAlpha = k;
       c.lineWidth = 0.9;
       c.beginPath();
@@ -444,12 +472,10 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     c.fillStyle = '#fff4bd'; c.fillText('+', x, y - 1);
     c.shadowBlur = 0; c.restore();
   }
+  // Builds itself once, then just keeps turning (one turn every CYCLE seconds); it never starts over.
   function render(t: number) {
-    const cyc = ((t % CYCLE) + CYCLE) % CYCLE;
-    skyAndSnow(t); ground(t);
-    tree(cyc);
-    const fade = cyc > 19 ? smooth(19, 19.95, cyc) : 0;
-    if (fade) { ctx!.fillStyle = `rgba(7,11,19,${fade})`; ctx!.fillRect(0, 0, W, H); }
+    skyAndSnow(t);
+    tree(t);
   }
   function loop(now: number) {
     raf = requestAnimationFrame(loop);
@@ -492,9 +518,4 @@ function startTree(wrap: HTMLElement, canvas: HTMLCanvasElement) {
     wrap.removeEventListener('pointermove', onMove);
     wrap.removeEventListener('pointerleave', onLeave);
   };
-}
-
-function hexAlpha(hex: string, a: number) {
-  const [r, g, b] = hexToRgb(hex);
-  return `rgba(${r},${g},${b},${a})`;
 }

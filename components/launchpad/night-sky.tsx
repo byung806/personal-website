@@ -54,6 +54,16 @@ function drawMilkyWay(ctx: CanvasRenderingContext2D, w: number, h: number) {
     dot(ctx, x, band ? bandY(x) + spread() : Math.random() * h, Math.random() * 0.35);
   }
 
+  // The clusters' faint glows go on a small layer, scaled up smoothly at the end: stacked on the full canvas,
+  // each gradient's dither lands on the same pixel grid and ~140 of them add up to a visible lattice.
+  const GLOW_SCALE = 6;
+  const GLOW_GAIN = 4; // drawn stronger on the layer, then laid on at 1/GAIN, so faint glows survive 8-bit color
+  const glowLayer = document.createElement('canvas');
+  glowLayer.width = Math.ceil(w / GLOW_SCALE);
+  glowLayer.height = Math.ceil(h / GLOW_SCALE);
+  const gctx = glowLayer.getContext('2d')!;
+  gctx.scale(1 / GLOW_SCALE, 1 / GLOW_SCALE);
+
   // Clusters along the band
   const RINGS = 10;
   const PER_RING = 12;
@@ -77,14 +87,19 @@ function drawMilkyWay(ctx: CanvasRenderingContext2D, w: number, h: number) {
         dot(ctx, px, py, r);
       }
     }
-    const glow = ctx.createRadialGradient(x, y, 0, x, y, size);
-    glow.addColorStop(0, `hsla(${hue},100%,${light}%,0.002)`);
-    glow.addColorStop(0.25, `hsla(${hue},100%,${light + 30}%,${0.012 + 0.012 * toCenter})`);
-    glow.addColorStop(0.4, `hsla(${hue},100%,${light + 15}%,0.006)`);
+    const glow = gctx.createRadialGradient(x, y, 0, x, y, size);
+    glow.addColorStop(0, `hsla(${hue},100%,${light}%,${0.002 * GLOW_GAIN})`);
+    glow.addColorStop(0.25, `hsla(${hue},100%,${light + 30}%,${(0.012 + 0.012 * toCenter) * GLOW_GAIN})`);
+    glow.addColorStop(0.4, `hsla(${hue},100%,${light + 15}%,${0.006 * GLOW_GAIN})`);
     glow.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(x - size, y - size, size * 2, size * 2);
+    gctx.fillStyle = glow;
+    gctx.fillRect(x - size, y - size, size * 2, size * 2);
   }
+  ctx.save();
+  ctx.globalAlpha = 1 / GLOW_GAIN;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(glowLayer, 0, 0, glowLayer.width * GLOW_SCALE, glowLayer.height * GLOW_SCALE);
+  ctx.restore();
 }
 
 /** Smooth value noise in [0, 1], summed over a few octaves. */

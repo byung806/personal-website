@@ -15,7 +15,7 @@ export default function SkyBanner({ id, ships, justLaunchedId, children }: { id?
   const reduce = useReducedMotion();
 
   return (
-    <div id={id} className="relative overflow-hidden bg-[#0c0f24]" style={{ height: 'max(44vh, 340px)' }}>
+    <div id={id} className="relative overflow-hidden bg-[#0c0f24]" style={{ height: 'max(78vh, 560px)' }}>
       <motion.div className="absolute inset-0" style={{ y: reduce ? 0 : skyY }}>
         <NightSky trail className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[100svh]" />
         <Fleet ships={ships} justLaunchedId={justLaunchedId} />
