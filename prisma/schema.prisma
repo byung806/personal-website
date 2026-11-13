@@ -38,6 +38,20 @@ model GuestbookRocket {
   @@map("guestbook_rockets")
 }
 
+/// An ornament a visitor hung on the /play Christmas tree: which one (ORNAMENTS in lib/ornaments.ts), where on the
+/// tree (height from base 0 to tip 1, and angle around the trunk in radians), and who, with an optional wish.
+model Ornament {
+  id        Int      @id @default(autoincrement())
+  username  String   @db.VarChar(40)
+  wish      String?  @db.VarChar(140)
+  kind      String   @db.VarChar(16)
+  height    Float
+  angle     Float
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("ornaments")
+}
+
 model Planet {
   id        Int      @id @default(autoincrement())
   drawingData String @db.Text

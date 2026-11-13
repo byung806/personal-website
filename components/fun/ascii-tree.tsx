@@ -1,34 +1,186 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { NAME_MAX, ORNAMENTS, WISH_MAX, type HungOrnament, type OrnamentKind } from '@/lib/ornaments';
+
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
 
 /**
  * A rotating ASCII Christmas tree, every needle, light and present a character in a terminal grid with a depth
  * buffer. Ported from Bryan's standalone "ASCII Christmas Tree" study, made more magical: everything is born white
  * and cools into its color, so the tree and its decorations glow into being like orbs from nothing; white sparkles
  * twinkle across it; and the colors are more vivid. It grows when scrolled into view and sleeps offscreen.
+ *
+ * Visitors hang ornaments on it: once it has built itself, everyone's ornaments glow on and a panel fades in to pick
+ * one, sign it (with an optional wish) and click a spot on the tree. Hovering an ornament shows who hung it.
  */
 /** `children` (the section title) sits over the top of the night, above the tree. */
 export default function AsciiTree({ className = '', children }: { className?: string; children?: ReactNode }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const nightRef = useRef<HTMLCanvasElement>(null);
   const treeRef = useRef<HTMLCanvasElement>(null);
+  const handle = useRef<TreeHandle>();
+  const [built, setBuilt] = useState(false);
+  const [hover, setHover] = useState<{ ornament: HungOrnament; x: number; y: number } | null>(null);
+  const [kind, setKind] = useState<OrnamentKind>('red');
+  const [name, setName] = useState('');
+  const [wish, setWish] = useState('');
+  const [placing, setPlacing] = useState(false);
+  const [status, setStatus] = useState<{ text: string; error?: boolean } | null>(null);
+  // The form's latest values, for the click on the tree (which the tree reports through a hook set up once).
+  const form = useRef({ kind, name, wish });
+  form.current = { kind, name, wish };
 
   useEffect(() => {
     const wrap = wrapRef.current;
     const night = nightRef.current;
     const tree = treeRef.current;
     if (!wrap || !night || !tree) return;
-    return startTree(wrap, night, tree);
+    const h = startTree(wrap, night, tree, {
+      onBuilt: () => setBuilt(true),
+      onHover: (ornament, x, y) => setHover(ornament ? { ornament, x, y } : null),
+      onPlace: async (height, angle) => {
+        h?.setPlacing(false);
+        setPlacing(false);
+        setStatus({ text: 'hanging it...' });
+        try {
+          const res = await fetch('/api/ornaments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: form.current.name, wish: form.current.wish, kind: form.current.kind, height, angle }),
+          });
+          const body = await res.json();
+          if (!res.ok) throw new Error(body.error || 'Something went wrong');
+          h?.add([body]);
+          setWish('');
+          setStatus({ text: 'hung it! hover it to see it' });
+        } catch (e) {
+          setStatus({ text: e instanceof Error ? e.message : 'Something went wrong', error: true });
+        }
+      },
+    });
+    handle.current = h;
+    fetch('/api/ornaments').then((r) => (r.ok ? r.json() : [])).then((list: HungOrnament[]) => h?.add(list)).catch(() => {});
+    return () => h?.stop();
   }, []);
+
+  const startPlacing = () => {
+    if (!name.trim()) return setStatus({ text: 'put your name on it first', error: true });
+    setStatus(null);
+    setPlacing(true);
+    handle.current?.setPlacing(true);
+  };
+  const cancelPlacing = () => {
+    setPlacing(false);
+    handle.current?.setPlacing(false);
+  };
+  // Escape backs out of placing, as the box's "esc" says.
+  useEffect(() => {
+    if (!placing) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setPlacing(false);
+      handle.current?.setPlacing(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [placing]);
+  const swatch = ORNAMENTS.find((o) => o.id === kind)!;
 
   return (
     <div ref={wrapRef} className={`relative overflow-hidden ${className}`}>
       {/* The night (sky, ground, snow) at 1x over the whole section; the tree at full resolution in just its own box. */}
-      <canvas ref={nightRef} role="img" aria-label="An ASCII Christmas tree growing, decorating itself and sparkling" className="absolute inset-0 block h-full w-full" />
+      <canvas ref={nightRef} role="img" aria-label="An ASCII Christmas tree growing, decorating itself and sparkling, hung with visitors' ornaments" className="absolute inset-0 block h-full w-full" />
       <canvas ref={treeRef} aria-hidden className="pointer-events-none absolute block" />
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ boxShadow: 'inset 0 0 130px 34px #060910bd' }} />
-      {children && <div className="relative">{children}</div>}
+      {children && <div className="pointer-events-none relative">{children}</div>}
+
+      {/* Who hung the ornament under the pointer */}
+      {hover && (
+        <div
+          className="pointer-events-none absolute z-20 max-w-[220px] -translate-x-1/2 -translate-y-full rounded-lg border border-white/10 bg-[#0b1220]/90 px-3 py-2 text-[11px] leading-snug text-[#dce6df] shadow-xl"
+          style={{ left: hover.x, top: hover.y - 14, fontFamily: MONO }}
+        >
+          <div style={{ color: ORNAMENTS.find((o) => o.id === hover.ornament.kind)?.swatch }}>{hover.ornament.username}</div>
+          {hover.ornament.wish && <div className="mt-0.5 text-[#dce6df]/75">&ldquo;{hover.ornament.wish}&rdquo;</div>}
+        </div>
+      )}
+
+      {/* Hang an ornament: fades in once the tree has built itself. Drawn as a little terminal box, in the tree's own
+          characters, rather than a floating card. */}
+      <div
+        className={`absolute bottom-20 left-4 z-20 text-[12px] leading-[1.6] text-[#c9d6cf] transition-opacity duration-1000 md:bottom-auto md:left-[calc(50%+max(100svh,640px)*0.12)] md:top-[52%] ${built ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        style={{ fontFamily: MONO }}
+      >
+        <div className="w-[34ch] bg-[#070b12]/85">
+          <Rule label="hang an ornament" />
+          {placing ? (
+            <Row>
+              <span>
+                <span style={{ color: swatch.swatch }}>{swatch.glyph}</span> click a spot on the tree
+              </span>
+              <button onClick={cancelPlacing} className="text-[#c9d6cf]/45 hover:text-[#c9d6cf]">esc</button>
+            </Row>
+          ) : (
+            <>
+              <Row>
+                <span className="flex gap-[1ch]">
+                  {ORNAMENTS.map((o) => (
+                    <button
+                      key={o.id}
+                      onClick={() => setKind(o.id)}
+                      aria-label={o.label}
+                      aria-pressed={kind === o.id}
+                      title={o.label}
+                      className="font-bold"
+                      style={kind === o.id ? { background: o.swatch, color: '#070b12' } : { color: o.swatch }}
+                    >
+                      [{o.glyph}]
+                    </button>
+                  ))}
+                </span>
+              </Row>
+              <Row>
+                <label className="flex w-full">
+                  <span className="text-[#ffd95a]">name&gt;&nbsp;</span>
+                  <input value={name} onChange={(e) => setName(e.target.value)} maxLength={NAME_MAX} placeholder="________" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#c9d6cf]/25" />
+                </label>
+              </Row>
+              <Row>
+                <label className="flex w-full">
+                  <span className="text-[#ffd95a]">wish&gt;&nbsp;</span>
+                  <input value={wish} onChange={(e) => setWish(e.target.value)} maxLength={WISH_MAX} placeholder="(optional)" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#c9d6cf]/25" />
+                </label>
+              </Row>
+              <Row>
+                <button onClick={startPlacing} className="hover:bg-[#c9d6cf] hover:text-[#070b12]">[ hang it ]</button>
+              </Row>
+            </>
+          )}
+          {status && !placing && (
+            <Row>
+              <span className={status.error ? 'text-[#ff8a8a]' : 'text-[#c9d6cf]/60'}>{status.text}</span>
+            </Row>
+          )}
+          <Rule />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** A border line of the ornament box, `+-- label ----+`, filling its 34ch width. */
+function Rule({ label }: { label?: string }) {
+  const text = label ? `+-- ${label} ` : '+';
+  return <div aria-hidden={!label} className="whitespace-pre text-[#c9d6cf]/50">{text + '-'.repeat(33 - text.length) + '+'}</div>;
+}
+/** A line inside the ornament box, between its side borders. */
+function Row({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex whitespace-pre">
+      <span aria-hidden className="text-[#c9d6cf]/50">| </span>
+      <span className="flex min-w-0 flex-1 items-center justify-between gap-[1ch]">{children}</span>
+      <span aria-hidden className="text-[#c9d6cf]/50"> |</span>
     </div>
   );
 }
@@ -37,7 +189,7 @@ const CYCLE = 20;
 const TAU = Math.PI * 2;
 const HEIGHT = 1.66;
 const RADIUS = 0.66;
-const GLYPHS = 'x+*:o%/=-.#@';
+const GLYPHS = 'x+*:o%/=-.#@&';
 // How long things stay white after they appear before cooling into their color (seconds).
 const LEAF_BIRTH = 1.6;
 const DECOR_BIRTH = 1.3;
@@ -87,7 +239,21 @@ const BASE_COLORS = [
   '#637984', '#a7b8b7', '#e6e7d5', '#faf5d1', // ice 20..23
   '#132c65', '#2044a1', '#3777d2', '#9ac5f3', // blue 24..27
   '#49535d', '#a6a4a2', '#c4ab8a', // ground 28..30
+  '#9c2a63', '#d6438f', '#ff6fae', '#ffb3d4', // pink 31..34 (visitors' ornaments)
+  '#3d2a8a', '#6b4ad6', '#9b7bff', '#cbb8ff', // purple 35..38
 ];
+/** Visitor ornaments use the same character alphabet as the tree, with no painted body. */
+const ORNAMENT_LOOK: Record<string, { color: number; rows: [string, string, string] }> = {
+  red: { color: 17, rows: ['  +  ', ' <#> ', ' /+\\ '] },
+  gold: { color: 13, rows: [' \\|/ ', '--*--', ' /|\\ '] },
+  silver: { color: 22, rows: ['  +  ', '<###>', '  +  '] },
+  blue: { color: 26, rows: [' /+\\ ', '<@#@>', ' \\+/ '] },
+  pink: { color: 33, rows: [' \\*/ ', '<%%%>', ' /*\\ '] },
+  purple: { color: 37, rows: ['  +  ', ' /&\\ ', ' \\#/ '] },
+};
+/** When the tree has finished building and decorating itself: visitors' ornaments glow on after this. */
+const BUILT_AT = 10.4;
+const BUILD_SPEED = 2.6; // 10.4 simulated seconds in about four real seconds.
 const COLORS = BASE_COLORS.map((c, i) => (i < 20 || (i >= 24 && i < 28) ? (i < 10 ? vivid(c, 1.6, 1.22) : vivid(c, 1.45)) : c));
 // COLORS[c] blended toward white: SHADES[c][level], level 0 = own color, LEVELS - 1 = pure white.
 const SHADES = COLORS.map(c => {
@@ -104,7 +270,22 @@ const SHADES = COLORS.map(c => {
  * whole section, and the tree, its lights and star at full resolution on a canvas only as big as the tree, so the
  * sharp, busy part of each frame covers a fraction of the screen.
  */
-function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanvasElement) {
+type TreeHooks = {
+  /** The tree has finished building (once). */
+  onBuilt: () => void;
+  /** The pointer is over a visitor's ornament (null when it leaves one); x and y are in the section's pixels. */
+  onHover: (ornament: HungOrnament | null, x: number, y: number) => void;
+  /** While placing, the visitor clicked a spot on the tree. */
+  onPlace: (height: number, angle: number) => void;
+};
+export type TreeHandle = {
+  stop: () => void;
+  /** Hangs ornaments: ones loaded together glow on one after another; a single new one glows on right away. */
+  add: (ornaments: HungOrnament[]) => void;
+  setPlacing: (placing: boolean) => void;
+};
+
+function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanvasElement, hooks: TreeHooks): TreeHandle | undefined {
   const bg = night.getContext('2d', { alpha: false });
   const ctx = canvas.getContext('2d');
   if (!ctx || !bg) return;
@@ -119,6 +300,13 @@ function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanv
   let whiteBuffer = new Uint8Array(0), activeBuffer = new Uint8Array(0);
   const touched: number[] = [];
   let pointerX = 0;
+  // Visitors' ornaments, when each glows on (sim time), where each was drawn last frame (for hovering), and placing.
+  type Hung = { data: HungOrnament; born: number };
+  const hung: Hung[] = [];
+  const hits: { x: number; y: number; o: Hung }[] = [];
+  let hovered: Hung | null = null;
+  let placing = false;
+  let built = false;
   // Caches that keep each frame cheap: the still sky and ground painted once, and soft glows as sprites instead of
   // fresh gradients.
   const backdrop = document.createElement('canvas');
@@ -129,7 +317,7 @@ function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanv
   const rand = (lo = 0, hi = 1) => lo + (hi - lo) * rng();
   const pick = <T,>(a: T[]) => a[(rng() * a.length) | 0];
   const growAt = (y: number) => unsmooth(0.1, 4.6, (y - 0.005) / HEIGHT);
-  const decorAt = (share: number) => unsmooth(5.8, 9.8, share);
+  const decorAt = (share: number) => unsmooth(4.0, 9.8, share);
 
   type Glyph = { x: number; y: number; z: number; char: number; tint: number; flick: number; born: number };
   const glyphs: Glyph[] = [];
@@ -354,7 +542,7 @@ function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanv
     c.clearRect(0, 0, canvas.width, canvas.height);
     c.setTransform(dpr, 0, 0, dpr, -boxX * dpr, -boxY * dpr);
     const grow = smooth(0.1, 4.6, t);
-    const decorate = smooth(5.8, 9.8, t);
+    const decorate = smooth(4.0, 9.8, t);
     const presents = smooth(7.3, 10.2, t);
     const starPower = smooth(7.8, 10.2, t);
     angle = t * TAU / CYCLE + pointerX * 0.10;
@@ -406,6 +594,21 @@ function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanv
         orbs.push({ x: p[0], y: p[1], r: b.radius * unit, white, color: COLORS[base + 2] });
       }
     }
+    // Visitors' ornaments, once the tree has built itself, each glowing on white like everything else on it.
+    hits.length = 0;
+    const ornaments: { x: number; y: number; rows: [string, string, string]; color: number; white: number; shade: number }[] = [];
+    for (const o of hung) {
+      if (t < o.born) continue;
+      const look = ORNAMENT_LOOK[o.data.kind] ?? ORNAMENT_LOOK.red;
+      const r = RADIUS * (1 - o.data.height) ** 0.92 * 1.06;
+      const x = Math.cos(o.data.angle) * r, z = Math.sin(o.data.angle) * r, y = o.data.height * HEIGHT;
+      const dz = z * cosA + x * sinA;
+      if (dz < -0.12) continue;
+      const white = Math.max(whiteness(t, o.born, DECOR_BIRTH), o === hovered ? 0.35 : 0);
+      const p = project(x, y, z);
+      if (dz > -0.02) ornaments.push({ x: p[0], y: p[1], rows: look.rows, color: look.color, white, shade: clamp(0.75 + dz * 0.4, 0.45, 1) });
+      if (dz > 0) hits.push({ x: p[0], y: p[1], o });
+    }
     if (presents > 0) {
       for (const box of gifts) {
         for (const p of box) {
@@ -418,7 +621,7 @@ function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanv
       }
     }
 
-    // Soft light behind each bauble, white-hot as it's born.
+    // Soft light behind the tree's own baubles, white-hot as they're born.
     c.globalCompositeOperation = 'lighter';
     for (const o of orbs) {
       const radius = o.r * (2.6 + 2.2 * o.white);
@@ -448,8 +651,26 @@ function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanv
       if (key !== last) { c.fillStyle = SHADES[colorBuffer[idx]][whiteBuffer[idx]]; last = key; }
       c.fillText(GLYPHS[glyphBuffer[idx]], (idx % cols) * cw, ((idx / cols) | 0) * ch + ch * 0.8);
     }
+    drawVisitorOrnaments(ornaments);
     drawSparkles(t, maxY);
     if (starPower > 0.01) drawStar(starPower, t);
+  }
+  /** Each visitor ornament is a three-line ASCII motif, scaled above the tree's single-cell lights. */
+  function drawVisitorOrnaments(ornaments: { x: number; y: number; rows: [string, string, string]; color: number; white: number; shade: number }[]) {
+    if (!ornaments.length) return;
+    const c = ctx!;
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.font = `bold ${Math.max(10, ch * 1.5)}px Menlo,Consolas,monospace`;
+    for (const ornament of ornaments) {
+      const level = Math.round(clamp(ornament.white) * (LEVELS - 1));
+      c.globalAlpha = ornament.shade;
+      c.fillStyle = SHADES[ornament.color][level];
+      ornament.rows.forEach((row, i) => c.fillText(row, ornament.x, ornament.y + (i - 1) * ch * 1.55));
+    }
+    c.globalAlpha = 1;
+    c.textAlign = 'left';
+    c.textBaseline = 'alphabetic';
   }
   function drawSparkles(t: number, maxY: number) {
     const c = ctx!;
@@ -511,19 +732,66 @@ function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanv
   function loop(now: number) {
     raf = requestAnimationFrame(loop);
     if (!lastFrame) lastFrame = now;
-    const dt = Math.min((now - lastFrame) / 1000, 0.05); lastFrame = now;
-    if (!reducedMotion) simTime += dt;
+    // Real time even on a slow machine (capped only so a long stall, like a hidden tab, doesn't jump ahead).
+    const dt = Math.min((now - lastFrame) / 1000, 0.25); lastFrame = now;
+    if (!reducedMotion) simTime += dt * (built ? 1 : BUILD_SPEED);
     // Up to 30fps, enough for a soft terminal animation.
     if (now - lastDraw >= 32) { render(simTime); lastDraw = now; }
+    if (!built && simTime >= BUILT_AT) { built = true; hooks.onBuilt(); }
+  }
+
+  /** Where on the tree a point in the section lands, as (height, angle), or null if it misses the tree. */
+  function treeSpot(sx: number, sy: number) {
+    let height = (baseY - sy) / (HEIGHT * unit), angle = 0;
+    for (let k = 0; k < 4; k++) {
+      if (height < 0.04 || height > 0.97) return null;
+      const r = RADIUS * (1 - height) ** 0.92 * 1.06;
+      const px = (sx - W / 2) / unit;
+      // On the front of the tree, cos(angle + turn) is how far across it the point is.
+      const c = px / r;
+      if (Math.abs(c) > 1.08) return null;
+      const front = Math.acos(clamp(c, -1, 1));
+      const dz = r * Math.sin(front);
+      const persp = 1 - 0.12 * dz;
+      const across = clamp(px / persp / r, -1, 1);
+      angle = Math.acos(across) - Math.atan2(sinA, cosA);
+      height = (baseY + dz * unit * 0.14 - sy) / (HEIGHT * unit);
+    }
+    return { height: clamp(height, 0.04, 0.96), angle };
   }
 
   const onMove = (e: PointerEvent) => {
     const b = wrap.getBoundingClientRect();
-    pointerX = clamp((e.clientX - b.left) / b.width * 2 - 1, -1, 1);
+    const x = e.clientX - b.left, y = e.clientY - b.top;
+    pointerX = clamp(x / b.width * 2 - 1, -1, 1);
+    if (placing) {
+      night.style.cursor = treeSpot(x, y) ? 'crosshair' : '';
+      return;
+    }
+    let best: Hung | null = null, bestD = 27 * 27, bx = 0, by = 0;
+    for (const h of hits) {
+      const d = (h.x - x) ** 2 + (h.y - y) ** 2;
+      if (d < bestD) { bestD = d; best = h.o; bx = h.x; by = h.y; }
+    }
+    if (best !== hovered) {
+      hovered = best;
+      night.style.cursor = best ? 'pointer' : '';
+      hooks.onHover(best?.data ?? null, bx, by);
+    }
   };
-  const onLeave = () => { pointerX = 0; };
+  const onLeave = () => {
+    pointerX = 0;
+    if (hovered) { hovered = null; hooks.onHover(null, 0, 0); }
+  };
+  const onClick = (e: MouseEvent) => {
+    if (!placing) return;
+    const b = wrap.getBoundingClientRect();
+    const spot = treeSpot(e.clientX - b.left, e.clientY - b.top);
+    if (spot) hooks.onPlace(spot.height, spot.angle);
+  };
   wrap.addEventListener('pointermove', onMove);
   wrap.addEventListener('pointerleave', onLeave);
+  night.addEventListener('click', onClick);
   const resizer = new ResizeObserver(resize);
   resizer.observe(wrap);
   // Runs only while on screen; it starts growing the first time it's seen.
@@ -542,11 +810,25 @@ function startTree(wrap: HTMLElement, night: HTMLCanvasElement, canvas: HTMLCanv
   watcher.observe(wrap);
   resize();
 
-  return () => {
-    cancelAnimationFrame(raf);
-    resizer.disconnect();
-    watcher.disconnect();
-    wrap.removeEventListener('pointermove', onMove);
-    wrap.removeEventListener('pointerleave', onLeave);
+  return {
+    stop: () => {
+      cancelAnimationFrame(raf);
+      resizer.disconnect();
+      watcher.disconnect();
+      wrap.removeEventListener('pointermove', onMove);
+      wrap.removeEventListener('pointerleave', onLeave);
+      night.removeEventListener('click', onClick);
+    },
+    add: (ornaments) => {
+      const start = Math.max(BUILT_AT + 0.2, simTime);
+      // A batch (everyone's, on load) glows on one after another over about three seconds; one new one at once.
+      const step = ornaments.length > 1 ? Math.min(0.08, 3 / ornaments.length) : 0;
+      ornaments.forEach((data, i) => hung.push({ data, born: start + i * step }));
+    },
+    setPlacing: (p) => {
+      placing = p;
+      night.style.cursor = '';
+      if (p && hovered) { hovered = null; hooks.onHover(null, 0, 0); }
+    },
   };
 }
