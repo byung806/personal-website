@@ -25,6 +25,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
     }
   }, [isInitialLoad]);
 
+  if (pathname === '/minion') return <>{children}</>;
+
   return (
     <AnimatePresence mode="wait">
       <motion.div

@@ -14,7 +14,7 @@ const OVERLAY_HEADER_ROUTES = ['/p/planet-garden', '/fun', '/play', '/letters'];
 
 export default function HeroSection() {
   const pathname = usePathname();
-  if (pathname === '/days' || pathname === '/memories' || pathname.startsWith('/memories/')) return null;
+  if (pathname === '/minion' || pathname === '/days' || pathname === '/memories' || pathname.startsWith('/memories/')) return null;
   const isWorkPage = pathname === '/' || pathname.startsWith('/p/');
   const isPlayPage = pathname === '/play' || pathname.startsWith('/letters');
   const showBackButton = pathname.startsWith('/p/');
