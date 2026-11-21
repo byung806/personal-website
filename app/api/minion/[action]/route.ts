@@ -6,7 +6,7 @@ const privateHeaders = { 'Cache-Control': 'no-store, private', 'X-Content-Type-O
 
 async function proxy(request: NextRequest, { params }: { params: { action: string } }) {
   const action = params.action;
-  if (!['login', 'logout', 'messages'].includes(action) || (request.method === 'GET' && action !== 'messages')) {
+  if (!['login', 'logout', 'messages', 'activity'].includes(action) || (request.method === 'GET' && !['messages', 'activity'].includes(action))) {
     return NextResponse.json({ error: 'Not found.' }, { status: 404, headers: privateHeaders });
   }
   if (request.method === 'POST' && !['https://bryan-yung.com', 'https://www.bryan-yung.com',
@@ -19,6 +19,7 @@ async function proxy(request: NextRequest, { params }: { params: { action: strin
       return NextResponse.json({ error: 'Message is too large.' }, { status: 413, headers: privateHeaders });
     }
     const url = new URL(`/dashboard/${action}`, backend);
+    if (action === 'activity') url.searchParams.set('job', request.nextUrl.searchParams.get('job') || '');
     if (action === 'messages') url.searchParams.set('after', request.nextUrl.searchParams.get('after') || '0');
     const session = request.cookies.get('minion_session')?.value;
     const response = await fetch(url, {

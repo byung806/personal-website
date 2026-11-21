@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { LockKeyhole, LogOut, ArrowUp, RotateCcw } from 'lucide-react';
+import { LockKeyhole, LogOut, ArrowUp, RotateCcw, Workflow } from 'lucide-react';
+import { GlassButton, GlassCard } from '@zakisheriff/liquid-glass';
+import '@zakisheriff/liquid-glass/styles.css';
 import './minion.css';
+import ActivityPanel from './activity-panel';
 
 type Message = { id: string; cursor?: number; direction: 'in' | 'out'; text: string; at: number;
-  action?: string; pending?: 'sending' | 'queued' | 'failed' };
+  job?: string; action?: string; pending?: 'sending' | 'queued' | 'failed' };
 const time = (at: number) => new Date(at * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
 function MessageText({ text }: { text: string }) {
@@ -14,6 +17,8 @@ function MessageText({ text }: { text: string }) {
 }
 
 export default function Chat() {
+  const [activityOpen, setActivityOpen] = useState(false);
+  const [inspectJob, setInspectJob] = useState('');
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [pattern, setPattern] = useState<number[]>([]);
   const [unlocking, setUnlocking] = useState(false);
@@ -117,7 +122,8 @@ export default function Chat() {
     } catch { setError('Could not sign out. Please try again.'); }
   }
 
-  if (authenticated !== true) return <main className="minion-shell minion-lock">
+  if (authenticated !== true) return <main data-theme="light" className="minion-shell minion-lock">
+    <GlassCard className="minion-login-surface" padding="26px" radius="30px" intensity={3}>
     <form onSubmit={login} className="minion-login">
       <div className="minion-wordmark"><span className="minion-mark">m</span>minion<span className="minion-private"><LockKeyhole size={13} /> private</span></div>
       <h1>Sign in.</h1><p>Continue your conversation with Minion.</p>
@@ -133,18 +139,20 @@ export default function Chat() {
         </div>
         <div className="minion-pattern-actions"><button type="button" disabled={!pattern.length || unlocking} onClick={() => { setPattern([]); setError(''); }}>Clear</button>
           <span role="status">{unlocking ? 'Checking…' : `${pattern.length} selected`}</span></div>
-        <button className="minion-unlock" disabled={unlocking || pattern.length < 3}>{unlocking ? 'Opening…' : 'Open Minion'}</button>
+        <GlassButton type="submit" variant="filled" tint="#007aff" className="minion-unlock" disabled={unlocking || pattern.length < 3}>{unlocking ? 'Opening…' : 'Open Minion'}</GlassButton>
         <small>Only you. This browser stays signed in for 30 days.</small>
       </>}
       {error && <p className="minion-error" role="alert">{error}</p>}
-    </form>
+    </form></GlassCard>
   </main>;
 
-  return <main className="minion-shell">
-    <header className="minion-header"><div className="minion-wordmark"><span className="minion-mark">m</span>minion</div>
+  return <main data-theme="light" className="minion-shell">
+    <GlassCard className="minion-toolbar-surface" padding="0" radius="24px" intensity={3}><header className="minion-header"><div className="minion-wordmark"><span className="minion-mark">m</span>minion</div>
       <div className="minion-connection" role="status"><span className={connected ? 'online' : ''} />{connected ? 'Connected' : 'Reconnecting…'}</div>
-      <button className="minion-logout" onClick={logout} aria-label="Sign out" title="Sign out"><LogOut size={17} /></button>
-    </header>
+      <GlassButton size="sm" variant="tinted" className={`minion-debug-toggle ${activityOpen ? 'selected' : ''}`} onClick={() => setActivityOpen(!activityOpen)} aria-pressed={activityOpen} title="Live activity" aria-label="Activity" icon={<Workflow size={18} />}><span>Activity</span></GlassButton>
+      <GlassButton size="sm" variant="clear" className="minion-logout" onClick={logout} aria-label="Sign out" title="Sign out" icon={<LogOut size={17} />} />
+    </header></GlassCard>
+    <div className={`minion-workspace ${activityOpen ? 'activity-visible' : ''}`}><div className="minion-chat-column">
     <div className="minion-timeline" ref={scroll} onScroll={() => { const el = scroll.current; if (el) stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100; }}>
       <div className="minion-conversation" role="log" aria-label="Conversation">
         <div className="minion-history-label">Your conversation</div>
@@ -158,7 +166,8 @@ export default function Chat() {
               {message.direction === 'out' && <span className="minion-avatar" aria-label="Minion">m</span>}
               <div className="minion-message-content"><div className="minion-bubble"><MessageText text={message.text} /></div>
                 <div className="minion-message-meta"><time dateTime={new Date(message.at * 1000).toISOString()}>{time(message.at)}</time>
-                  {message.pending === 'sending' && ' · Sending…'}{message.pending === 'queued' && ' · Received'}
+                  {message.direction === 'in' && message.job && <button className="minion-inspect" aria-label="Inspect request" title="Inspect request" onClick={() => { setInspectJob(message.job!); setActivityOpen(true); }}><Workflow size={13} /></button>}
+                  {message.pending === 'sending'  && ' · Sending…'}{message.pending === 'queued' && ' · Received'}
                   {message.pending === 'failed' && <button onClick={() => send(message)}><RotateCcw size={12} /> Retry</button>}
                 </div>
               </div>
@@ -169,13 +178,14 @@ export default function Chat() {
         {!working && ['failed', 'uncertain'].includes(latestState) && <p className="minion-error">The last request didn’t finish. Send a follow-up to check where it stopped.</p>}
       </div>
     </div>
-    <footer className="minion-composer-wrap"><form className="minion-composer" onSubmit={e => { e.preventDefault(); send(); }}>
+    <footer className="minion-composer-wrap"><form className="minion-compose-form" onSubmit={e => { e.preventDefault(); send(); }}><GlassCard className="minion-composer" padding="6px 7px 6px 16px" radius="26px" intensity={3}>
       <label className="sr-only" htmlFor="minion-message">Message Minion</label>
       <textarea id="minion-message" ref={input} value={text} onChange={e => setText(e.target.value)} placeholder="Message Minion…" rows={1} maxLength={8000}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} />
-      <button type="submit" aria-label="Send message" disabled={!text.trim()}><ArrowUp size={21} strokeWidth={3} /></button>
-    </form>{error && <p className="minion-error" role="alert">{error}</p>}
+      <GlassButton size="sm" variant="filled" tint="#007aff" type="submit" aria-label="Send message" disabled={!text.trim()} icon={<ArrowUp size={21} strokeWidth={3} />} />
+    </GlassCard></form>{error && <p className="minion-error" role="alert">{error}</p>}
       <div className="minion-composer-note"><LockKeyhole size={11} /> Private conversation<span>Enter to send · Shift + Enter for a new line</span></div>
     </footer>
+    </div>{activityOpen && <ActivityPanel job={inspectJob} onJob={setInspectJob} onClose={() => setActivityOpen(false)} onExpired={() => { setAuthenticated(false); setMessages([]); }} />}</div>
   </main>;
 }
