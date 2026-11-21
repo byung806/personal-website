@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { LockKeyhole, LogOut, Send, RotateCcw } from 'lucide-react';
+import { LockKeyhole, LogOut, ArrowUp, RotateCcw } from 'lucide-react';
 import './minion.css';
 
 type Message = { id: string; cursor?: number; direction: 'in' | 'out'; text: string; at: number;
@@ -15,7 +15,7 @@ function MessageText({ text }: { text: string }) {
 
 export default function Chat() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
-  const [password, setPassword] = useState('');
+  const [pattern, setPattern] = useState<number[]>([]);
   const [unlocking, setUnlocking] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
@@ -77,11 +77,11 @@ export default function Chat() {
   async function login(e: React.FormEvent) {
     e.preventDefault(); setUnlocking(true); setError('');
     try {
-      const response = await fetch('/api/minion/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+      const response = await fetch('/api/minion/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pattern }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
-      setPassword(''); cursor.current = 0; setAuthenticated(true);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Could not sign in.'); }
+      setPattern([]); cursor.current = 0; setAuthenticated(true);
+    } catch (e) { setPattern([]); setError(e instanceof Error ? e.message : 'Could not sign in.'); }
     finally { setUnlocking(false); }
   }
 
@@ -122,9 +122,18 @@ export default function Chat() {
       <div className="minion-wordmark"><span className="minion-mark">m</span>minion<span className="minion-private"><LockKeyhole size={13} /> private</span></div>
       <h1>Sign in.</h1><p>Continue your conversation with Minion.</p>
       {authenticated === null ? <p role="status">{connected ? 'Opening your conversation…' : 'Connecting…'}</p> : <>
-        <label htmlFor="minion-password">Password</label>
-        <input id="minion-password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} autoFocus />
-        <button className="minion-unlock" disabled={unlocking}>{unlocking ? 'Opening…' : 'Open Minion'}</button>
+        <p className="minion-pattern-hint" id="pattern-help">Tap your pattern in order.</p>
+        <div className="minion-pattern" role="group" aria-label="Unlock pattern" aria-describedby="pattern-help">
+          <svg viewBox="0 0 270 270" aria-hidden="true"><polyline points={pattern.map(dot => `${45 + dot % 3 * 90},${45 + Math.floor(dot / 3) * 90}`).join(' ')} /></svg>
+          {['Top left', 'Top center', 'Top right', 'Middle left', 'Center', 'Middle right', 'Bottom left', 'Bottom center', 'Bottom right'].map((label, dot) => <button
+            key={label} type="button" aria-label={label} aria-pressed={pattern.includes(dot)} disabled={unlocking}
+            onClick={() => { if (!pattern.includes(dot)) { setPattern([...pattern, dot]); setError(''); } }}>
+            <span>{pattern.includes(dot) ? pattern.indexOf(dot) + 1 : ''}</span>
+          </button>)}
+        </div>
+        <div className="minion-pattern-actions"><button type="button" disabled={!pattern.length || unlocking} onClick={() => { setPattern([]); setError(''); }}>Clear</button>
+          <span role="status">{unlocking ? 'Checking…' : `${pattern.length} selected`}</span></div>
+        <button className="minion-unlock" disabled={unlocking || pattern.length < 3}>{unlocking ? 'Opening…' : 'Open Minion'}</button>
         <small>Only you. This browser stays signed in for 30 days.</small>
       </>}
       {error && <p className="minion-error" role="alert">{error}</p>}
@@ -164,7 +173,7 @@ export default function Chat() {
       <label className="sr-only" htmlFor="minion-message">Message Minion</label>
       <textarea id="minion-message" ref={input} value={text} onChange={e => setText(e.target.value)} placeholder="Message Minion…" rows={1} maxLength={8000}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} />
-      <button type="submit" aria-label="Send message" disabled={!text.trim()}><Send size={18} /></button>
+      <button type="submit" aria-label="Send message" disabled={!text.trim()}><ArrowUp size={21} strokeWidth={3} /></button>
     </form>{error && <p className="minion-error" role="alert">{error}</p>}
       <div className="minion-composer-note"><LockKeyhole size={11} /> Private conversation<span>Enter to send · Shift + Enter for a new line</span></div>
     </footer>
